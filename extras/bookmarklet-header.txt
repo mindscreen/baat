@@ -1,0 +1,1 @@
+javascript:/*BAAT v{baat.version}*/

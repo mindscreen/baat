@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "target": "ES6",
+    "module": "es6",
+    "lib": ["es2019", "dom"],
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "./build",
+    "strict": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "jsx": "react",
+    "jsxFactory": "baact",
+    "jsxFragmentFactory": "baact",
+    "rootDirs": ["src", "baact"],
+    "typeRoots": [ "node_modules/@types", "baact" ]
+  },
+  "include": ["src", "baact"]
+}
