@@ -108,3 +108,5 @@ gulp.task('rollup-bookmarklet', function () {
 gulp.task('build.bookmarklet', gulp.series('transpile-ts', 'rollup-bookmarklet'));
 
 gulp.task('build.userscript', gulp.series('transpile-ts', 'rollup-userscript'));
+
+gulp.task('default', gulp.series('transpile-ts', 'rollup-bookmarklet', 'rollup-userscript'));
