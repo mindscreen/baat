@@ -23,7 +23,7 @@ jobs:
         npm install
         gulp
     - name: package-version
-      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> build/version.txt
+      run: node -p -e '`${require("./package.json").version}`' >> build/version.txt
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.2
       with:
@@ -39,13 +39,15 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifact
+      - name: Set tagname
+        run: echo "TAGNAME=$(echo cat version.txt)" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ `cat math-homework.txt` }}
+          tag_name: v${{ env.TAGNAME }}
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
