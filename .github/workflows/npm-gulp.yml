@@ -52,7 +52,7 @@ jobs:
       - name: Set tagname
         shell: bash
         run: |
-          value=`cat version.txt`
+          version=`cat version.txt`
           echo "TAGNAME=$version" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
@@ -61,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ env.TAGNAME }}
-          release_name: Release ${{ github.ref }}
+          release_name: Release v${{ env.TAGNAME }}
           body: |
             Changes in this Release
             - First Change
