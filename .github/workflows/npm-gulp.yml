@@ -24,6 +24,16 @@ jobs:
         gulp
     - name: package-version
       run: node -p -e '`${require("./package.json").version}`' >> build/version.txt
+    - name: package-version environment
+      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+    - name: package-version-to-git-tag
+      uses: pkgdeps/git-tag-action@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_repo: ${{ github.repository }}
+        version: ${{ env.PACKAGE_VERSION }}
+        git_commit_sha: ${{ github.sha }}
+        git_tag_prefix: "v"
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.2
       with:
