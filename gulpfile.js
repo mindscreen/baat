@@ -13,6 +13,9 @@ const browserSync = require('browser-sync').create()
 const sourcemaps = require('gulp-sourcemaps')
 const path = require('path')
 const replace = require('gulp-replace');
+const dotenv = require('dotenv');
+
+dotenv.config({ debug: true });
 
 gulp.task('serve', function( cb ){
     browserSync.init({
@@ -35,6 +38,7 @@ gulp.task('serve:reload' , function(cb) {
 });
 
 gulp.task('transpile-ts', function () {
+    console.log(process.env.THEME_PRIMARY)
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject())
@@ -45,9 +49,9 @@ gulp.task('transpile-ts', function () {
             }
         }))
         .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
-        .pipe(replace('@PRIMARY@', String(process.env.theme_primary)))
-        .pipe(replace('@PRIMARY_LIGHT@', String(process.env.theme_primary_light)))
-        .pipe(replace('@PRIMARY_DARK@', String(process.env.theme_primary_dark)))
+        .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY)))
+        .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT)))
+        .pipe(replace('@PRIMARY_DARK@', String(process.env.THEME_PRIMARY_DARK)))
         .pipe(gulp.dest('intermediate'))
 })
 
