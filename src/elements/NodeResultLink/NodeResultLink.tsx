@@ -69,7 +69,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         } else {
             name = this.result?.element ? ownText(this.result?.element).trim() : ""
 
-            if (name === "") name = this.result?.target.join(', ') ?? this.result?.element?.tagName.toLowerCase() ?? ""
+            if (name === "") name = this.result?.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
         }
 
         this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
