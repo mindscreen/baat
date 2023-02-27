@@ -1,7 +1,7 @@
 import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { FilterSettings } from '../FilterSettings/FilterSettings'
 import { Accordion } from '../Accordion/Accordion'
 import { LibSelection } from '../LibSelection/LibSelection'
@@ -58,8 +58,8 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     <div>
                         <Checkbox
                             id='autorun'
-                            checked={baat.getSetting<boolean>('autorun')}
-                            onChange={function (this: HTMLInputElement) { baat.setSetting('autorun', this.checked); if(axeExists()) { baat.runAxe() } }}
+                            checked={window[baatSymbol].getSetting<boolean>('autorun')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('autorun', this.checked); if(axeExists()) { window[baatSymbol].runAxe() } }}
                             label='auto run when loaded'
                         />
                     </div>
@@ -89,8 +89,8 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     <div>
                         <Checkbox
                             id='developer'
-                            checked={baat.getSetting<boolean>('developer')}
-                            onChange={function (this: HTMLInputElement) { baat.setSetting('developer', this.checked) }}
+                            checked={window[baatSymbol].getSetting<boolean>('developer')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('developer', this.checked) }}
                             label='developer mode'
                         />
                     </div>
@@ -99,7 +99,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     <h2>
                         BAAT
                     </h2>
-                    <div role="doc-subtitle">Bookmarklet Accessibility Audit Tool v{baat.version}</div>
+                    <div role="doc-subtitle">Bookmarklet Accessibility Audit Tool v{window[baatSymbol].version}</div>
                     <p>
                         BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.
                     </p>
@@ -112,7 +112,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                 </div>
             </div>
         )
-        baat.addEventListener(BAATEvent.ChangeCore, () => this.update());
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => this.update());
     }
 }
 

@@ -170,4 +170,10 @@ export class BAAT extends EventTarget {
     }
 }
 
-export const baat = BAAT.getInstance();
+export const baatSymbol = Symbol.for('baat-core-script');
+
+declare global {
+    interface Window { [baatSymbol]: BAAT; }
+}
+
+window[baatSymbol] = BAAT.getInstance();

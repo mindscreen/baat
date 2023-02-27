@@ -3,7 +3,7 @@ import { axeExists } from '../../util/axe'
 import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { BAATEvent } from '../../types'
@@ -88,7 +88,7 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
                 var reader = new FileReader()
                 reader.readAsText(file, 'UTF-8')
                 reader.onload = function (evt) {
-                    baat.createScript((evt?.target?.result as string) ?? '')
+                    window[baatSymbol].createScript((evt?.target?.result as string) ?? '')
                 }
             }
         }
@@ -101,11 +101,11 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
                 </div>
                 <div id='loadedContainer' ref={this.loadedContainerRef}>
                     <div id='loadedText' ref={this.loadedTextRef}></div>
-                    <button type='button' id='reloadButton' onClick={() => baat.unloadAxe()}>Change</button>
+                    <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
                 </div>
             </div>
         )
-        baat.addEventListener(BAATEvent.ChangeCore, () => this.update())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => this.update())
 
         this.initialized = true;
     }
