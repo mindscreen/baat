@@ -200,8 +200,20 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </tbody>
                 </table>
             )
+            let cache: Array<any> = [];
+
             this.resultsContainerRef.value.appendChild(
-                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(baat.fullReport))}>
+                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(baat.fullReport, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (value.hasOwnProperty('element') && value.element instanceof HTMLElement) {
+                            const result = { ...value }
+                            delete result['element']
+                            return result
+                        }
+                        cache.push(value)
+                    }
+                    return value;
+                }))}>
                     <Icon width="16" height="16"><path d="m6 2h33l7 7v33c0 2.26-1.74 4-4 4h-36c-2.26 0-4-1.74-4-4v-36c0-2.26 1.74-3.99 4-4z"/><rect x="9" y="25" width="30" height="19"/><rect x="24" y="6" width="6" height="10"/><rect x="12" y="2" width="24" height="18"/></Icon>
                     Download Report
                 </button>
