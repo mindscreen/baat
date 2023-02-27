@@ -2,7 +2,7 @@ import { Violation } from '../Violation/Violation'
 import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { AxeRunCompleted, BAATEvent, Result, StatusChange } from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
@@ -113,17 +113,17 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 <div id='results' ref={this.resultsContainerRef}></div>
             </div>
         )
-        this.setAttribute('results', baat.lastResults)
-        baat.addEventListener(BAATEvent.ChangeCore, () => {
-            this.setAttribute('results', baat.lastResults)
+        this.setAttribute('results', window[baatSymbol].lastResults)
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => {
+            this.setAttribute('results', window[baatSymbol].lastResults)
             this.update()
         })
-        baat.addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
+        window[baatSymbol].addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
             this.setAttribute('results', e.detail.violations)
         }) as EventListener)
-        baat.addEventListener(BAATEvent.ChangeSettings, () => this.handleChangeSettings())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, () => this.handleChangeSettings())
 
-        baat.addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
+        window[baatSymbol].addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
             this.statusContainerRef.value.textContent = e.detail.message
         }) as EventListener)
         this.updateResults()
@@ -141,7 +141,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 )
             })
 
-        if (this.results.length === 0 && baat.hasRun) {
+        if (this.results.length === 0 && window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
                     <h2>No Violations found</h2>
@@ -150,7 +150,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             )
         }
 
-        if (this.results.length === 0 && !baat.hasRun) {
+        if (this.results.length === 0 && !window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
                     <h2>Not yet run</h2>
@@ -166,7 +166,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             </div>
         )
 
-        if (this.results.length !== 0 && baat.hasRun) {
+        if (this.results.length !== 0 && window[baatSymbol].hasRun) {
             const elements = this.results.flatMap(result => result.nodes)
                 .flatMap(node => node.element)
                 .filter(and(uniquePredicate, (value) => value !== undefined))
@@ -203,7 +203,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             let cache: Array<any> = [];
 
             this.resultsContainerRef.value.appendChild(
-                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(baat.fullReport, (key, value) => {
+                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(window[baatSymbol].fullReport, (key, value) => {
                     if (typeof value === 'object' && value !== null) {
                         if (value.hasOwnProperty('element') && value.element instanceof HTMLElement) {
                             const result = { ...value }
@@ -224,8 +224,8 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     }
 
     handleChangeSettings(): void {
-        const hiddenTags = baat.getSetting<string[]>('hiddenTags')
-        const hiddenImpacts = baat.getSetting<string[]>('hiddenImpacts')
+        const hiddenTags = window[baatSymbol].getSetting<string[]>('hiddenTags')
+        const hiddenImpacts = window[baatSymbol].getSetting<string[]>('hiddenImpacts')
 
         this.shadowRoot?.querySelectorAll(Violation.tagName)
             .forEach((violation) => {
@@ -242,7 +242,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         const numFiltered = this.shadowRoot?.querySelectorAll(`${Violation.tagName}.visuallyHidden`).length;
 
-        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === baat.lastResults.length))
+        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
     }
 }
 

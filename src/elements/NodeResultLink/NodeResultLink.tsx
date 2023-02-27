@@ -4,7 +4,7 @@ import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
 import { ownText, removeAllChildren } from '../../util/dom'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, SettingsChanged } from '../../types'
 import { blinkHighlight } from '../../core/highlight'
 import { Icon } from '..'
@@ -64,7 +64,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
 
         removeAllChildren(this.buttonRef.value)
 
-        if (baat.getSetting('developer')) {
+        if (window[baatSymbol].getSetting('developer')) {
             name = this.result?.target.join(', ') ?? this.result?.element?.tagName.toLowerCase() ?? ''
         } else {
             name = this.result?.element ? ownText(this.result?.element).trim() : ""
@@ -82,13 +82,13 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             if (!this.result) return
 
             blinkHighlight(this.result)
-            if (baat.getSetting('developer'))
+            if (window[baatSymbol].getSetting('developer'))
                 console.log(this.result.element)
 
             this.result.element?.scrollIntoView({ block: 'start', behavior: 'smooth' })
         }
 
-        baat.addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
             if (event.detail.name === 'developer') this.update()
         }) as EventListener)
 

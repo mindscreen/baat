@@ -1,6 +1,6 @@
 import { axeExists } from '../../util/axe'
 import { BaseHTMLElement } from '../BaseHTMLElement'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { BAATEvent } from '../../types'
 import { removeAllChildren } from '../../util/dom'
@@ -54,12 +54,12 @@ export class FilterSettings extends BaseHTMLElement<IFilterSettingsAccessor> imp
         const that = this;
 
         (possibleFilters.filter(possibleFilter => possibleFilter) as unknown as string[]).forEach(filter => {
-            const checkbox = createCheckbox(filter, this.pre, !baat.getSetting<string[]>(this.setting).includes(filter),
+            const checkbox = createCheckbox(filter, this.pre, !window[baatSymbol].getSetting<string[]>(this.setting).includes(filter),
                 function (this: HTMLInputElement) {
                     if (this.checked) {
-                        baat.setSetting(that.setting, baat.getSetting<string[]>(that.setting).filter(hidden => hidden !== filter))
+                        window[baatSymbol].setSetting(that.setting, window[baatSymbol].getSetting<string[]>(that.setting).filter(hidden => hidden !== filter))
                     } else {
-                        baat.setSetting(that.setting, [...baat.getSetting<string[]>(that.setting), filter])
+                        window[baatSymbol].setSetting(that.setting, [...window[baatSymbol].getSetting<string[]>(that.setting), filter])
                     }
                 })
             this.containerRef.value?.appendChild(checkbox)
@@ -68,7 +68,7 @@ export class FilterSettings extends BaseHTMLElement<IFilterSettingsAccessor> imp
 
     initialize() {
         this.shadowRoot?.appendChild(<div id='container' ref={this.containerRef}></div>);
-        baat.addEventListener(BAATEvent.ChangeCore, () => this.update())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => this.update())
         this.updateCheckboxes()
     }
 }
