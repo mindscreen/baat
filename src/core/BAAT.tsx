@@ -143,7 +143,7 @@ export class BAAT extends EventTarget {
                 this.dispatchStatusEvent('')
 
                 this.lastResults = violations
-                this.fullReport = results;
+                this.fullReport = results
                 this._hasRun = true;
                 this.dispatchEvent(new CustomEvent<AxeRunCompleted>(BAATEvent.RunCompleted, { detail: { violations: violations }}));
             })
