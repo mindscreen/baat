@@ -1,7 +1,7 @@
 'use strict'
 import { register, Results, Settings, Switch, SwitchView, Window, Icon, MiniResults, Overlay } from './elements'
 import { config } from './config'
-import { baat } from './core/BAAT'
+import { baatSymbol } from './core/BAAT'
 import { baact, createRef } from '../baact/baact'
 import { BAATEvent, BAATView } from './types'
 import { axeExists } from './util/axe'
@@ -17,22 +17,22 @@ const settingsRef = createRef<HTMLButtonElement>()
 const runRef = createRef<HTMLButtonElement>()
 
 const handleSettingsClick = () => {
-    const view = baat.view === BAATView.Main ? BAATView.Settings : BAATView.Main
-    baat.view = view
+    const view = window[baatSymbol].view === BAATView.Main ? BAATView.Settings : BAATView.Main
+    window[baatSymbol].view = view
     settingsRef.value.setAttribute('aria-pressed', String(view === BAATView.Settings))
 }
 
 const handlePlayClick = () => {
     settingsRef.value.setAttribute('aria-pressed', 'false')
-    baat.runAxe()
-    baat.view = BAATView.Main
+    window[baatSymbol].runAxe()
+    window[baatSymbol].view = BAATView.Main
 }
 
-baat.addEventListener(BAATEvent.ChangeCore, () => {
+window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => {
     runRef.value.disabled = !axeExists()
-    if (baat.getSetting('autorun') && axeExists()) {
+    if (window[baatSymbol].getSetting('autorun') && axeExists()) {
         settingsRef.value.setAttribute('aria-pressed', 'false')
-        baat.view = BAATView.Main
+        window[baatSymbol].view = BAATView.Main
     }
 })
 document.body.prepend(<Overlay id={config.panelId}>
@@ -42,16 +42,16 @@ document.body.prepend(<Overlay id={config.panelId}>
         <button class="button" aria-label="Run definitions" slot={windowSlots.actions} onClick={handlePlayClick} disabled={!axeExists()} ref={runRef}>
             <Icon width="24" height="24"><path d="m3 3v42l42-21z"/></Icon>
         </button>
-        <button class="button" aria-label="Show settings" slot={windowSlots.actions} onClick={handleSettingsClick} ref={settingsRef} aria-pressed={baat.view === BAATView.Settings}>
+        <button class="button" aria-label="Show settings" slot={windowSlots.actions} onClick={handleSettingsClick} ref={settingsRef} aria-pressed={window[baatSymbol].view === BAATView.Settings}>
             <Icon width="24" height="24"><path d="m21.2 4.88h5.75l1.89-2.08 6.76 2.83-0.2 2.8 4.07 4.11 2.77-0.14 2.8 6.82-2.06 1.88v5.8l2.06 1.88-2.8 6.82-2.77-0.2-4.09 4.12 0.2 2.8-6.74 2.82-1.87-2.08h-5.77l-1.87 2.14-6.75-2.82 0.14-2.8-4.08-4.1-2.78 0.2-2.81-6.88 2.06-1.88v-5.82l-2.06-1.88 2.79-6.82 2.78 0.14 4.08-4.11-0.13-2.8 6.75-2.82z"/><circle cx="24" cy="24" r="9" /></Icon>
         </button>
         <MiniResults slot={windowSlots.info} />
         <Switch
             ref={switchRef}
-            listenTarget={baat}
+            listenTarget={window[baatSymbol]}
             listenEvent={BAATEvent.ChangeView}
             listenOptic={(detail: any) => detail.view}
-            currentlyVisibleView={baat.view}
+            currentlyVisibleView={window[baatSymbol].view}
         >
             <SwitchView name={BAATView.Main}>
                 <div>
