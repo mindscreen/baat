@@ -3,7 +3,7 @@ import { css } from '../../util/taggedString'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
-import { ownText, removeAllChildren } from '../../util/dom'
+import { isHidden, ownText, removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, SettingsChanged } from '../../types'
 import { blinkHighlight } from '../../core/highlight'
@@ -25,11 +25,23 @@ const styles = css`
         white-space: nowrap;
         display: block;
         text-overflow: ellipsis;
+        padding: 1px 6px;
+    }
+  
+    button:disabled {
+        cursor: default;
+        color: ${theme.semanticColors.font.dark};
+        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
     }
     
     button:hover {
         color: ${theme.semanticColors.font.linkHover};
     }
+
+    button:disabled {
+        color: ${theme.semanticColors.font.dark};
+    }
+  
     button > * {
         margin-right: ${theme.sizing.relative.smaller};
     }
@@ -61,6 +73,8 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     update() {
         if (!this.shadowRoot || !this.isConnected) return
         let name = ""
+        console.log(this.result?.element);
+        let hasLink = !isHidden(this.result?.element)
 
         removeAllChildren(this.buttonRef.value)
 
@@ -72,7 +86,12 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             if (name === "") name = this.result?.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
         }
 
-        this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
+        if (hasLink) {
+            this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
+            this.buttonRef.value.removeAttribute('disabled')
+        } else {
+            this.buttonRef.value.setAttribute('disabled', 'true')
+        }
         this.buttonRef.value.appendChild(document.createTextNode(name))
     }
 

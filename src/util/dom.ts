@@ -70,5 +70,13 @@ export const ownText = (node: Node): string => {
     return result
 }
 
+export const isHidden = (e?: HTMLElement): boolean => {
+    if (!e) return true
+    const style = window.getComputedStyle(e)
+
+    if (style.position === 'fixed') return style.display === 'none' || style.visibility === 'hidden'
+    return (e.offsetParent === null)
+}
+
 export const shadowAbles = [ 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'BODY', 'DIV', 'FOOTER', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEADER', 'MAIN', 'NAV', 'P', 'SECTION', 'SPAN' ]
 export const nonHighlightable = [ 'HEAD', 'BODY', 'HTML', 'TR', 'TD', 'TH', 'TBODY', 'THEAD', 'LI' ] // TODO better handling for tables
