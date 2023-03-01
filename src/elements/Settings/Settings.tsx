@@ -1,8 +1,6 @@
-import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import { FilterSettings } from '../FilterSettings/FilterSettings'
 import { Accordion } from '../Accordion/Accordion'
 import { LibSelection } from '../LibSelection/LibSelection'
 import { baact } from '../../../baact/baact'
@@ -74,16 +72,6 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         getFilters={() => axe.getRules().flatMap(rule => rule.tags).filter((x, i, a) => a.indexOf(x) == i).sort()}
                     />
                 </Accordion>*/}
-                <Accordion folded={false} fixed={true}>
-                    <span slot="heading">Issue Impact filters</span>
-                    <FilterSettings
-                        setting='hiddenImpacts'
-                        pre='impact-'
-                        id='impactsSettings'
-                        // @ts-ignore
-                        getFilters={() => axe.constants.impact}
-                    />
-                </Accordion>
                 <Accordion folded={false} fixed={true}>
                     <span slot="heading">BAAT Settings</span>
                     <div>

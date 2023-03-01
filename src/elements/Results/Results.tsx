@@ -12,6 +12,9 @@ import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
+import { FilterSettings } from '../FilterSettings/FilterSettings'
+import * as axe from 'axe-core'
+import { Accordion } from '../Accordion/Accordion'
 
 const styles = css`
     #container {
@@ -84,6 +87,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     folded: boolean = true
     styles = styles
     private resultsContainerRef = createRef<HTMLDivElement>()
+    private statisticsContainerRef = createRef<HTMLDivElement>()
     private statusContainerRef = createRef<HTMLDivElement>()
     private filterPlaceholderRef = createRef<HTMLDivElement>()
 
@@ -111,6 +115,17 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             <div id='container'>
                 <div id='status' ref={this.statusContainerRef}></div>
                 <div id='results' ref={this.resultsContainerRef}></div>
+                <Accordion folded={true}>
+                    <span slot="heading">Issue Impact filters</span>
+                    <FilterSettings
+                        setting='hiddenImpacts'
+                        pre='impact-'
+                        id='impactsSettings'
+                        // @ts-ignore
+                        getFilters={() => axe.constants.impact}
+                    />
+                </Accordion>
+                <div id='statistics' ref={this.statisticsContainerRef}></div>
             </div>
         )
         this.setAttribute('results', window[baatSymbol].lastResults)
@@ -133,6 +148,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         if (!this.shadowRoot) return
 
         removeAllChildren(this.resultsContainerRef.value)
+        removeAllChildren(this.statisticsContainerRef.value)
 
         this.results
             .forEach((result) => {
@@ -174,7 +190,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const elementCounts = tally(this.results.flatMap(result => result.nodes.map(() => result.impact)).filter(notNullish))
             const counts = zip(impactCounts, elementCounts)
 
-            this.resultsContainerRef.value.appendChild(
+            this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
                     <thead>
@@ -202,7 +218,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             )
             let cache: Array<any> = [];
 
-            this.resultsContainerRef.value.appendChild(
+            this.statisticsContainerRef.value.appendChild(
                 <button type='button' onClick={() => download('baat-report.json', JSON.stringify(window[baatSymbol].fullReport, (key, value) => {
                     if (typeof value === 'object' && value !== null) {
                         if (value.hasOwnProperty('element') && value.element instanceof HTMLElement) {
