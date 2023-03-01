@@ -80,5 +80,17 @@ export const isHidden = (e?: HTMLElement): boolean => {
     return (e.offsetParent === null)
 }
 
+export const getBoundingBox = (element: HTMLElement) => {
+    const clientRect = element.getBoundingClientRect();
+    const clientRect2 = document.body.getBoundingClientRect();
+
+    return {
+        x: clientRect.left - clientRect2.left,
+        y: clientRect.top - clientRect2.top,
+        w: clientRect.width,
+        h: clientRect.height,
+    };
+}
+
 export const shadowAbles = [ 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'BODY', 'DIV', 'FOOTER', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEADER', 'MAIN', 'NAV', 'P', 'SECTION', 'SPAN' ]
 export const nonHighlightable = [ 'HEAD', 'BODY', 'HTML', 'TR', 'TD', 'TH', 'TBODY', 'THEAD', 'LI' ] // TODO better handling for tables

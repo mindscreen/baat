@@ -35,6 +35,9 @@ window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => {
         window[baatSymbol].view = BAATView.Main
     }
 })
+
+document.body.style.position = 'relative';
+
 document.body.prepend(<Overlay id={config.panelId}>
     <Window>
         <Icon slot={windowSlots.icon} width="24" height="24"><path d="m41.1 20.8c1.1-9.03-6.7-11.8-17.1-11.8s-18.2 2.8-17.1 11.8"/><path d="m43.1 22.7c3.42 5.05 3.99 9.88 3.81 15.2-4.81-1.59-9.33-1.65-12.4 6.58-5.19-4.51-7.94-2.8-10.5 0.98-2.52-3.78-5.27-5.49-10.5-0.98-3.1-8.23-7.62-8.17-12.4-6.58-0.182-5.37 0.39-10.2 3.81-15.2"/><path d="m35.2 19.7c-2.38-6.52-10.1-0.79-8.73 1.82"/><path d="m12.3 9.18c-5.12-6.65-7.32-5.79-10.2-6.95-3.84 18 4.76 27.5 22 27.5 17.2 0 25.8-9.45 22-27.5-2.93 1.16-5.13 0.305-10.2 6.95"/><path d="m12.8 19.7c2.37-6.52 10-0.79 8.72 1.82"/></Icon>
