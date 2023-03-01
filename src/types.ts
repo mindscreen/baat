@@ -18,12 +18,17 @@ export type SettingsChanged = {
     oldValue: any,
 }
 
+export type HighlightElement = {
+    element: HTMLElement
+}
+
 export enum BAATEvent {
     ChangeCore = 'ChangeAxeCore',
     ChangeSettings = 'ChangeSettings',
     RunCompleted = 'RunCompleted',
     StatusChange = 'StatusChange',
     ChangeView = 'ChangeView',
+    HighlightElement = 'HighlightElement',
 }
 
 export enum BAATView {

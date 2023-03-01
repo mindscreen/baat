@@ -5,8 +5,7 @@ import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
 import { ownText, removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
-import { BAATEvent, SettingsChanged } from '../../types'
-import { blinkHighlight } from '../../core/highlight'
+import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
 import { Icon } from '..'
 
 const styles = css`
@@ -81,7 +80,8 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             e.stopPropagation()
             if (!this.result) return
 
-            blinkHighlight(this.result)
+            if (this.result.element)
+                window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element: this.result.element }}))
             if (window[baatSymbol].getSetting('developer'))
                 console.log(this.result.element)
 
