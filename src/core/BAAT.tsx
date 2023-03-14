@@ -8,13 +8,14 @@ import { highlightContainer } from './highlight'
 import { clone } from '../util/object'
 
 export class BAAT extends EventTarget {
-    private static instance: BAAT;
-    private settings: Record<string, any> = {};
-    private running: boolean = false;
+    private static instance: BAAT
+    private settings: Record<string, any> = {}
+    private running: boolean = false
     public lastResults: Result[] = []
-    public partialRunResult: axe.PartialResult | null = null;
+    public partialRunResult: axe.PartialResult | null = null
     private _view: BAATView
     private _hasRun = false
+    private additionalReporters: [string, string][] = []
     public version = '@VERSION@'
 
     private constructor() {
@@ -173,7 +174,13 @@ export class BAAT extends EventTarget {
     }
 
     public getReporters(): ReporterInfos {
-        return [...shippedReporters.filter(([key, _]) => (axe as any).hasReport(key))];
+        return [...shippedReporters, ...this.additionalReporters].filter(([key, _]) => (axe as any).hasReporter(key));
+    }
+
+    public addReporter(reporter: any, options: { key: string, name: string}) {
+        (axe as any).addReporter(options.key, reporter)
+        this.additionalReporters.push([options.key, options.name])
+        this.dispatchEvent(new CustomEvent(BAATEvent.ReporterAdded))
     }
 
     public static getInstance(): BAAT {

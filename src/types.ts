@@ -24,6 +24,7 @@ export enum BAATEvent {
     RunCompleted = 'RunCompleted',
     StatusChange = 'StatusChange',
     ChangeView = 'ChangeView',
+    ReporterAdded = 'ReporterAdded',
 }
 
 export enum BAATView {

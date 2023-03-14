@@ -30,6 +30,9 @@ export class Select extends BaseHTMLElement<ISelectAccessor> implements ISelectA
             case 'label':
                 this.updateLabel()
                 break
+            case 'options':
+                this.updateOptions()
+                break
         }
     }
 
@@ -57,6 +60,8 @@ export class Select extends BaseHTMLElement<ISelectAccessor> implements ISelectA
     }
 
     private updateOptions(): void {
+        if (!this.shadowRoot || !this.selectRef.value) return
+
         removeAllChildren(this.selectRef.value);
 
         this.options.forEach(option => {

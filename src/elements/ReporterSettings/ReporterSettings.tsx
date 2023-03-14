@@ -1,10 +1,10 @@
-import { baact } from '../../../baact/baact'
+import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { theme } from '../../theme'
 import { Select } from '../Select/Select'
-import { shippedReporters } from '../../util/axe'
 import { baatSymbol } from '../../core/BAAT'
+import { BAATEvent } from '../../types'
 
 interface IReporterSettingsAccessor {
 }
@@ -14,6 +14,7 @@ const styles = css`
 
 export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor> implements IReporterSettingsAccessor {
     public static tagName: string = 'baat-reportersettings'
+    private selectRef = createRef<Select>()
 
     attributeChangedCallback<T extends keyof IReporterSettingsAccessor>(name: T, oldValue: IReporterSettingsAccessor[T], newValue: IReporterSettingsAccessor[T]) {
         switch (name) {
@@ -32,15 +33,18 @@ export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor>
             window[baatSymbol].setSetting('reporter', (e.target as any).value)
         }
 
-        const reporterOptions = [...shippedReporters]
+        window[baatSymbol].addEventListener(BAATEvent.ReporterAdded, (e: Event) => {
+            this.selectRef.value?.setAttribute('options', window[baatSymbol].getReporters())
+        })
 
         this.shadowRoot?.appendChild(
             <div>
                 <Select
                     label={"Download Reporter: "}
-                    options={reporterOptions}
+                    options={window[baatSymbol].getReporters()}
                     selectedOption={window[baatSymbol].getSetting<boolean>('reporter')}
                     onChange={onChange}
+                    ref={this.selectRef}
                 />
             </div>
         )
