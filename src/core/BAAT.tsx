@@ -1,17 +1,18 @@
 import { createScript } from '../util/dom'
 import { config } from '../config'
-import { axeExists } from '../util/axe'
+import { axeExists, ReporterInfos, shippedReporters } from '../util/axe'
 import * as axe from 'axe-core'
 import { AxeRunCompleted, BAATEvent, BAATView, SettingsChanged, ViewChanged, Result, StatusChange } from '../types'
 import { baact } from '../../baact/baact'
 import { highlightContainer } from './highlight'
+import { clone } from '../util/object'
 
 export class BAAT extends EventTarget {
     private static instance: BAAT;
     private settings: Record<string, any> = {};
     private running: boolean = false;
     public lastResults: Result[] = []
-    public fullReport: axe.AxeResults | null = null;
+    public partialRunResult: axe.PartialResult | null = null;
     private _view: BAATView
     private _hasRun = false
     public version = '@VERSION@'
@@ -117,35 +118,37 @@ export class BAAT extends EventTarget {
             })
         })
 
-        axe.run(
+        axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
-            { elementRef: true }
+            {},
         )
             .then(results => {
-                this.running = false
-                let violations = results.violations as Result[]
+                this.partialRunResult = clone(results)
 
-                if (results.violations.length) {
-                    if (this.getSetting('developer'))
-                        console.log('violations', violations)
+                axe.finishRun([ results ], { elementRef: true }).then((defaultResults) => {
+                    this.running = false
+                    let violations = defaultResults.violations as Result[]
+                    if (defaultResults.violations.length) {
+                        if (this.getSetting('developer'))
+                            console.log('violations', violations)
 
-                    /*violations.forEach((violation) => {
-                        violation.nodes.forEach((result) => {
-                            result.highlight = addHighlightTo(result, violation)
-                        })
-                    })*/
+                        /*violations.forEach((violation) => {
+                            violation.nodes.forEach((result) => {
+                                result.highlight = addHighlightTo(result, violation)
+                            })
+                        })*/
 
-                    this.dispatchStatusEvent('Issues found!')
-                } else {
-                    this.dispatchStatusEvent('No issues found!')
-                }
+                        this.dispatchStatusEvent('Issues found!')
+                    } else {
+                        this.dispatchStatusEvent('No issues found!')
+                    }
 
-                this.dispatchStatusEvent('')
+                    this.dispatchStatusEvent('')
 
-                this.lastResults = violations
-                this.fullReport = results
-                this._hasRun = true;
-                this.dispatchEvent(new CustomEvent<AxeRunCompleted>(BAATEvent.RunCompleted, { detail: { violations: violations }}));
+                    this.lastResults = violations
+                    this._hasRun = true;
+                    this.dispatchEvent(new CustomEvent<AxeRunCompleted>(BAATEvent.RunCompleted, { detail: { violations: violations }}));
+                })
             })
     }
 
@@ -161,6 +164,16 @@ export class BAAT extends EventTarget {
 
     get hasRun(): boolean {
         return this._hasRun
+    }
+
+    public getFinalResults(): Promise<axe.AxeResults> {
+        const results = clone(this.partialRunResult)
+        // @ts-ignore
+        return axe.finishRun([ results ], { reporter: window[baatSymbol].getSetting<string>('reporter')})
+    }
+
+    public getReporters(): ReporterInfos {
+        return [...shippedReporters.filter(([key, _]) => (axe as any).hasReport(key))];
     }
 
     public static getInstance(): BAAT {

@@ -10,6 +10,7 @@ import { BAATEvent } from '../../types'
 import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
+import { ReporterSettings } from '../ReporterSettings/ReporterSettings'
 
 const styles = css`
     #container {
@@ -83,6 +84,10 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         // @ts-ignore
                         getFilters={() => axe.constants.impact}
                     />
+                </Accordion>
+                <Accordion folded={false} fixed={true}>
+                    <span slot="heading">Axe Settings</span>
+                    <ReporterSettings />
                 </Accordion>
                 <Accordion folded={false} fixed={true}>
                     <span slot="heading">BAAT Settings</span>
