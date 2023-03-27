@@ -16,14 +16,15 @@ const styles = css`
   
     .highlight {
         margin: -2px;
-        background-color: rgba(0, 0, 0, 0);
-        border: 2px solid ${ theme.palette.primary };
+        background-color: rgba(255, 255, 255, 0);
+        border: 2px solid rgba(0, 0, 0, 0);
         pointer-events: none;
         transition: all 0.75s ease-in;
     }
   
     .blink {
-        background-color: ${ theme.palette.primaryLight };
+        background-color: ${ theme.palette.primaryLight }77;
+        border: 2px solid ${ theme.palette.primary };
     }
 `;
 
@@ -70,7 +71,7 @@ export class Overlay extends BaseHTMLElement<IRunnerOverlayAccessor> implements 
             }, 750);
             window.setTimeout(() => {
                 highlight.remove();
-            }, 2000);
+            }, 1500);
         }) as EventListener)
     }
 }
