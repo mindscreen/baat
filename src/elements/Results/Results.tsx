@@ -15,6 +15,7 @@ import { download } from '../../util/file'
 import { FilterSettings } from '../FilterSettings/FilterSettings'
 import * as axe from 'axe-core'
 import { Accordion } from '../Accordion/Accordion'
+import { Checkbox } from '../Checkbox/Checkbox'
 
 const styles = css`
     #container {
@@ -31,6 +32,7 @@ const styles = css`
         width: calc(100% - 2 * ${theme.sizing.relative.tiny});
         margin: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         box-sizing: border-box;
+        table-layout: fixed;
     }
     th {
         text-align: start;
@@ -38,6 +40,9 @@ const styles = css`
     }
     thead th {
         font-weight: bold;
+    }
+    td:first-child, th:first-child {
+        width: 1rem;
     }
     caption {
         text-align: left;
@@ -115,16 +120,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             <div id='container'>
                 <div id='status' ref={this.statusContainerRef}></div>
                 <div id='results' ref={this.resultsContainerRef}></div>
-                <Accordion folded={true}>
-                    <span slot="heading">Issue Impact filters</span>
-                    <FilterSettings
-                        setting='hiddenImpacts'
-                        pre='impact-'
-                        id='impactsSettings'
-                        // @ts-ignore
-                        getFilters={() => axe.constants.impact}
-                    />
-                </Accordion>
                 <div id='statistics' ref={this.statisticsContainerRef}></div>
             </div>
         )
@@ -195,20 +190,33 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     <caption>Run Statistics</caption>
                     <thead>
                         <tr>
+                            <th> </th>
                             <th>Impact</th>
                             <th>Violations</th>
                             <th>Elements</th>
                         </tr>
                     </thead>
                     <tbody>
-                        { ...Object.entries(counts).map(([impact, [violations, elements]]) =>
-                            <tr>
+                        { ...Object.entries(counts).map(([impact, [violations, elements]]) => {
+                            const checked = !window[baatSymbol].getSetting<string[]>('hiddenImpacts').includes(impact)
+                            function handleChange(this: HTMLInputElement) {
+                                if (this.checked) {
+                                    window[baatSymbol].setSetting('hiddenImpacts', window[baatSymbol].getSetting<string[]>('hiddenImpacts').filter(hidden => hidden !== impact))
+                                } else {
+                                    window[baatSymbol].setSetting('hiddenImpacts', [ ...window[baatSymbol].getSetting<string[]>('hiddenImpacts'), impact ])
+                                }
+                            }
+                            return <tr>
+                                <td>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ `show ${ impact }` } labelHidden/>
+                                </td>
                                 <th>{ impact.charAt(0).toUpperCase() + impact.slice(1) }</th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
                             </tr>
-                        )}
+                        })}
                         <tr>
+                            <td></td>
                             <th>Total</th>
                             <td>{ this.results.length.toString() }</td>
                             <td>{ elements.length.toString() }</td>

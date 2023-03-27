@@ -5,11 +5,16 @@ import { theme } from '../../theme'
 
 interface ICheckboxAccessor {
     label: string
+    labelHidden: boolean
     checked: boolean
     onChange: (checked: boolean) => void
 }
 
 const styles = css`
+    :host {
+        min-height: 1rem;
+        display: block;
+    }
     .container *,
     .container *::before,
     .container *::after {
@@ -101,6 +106,7 @@ const styles = css`
 export class Checkbox extends BaseHTMLElement<ICheckboxAccessor> implements ICheckboxAccessor {
     public static tagName: string = 'baat-checkbox'
     label: string = ""
+    labelHidden: boolean = false
     checked: boolean = false
     styles = styles
     onChange = () => {}
@@ -128,8 +134,8 @@ export class Checkbox extends BaseHTMLElement<ICheckboxAccessor> implements IChe
     initialize() {
         this.shadowRoot?.appendChild(
             <label class="container">
-                <span ref={this.labelRef}>{this.label}</span>
-                <input checked={this.checked} type="checkbox" ref={this.checkboxRef} onChange={this.onChange}/>
+                <span ref={this.labelRef}>{this.labelHidden ? '' : this.label}</span>
+                <input checked={this.checked} type="checkbox" ref={this.checkboxRef} onChange={this.onChange} aria-label={this.labelHidden ? this.label : undefined}/>
                 <div class="input"></div>
             </label>
         )
