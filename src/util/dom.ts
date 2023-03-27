@@ -74,6 +74,8 @@ export const isHidden = (e?: HTMLElement): boolean => {
     if (!e) return true
     const style = window.getComputedStyle(e)
 
+    if (e.getBoundingClientRect().width === 0 && e.getBoundingClientRect().height === 0) return true
+    if (style.opacity === '0') return true
     if (style.position === 'fixed') return style.display === 'none' || style.visibility === 'hidden'
     return (e.offsetParent === null)
 }
