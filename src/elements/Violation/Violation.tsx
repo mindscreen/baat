@@ -96,8 +96,9 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
     private titleRef = createRef<HTMLHeadingElement>()
     private subtitleRef = createRef<HTMLSpanElement>()
     private impactRef = createRef<HTMLLabelElement>()
-    private descriptionRef = createRef<HTMLSpanElement>()
+    private descriptionRef = createRef<HTMLDivElement>()
     private nodeListRef = createRef<HTMLOListElement>()
+    private linkRef = createRef<HTMLDivElement>()
 
     attributeChangedCallback<T extends keyof IViolationAccessor>(name: T, oldValue: IViolationAccessor[T], newValue: IViolationAccessor[T]) {
         switch (name) {
@@ -122,6 +123,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.titleRef.value.innerText = '';
             this.impactRef.value.innerText = '';
             this.descriptionRef.value.innerText = '';
+            this.linkRef.value.innerHTML = '';
             this.nodeListRef.value.innerHTML = '';
         } else {
             this.indicatorRef.value.className = getImpactClass(this.result.impact);
@@ -129,6 +131,11 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.subtitleRef.value.innerText = this.result.id;
             this.impactRef.value.innerText = String(this.result.impact);
             this.descriptionRef.value.innerText = this.result.description;
+
+            if (this.result.helpUrl && this.result.helpUrl !== "") {
+                this.linkRef.value.innerHTML = `<a href="${this.result.helpUrl}" target="_blank">Learn more at Deque University</a>`
+            }
+
             const nodeList = this.nodeListRef.value
             nodeList.innerHTML = '';
             !!this.indicatorRef.value.lastElementChild ?? this.indicatorRef.value.removeChild(this.indicatorRef.value.lastElementChild as Node)
@@ -172,7 +179,8 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                     <div id="indicator" ref={this.indicatorRef}>
                     </div>
                 </div>
-                <span id='description' ref={this.descriptionRef}></span>
+                <div id='description' ref={this.descriptionRef}></div>
+                <div id='link' ref={this.linkRef}></div>
                 <ol id='nodeList' ref={this.nodeListRef}></ol>
             </Accordion>
         );
