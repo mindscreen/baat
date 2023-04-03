@@ -88,6 +88,12 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     <span slot="heading">BAAT Settings</span>
                     <div>
                         <Checkbox
+                            id='showAdditionalInformation'
+                            checked={window[baatSymbol].getSetting<boolean>('showAdditionalInformation')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('showAdditionalInformation', this.checked) }}
+                            label='Show a short summary for each test result'
+                        />
+                        <Checkbox
                             id='developer'
                             checked={window[baatSymbol].getSetting<boolean>('developer')}
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('developer', this.checked) }}

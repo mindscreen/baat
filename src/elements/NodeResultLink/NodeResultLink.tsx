@@ -33,6 +33,11 @@ const styles = css`
     button > * {
         margin-right: ${theme.sizing.relative.smaller};
     }
+  
+    #info {
+        padding-left: ${theme.sizing.relative.huge};
+        font-size: ${theme.semanticSizing.font.small};
+    }
 `
 
 interface INodeLinkAccessor {
@@ -46,6 +51,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     styles = styles
     static tagName: string = 'baat-node-link'
     private buttonRef = createRef<HTMLButtonElement>()
+    private infoRef = createRef<HTMLDivElement>()
 
     attributeChangedCallback<T extends keyof INodeLinkAccessor>(name: T, oldValue: INodeLinkAccessor[T], newValue: INodeLinkAccessor[T]) {
         this.update()
@@ -74,6 +80,10 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
 
         this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
         this.buttonRef.value.appendChild(document.createTextNode(name))
+
+        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>('showAdditionalInformation')
+            ? this.result?.failureSummary ?? ''
+            : ''
     }
 
     initialize() {
@@ -89,10 +99,13 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === 'developer') this.update()
+            if (event.detail.name === 'developer' || event.detail.name === 'showAdditionalInformation') this.update()
         }) as EventListener)
 
-        this.shadowRoot?.appendChild(<button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>)
+        this.shadowRoot?.appendChild(<div>
+            <button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>
+            <div id='info' ref={this.infoRef}></div>
+        </div>)
 
         this.update()
     }
