@@ -104,10 +104,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.
                     </p>
                     <p>
-                        To be able to run BAAT you have to select a minified axe-core script. A copy can be obtained by compiling the source files available at the <a href='https://github.com/dequelabs/axe-core'>axe-core GitHub Page</a>.
-                    </p>
-                    <p>
-                        A word of caution. Since BAAT modifies the DOM it is generally recommended to reload the page before testing manually.
+                        You can find the documentation on the  <a href='https://github.com/mindscreen/baat'>BAAT GitHub Page</a>.
                     </p>
                 </div>
             </div>

@@ -15,7 +15,7 @@ const path = require('path')
 const replace = require('gulp-replace');
 const dotenv = require('dotenv');
 
-dotenv.config({ debug: true });
+dotenv.config();
 
 gulp.task('serve', function( cb ){
     browserSync.init({
@@ -38,7 +38,6 @@ gulp.task('serve:reload' , function(cb) {
 });
 
 gulp.task('transpile-ts', function () {
-    console.log(process.env.THEME_PRIMARY)
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject())
