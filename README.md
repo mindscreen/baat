@@ -1,58 +1,44 @@
 # BAAT ![BAAT Logo](./assets/Logo-small.svg)
 
-BAAT is a small software tool that facilitates automated accessibility checks on websites. It utilizes axe-core to carry out the accessibility check quickly. With BAAT, users can obtain precise and automatic accessibility analysis results, making it a useful tool for any organization dedicated to accessible website development.
+With BAAT you can perform automated accessibility testing as a bookmarklet or user script in your browser.
+It allows accessibility tests to be performed even in situations where the installation of additional software or plug-ins is not possible.
 
-BAAT offers convenient alternatives to traditional accessibility checks. It can either be run as a bookmarklet or as a userscript, enabling its usage in cases where installations are not allowed on the machine.
-
+You can simply use axe-core or create your custom rulesets based on axe-core.
 ## Features
 - Provides automated accessibility checks for websites.
 - Uses axe-core for quick and precise analysis.
 - Can be run as a bookmarklet or userscript.
 - Suitable for any organization dedicated to accessible website development.
 
-## Installation
+## Usage
 
 There are two ways to install and use BAAT:
 
-### Installing BAAT as a bookmarklet
-1. Head to the [releases page](https://github.com/mindscreen/baat/releases/latest).
+### Usage as a bookmarklet
+1. Head to the [BAAT GitHub releases page](https://github.com/mindscreen/baat/releases/latest).
 2. Download the bookmarklet.txt file.
-3. Create a new bookmark in your browser and paste the content of the bookmarklet.txt file into the URL field. _Note: the process of creating a bookmarklet can vary depending on your browser, so please refer to your browser's documentation for further information._
+3. Create a new bookmark in your browser and paste the content of the bookmarklet.txt file into the URL field. _Note: the process of creating a bookmarklet can vary depending on your browser, so please refer to your browser's documentation for further information.
+4. Get a version of axe.min.js.
 
-You're now ready to use BAAT as a bookmarklet.
+   The axe.min.js file contains the rule definitions. It needs to be selected in the BAAT interface to enable the bookmarklet to run the tests.
 
-Using BAAT as a bookmarklet allows you to perform automated accessibility checks on any website without having to install any software or scripts on your machine. Simply navigate to the website you want to test and activate the bookmarklet.
+   You can [download a version of axe.min.js](https://mscr.it/baat/axe.min.js) (v4.6.3).
+5. Activate the bookmarklet on any page.
+6. Select the axe.min.js file to load the axe-core into BAAT and press the run button to run BAAT
 
-### Installing BAAT as a userscript
-1. Install a userscript manager, such as [Tampermonkey](https://www.tampermonkey.net/).
-2. Head to the [releases page](https://github.com/mindscreen/baat/releases/latest).
+### Usage as an userscript
+1. Install a userscript manager, such as Tampermonkey. You will find installation instructions on the [Tampermonkey website](https://www.tampermonkey.net/).
+2. Head to the [BAAT GitHub releases page](https://github.com/mindscreen/baat/releases/latest).
 3. Download the userscript.js file.
-4. Install the userscript.js file using your userscript manager.
+4. Install the Userscript using your userscript manager.
+5. Get a version of axe.min.js.
 
-You're now ready to use BAAT as a userscript.
+   The axe.min.js file contains the rule definitions. It needs to be selected in the BAAT interface to enable the bookmarklet to run the tests.
 
-Using BAAT as a userscript allows you to perform automated accessibility checks on any website without having to install any software on your machine. However, this method requires you to install a userscript manager first. Once installed, simply navigate to the website you want to test and activate the userscript.
+   You can [download a version of axe.min.js](https://mscr.it/baat/axe.min.js) (v4.6.3).
+6. Activate the bookmarklet on any page.
+7. Select the axe.min.js file to load the axe-core into BAAT and press the run button to run BAAT
 
-## Prerequisites
-
-In order to run BAAT you will need a minified built version of [Axe Core](https://github.com/dequelabs/axe-core)
-
-## Usage
-To use BAAT, follow these steps:
-
-1. Go to the website you want to test.
-2. Use the bookmarklet to activate the interface.
-3. Click the "Select File" Button under Testscript. Now you will have to select the minified axe-core file.
-4. If autorun is activated, the test will start automatically. Otherwise, click the "Run Test" Button.
-5. Wait for a few seconds. The results will be shown in the "Results" section.
-
-![BAAT view after successfully run](./assets/BAAT-Run.jpg)
-
-After axe-core has finished the test, you will be taken to the Results section. Here you can inspect the different issues. The findings are grouped by issue as elements which can be expanded by clicking on them.
-
-Each issue contains the name of the issue, the type of issue, and the impact. In the top right corner of each issue, you can find an icon that displays the impact of the issue. If you expand the issue, you will see a longer description and a list of the elements that are affected by the issue.
-
-By clicking on a link in the list, you can scroll to the element in the website.
 
 ### Options
 
@@ -69,8 +55,8 @@ It will also print some more debug info into the console.
 
 ## Links
 
-- 🌎 [Project website](https://mscr.it/baat/)
-- 🌎 [Axe Core](https://github.com/dequelabs/axe-core)
+- 🌎 [BAAT Project website](https://mscr.it/baat/)
+- 🌎 [Axe Core GitHub Page](https://github.com/dequelabs/axe-core)
 
 ## Troubleshooting
 ### Content Security Policies (CSP)
@@ -89,3 +75,14 @@ The primary color of the application is controlled by the following environment 
 - `THEME_PRIMARY` (default: `#d32228`)
 - `THEME_PRIMARY_LIGHT` (default: `#7e1317`)
 - `THEME_PRIMARY_DARK` (default: `#ed4047`)
+
+## Creating a new Rule
+BAAT allows you to run custom versions of axe-core. This way you can add your own rules to the test.
+To do so, you need to create a fork of the [axe-core repository]](https://github.com/dequelabs/axe-core) and [add your own rules](https://github.com/dequelabs/axe-core/blob/develop/doc/rule-development.md).
+After running `npm run build` in the root repository of the root folder of axe-core, you will find a file called `axe.min.js` in the root folder. T
+his file contains your custom rules and can be used with BAAT.
+
+## Notes
+If you have any questions or feedback, please [open an issue](https://github.com/mindscreen/baat/issues/new).
+
+In order to stay up to date to new releases you can watch the releases of this project.
