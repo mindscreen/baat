@@ -44,6 +44,11 @@ const styles = css`
     button > * {
         margin-right: ${theme.sizing.relative.smaller};
     }
+  
+    #info {
+        padding-left: ${theme.sizing.relative.huge};
+        font-size: ${theme.semanticSizing.font.small};
+    }
 `
 
 interface INodeLinkAccessor {
@@ -57,6 +62,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     styles = styles
     static tagName: string = 'baat-node-link'
     private buttonRef = createRef<HTMLButtonElement>()
+    private infoRef = createRef<HTMLDivElement>()
 
     attributeChangedCallback<T extends keyof INodeLinkAccessor>(name: T, oldValue: INodeLinkAccessor[T], newValue: INodeLinkAccessor[T]) {
         this.update()
@@ -92,6 +98,10 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             this.buttonRef.value.setAttribute('disabled', 'true')
         }
         this.buttonRef.value.appendChild(document.createTextNode(name))
+
+        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>('showAdditionalInformation')
+            ? this.result?.failureSummary ?? ''
+            : ''
     }
 
     initialize() {
@@ -108,10 +118,13 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === 'developer') this.update()
+            if (event.detail.name === 'developer' || event.detail.name === 'showAdditionalInformation') this.update()
         }) as EventListener)
 
-        this.shadowRoot?.appendChild(<button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>)
+        this.shadowRoot?.appendChild(<div>
+            <button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>
+            <div id='info' ref={this.infoRef}></div>
+        </div>)
 
         this.update()
     }
