@@ -12,6 +12,10 @@ import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
+import { FilterSettings } from '../FilterSettings/FilterSettings'
+import * as axe from 'axe-core'
+import { Accordion } from '../Accordion/Accordion'
+import { Checkbox } from '../Checkbox/Checkbox'
 
 const styles = css`
     #container {
@@ -28,6 +32,7 @@ const styles = css`
         width: calc(100% - 2 * ${theme.sizing.relative.tiny});
         margin: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         box-sizing: border-box;
+        table-layout: fixed;
     }
     th {
         text-align: start;
@@ -35,6 +40,9 @@ const styles = css`
     }
     thead th {
         font-weight: bold;
+    }
+    td:first-child, th:first-child {
+        width: 1rem;
     }
     caption {
         text-align: left;
@@ -84,6 +92,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     folded: boolean = true
     styles = styles
     private resultsContainerRef = createRef<HTMLDivElement>()
+    private statisticsContainerRef = createRef<HTMLDivElement>()
     private statusContainerRef = createRef<HTMLDivElement>()
     private filterPlaceholderRef = createRef<HTMLDivElement>()
 
@@ -111,6 +120,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             <div id='container'>
                 <div id='status' ref={this.statusContainerRef}></div>
                 <div id='results' ref={this.resultsContainerRef}></div>
+                <div id='statistics' ref={this.statisticsContainerRef}></div>
             </div>
         )
         this.setAttribute('results', window[baatSymbol].lastResults)
@@ -133,6 +143,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         if (!this.shadowRoot) return
 
         removeAllChildren(this.resultsContainerRef.value)
+        removeAllChildren(this.statisticsContainerRef.value)
 
         this.results
             .forEach((result) => {
@@ -174,25 +185,38 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const elementCounts = tally(this.results.flatMap(result => result.nodes.map(() => result.impact)).filter(notNullish))
             const counts = zip(impactCounts, elementCounts)
 
-            this.resultsContainerRef.value.appendChild(
+            this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
                     <thead>
                         <tr>
+                            <th> </th>
                             <th>Impact</th>
                             <th>Violations</th>
                             <th>Elements</th>
                         </tr>
                     </thead>
                     <tbody>
-                        { ...Object.entries(counts).map(([impact, [violations, elements]]) =>
-                            <tr>
+                        { ...Object.entries(counts).map(([impact, [violations, elements]]) => {
+                            const checked = !window[baatSymbol].getSetting<string[]>('hiddenImpacts').includes(impact)
+                            function handleChange(this: HTMLInputElement) {
+                                if (this.checked) {
+                                    window[baatSymbol].setSetting('hiddenImpacts', window[baatSymbol].getSetting<string[]>('hiddenImpacts').filter(hidden => hidden !== impact))
+                                } else {
+                                    window[baatSymbol].setSetting('hiddenImpacts', [ ...window[baatSymbol].getSetting<string[]>('hiddenImpacts'), impact ])
+                                }
+                            }
+                            return <tr>
+                                <td>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ `show ${ impact }` } labelHidden/>
+                                </td>
                                 <th>{ impact.charAt(0).toUpperCase() + impact.slice(1) }</th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
                             </tr>
-                        )}
+                        })}
                         <tr>
+                            <td></td>
                             <th>Total</th>
                             <td>{ this.results.length.toString() }</td>
                             <td>{ elements.length.toString() }</td>
@@ -202,7 +226,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             )
             let cache: Array<any> = [];
 
-            this.resultsContainerRef.value.appendChild(
+            this.statisticsContainerRef.value.appendChild(
                 <button type='button' onClick={() => download('baat-report.json', JSON.stringify(window[baatSymbol].fullReport, (key, value) => {
                     if (typeof value === 'object' && value !== null) {
                         if (value.hasOwnProperty('element') && value.element instanceof HTMLElement) {
