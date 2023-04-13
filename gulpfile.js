@@ -39,6 +39,7 @@ gulp.task('serve:reload' , function(cb) {
 
 gulp.task('transpile-ts', function () {
     return tsProject.src()
+        .pipe(replace('@INFORMATION@', String(process.env.SETTINGS_INFORMATION) !== "" ? String(process.env.SETTINGS_INFORMATION) : "false"))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
         .pipe(sourcemaps.write({

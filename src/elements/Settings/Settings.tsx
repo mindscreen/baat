@@ -90,19 +90,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     </div>
                 </Accordion>
                 <div id="info">
-                    <h2>
-                        BAAT
-                    </h2>
-                    <div role="doc-subtitle">Bookmarklet Accessibility Audit Tool v{window[baatSymbol].version}</div>
-                    <p>
-                        BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.
-                    </p>
-                    <p>
-                        To be able to run BAAT you have to select a minified axe-core script. A copy can be obtained by compiling the source files available at the <a href='https://github.com/dequelabs/axe-core'>axe-core GitHub Page</a>.
-                    </p>
-                    <p>
-                        A word of caution. Since BAAT modifies the DOM it is generally recommended to reload the page before testing manually.
-                    </p>
+                    @INFORMATION@
                 </div>
             </div>
         )
