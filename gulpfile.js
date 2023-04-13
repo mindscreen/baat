@@ -49,6 +49,7 @@ gulp.task('transpile-ts', function () {
             }
         }))
         .pipe(replace('@VERSION@', String(process.env.PACKAGE_VERSION)))
+        .pipe(replace('@AXE_MIN_URL@', String(process.env.AXE_MIN_URL)))
         .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY) !== "" ? String(process.env.THEME_PRIMARY) : "#d32228"))
         .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT) !== "" ? String(process.env.THEME_PRIMARY_LIGHT) : "#7e1317"))
         .pipe(replace('@PRIMARY_DARK@', String(process.env.THEME_PRIMARY_DARK) !== "" ? String(process.env.THEME_PRIMARY_DARK) : "#ed4047"))
