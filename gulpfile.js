@@ -50,7 +50,7 @@ gulp.task('transpile-ts', function () {
                 return path.relative(path.dirname(file.path), file.base);
             }
         }))
-        .pipe(replace('@VERSION@', String(process.env.PACKAGE_VERSION)))
+        .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
         .pipe(replace('@AXE_MIN_URL@', String(process.env.AXE_MIN_URL)))
         .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY) !== "" ? String(process.env.THEME_PRIMARY) : "#d32228"))
         .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT) !== "" ? String(process.env.THEME_PRIMARY_LIGHT) : "#7e1317"))

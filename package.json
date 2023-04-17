@@ -1,6 +1,6 @@
 {
   "name": "baat",
-  "version": "1.2-alpha",
+  "version": "1.2",
   "description": "Axe frontend for running axe-core tests directly in the Browser",
   "main": "index.js",
   "scripts": {
