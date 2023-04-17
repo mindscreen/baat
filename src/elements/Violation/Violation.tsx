@@ -74,6 +74,16 @@ const styles = css`
     }
     .impactNone {
         background-color: gray;
+    } 
+  
+    a {
+      color: ${ theme.semanticColors.font.link };
+    }
+    a:hover {
+        color: ${theme.semanticColors.font.linkHover};
+    }
+    a:disabled {
+        color: ${theme.semanticColors.font.dark};
     }
 `;
 
@@ -133,7 +143,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.descriptionRef.value.innerText = this.result.description;
 
             if (this.result.helpUrl && this.result.helpUrl !== "") {
-                this.linkRef.value.innerHTML = `<a href="${this.result.helpUrl}" target="_blank">Learn more at Deque University</a>`
+                this.linkRef.value.innerHTML = `<a href="${this.result.helpUrl}" target="_blank" rel="noreferrer">Learn more about ${this.result.id} at Deque University</a>`
             }
 
             const nodeList = this.nodeListRef.value

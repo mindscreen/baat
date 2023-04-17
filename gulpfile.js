@@ -39,6 +39,7 @@ gulp.task('serve:reload' , function(cb) {
 
 gulp.task('transpile-ts', function () {
     return tsProject.src()
+        .pipe(replace('@INFORMATION@', String(process.env.SETTINGS_INFORMATION) !== "" ? String(process.env.SETTINGS_INFORMATION) : "false"))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
         .pipe(sourcemaps.write({
@@ -48,9 +49,13 @@ gulp.task('transpile-ts', function () {
             }
         }))
         .pipe(replace('@VERSION@', String(process.env.PACKAGE_VERSION)))
+        .pipe(replace('@AXE_MIN_URL@', String(process.env.AXE_MIN_URL)))
         .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY) !== "" ? String(process.env.THEME_PRIMARY) : "#d32228"))
         .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT) !== "" ? String(process.env.THEME_PRIMARY_LIGHT) : "#7e1317"))
         .pipe(replace('@PRIMARY_DARK@', String(process.env.THEME_PRIMARY_DARK) !== "" ? String(process.env.THEME_PRIMARY_DARK) : "#ed4047"))
+        .pipe(replace('@THEME_NEUTRAL@', String(process.env.THEME_NEUTRAL) !== "" ? String(process.env.THEME_NEUTRAL) : "#323130"))
+        .pipe(replace('@THEME_NEUTRAL_LIGHT@', String(process.env.THEME_NEUTRAL_LIGHT) !== "" ? String(process.env.THEME_NEUTRAL_LIGHT) : "#656462"))
+        .pipe(replace('@THEME_NEUTRAL_DARK@', String(process.env.THEME_NEUTRAL_DARK) !== "" ? String(process.env.THEME_NEUTRAL_DARK) : "#1F1E1D"))
         .pipe(gulp.dest('intermediate'))
 })
 

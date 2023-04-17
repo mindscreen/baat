@@ -1,5 +1,9 @@
 import * as axe from 'axe-core'
 
+export type ChangeCore = {
+    source: string
+}
+
 export type AxeRunCompleted = {
     violations: Result[]
 }
