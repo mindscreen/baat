@@ -3,10 +3,10 @@ import { axeExists } from '../../util/axe'
 import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
-import { BAATEvent } from '../../types'
+import { AxeRunCompleted, BAATEvent, ChangeCore } from '../../types'
 
 const styles = css`
     .visuallyHidden { ${visuallyHiddenStyles} }
@@ -52,6 +52,7 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
     private unloadedContainerRef = createRef<HTMLDivElement>()
     private loadedTextRef = createRef<HTMLDivElement>()
     private fileRef = createRef<HTMLInputElement>()
+    private source: string = ''
 
     attributeChangedCallback<T extends keyof ILibSelectionAccessor>(name: T, oldValue: ILibSelectionAccessor[T], newValue: ILibSelectionAccessor[T]) {
         this.update()
@@ -76,7 +77,7 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
         if(typeof axe === 'object') {
             axeVersion = '(' + axe.version + ')'
         }
-        this.loadedTextRef.value.textContent = 'axe-core ' + axeVersion + ' loaded'
+        this.loadedTextRef.value.textContent = 'axe-core ' + axeVersion + ' loaded' + (this.source ? ' from ' + this.source : '')
     }
 
     initialize() {
@@ -88,7 +89,7 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
                 var reader = new FileReader()
                 reader.readAsText(file, 'UTF-8')
                 reader.onload = function (evt) {
-                    baat.createScript((evt?.target?.result as string) ?? '')
+                    window[baatSymbol].createScript((evt?.target?.result as string) ?? '')
                 }
             }
         }
@@ -101,11 +102,14 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
                 </div>
                 <div id='loadedContainer' ref={this.loadedContainerRef}>
                     <div id='loadedText' ref={this.loadedTextRef}></div>
-                    <button type='button' id='reloadButton' onClick={() => baat.unloadAxe()}>Change</button>
+                    <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
                 </div>
             </div>
         )
-        baat.addEventListener(BAATEvent.ChangeCore, () => this.update())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, ((e: CustomEvent<ChangeCore>) => {
+            this.source = e.detail.source
+            this.update()
+        }) as EventListener)
 
         this.initialized = true;
     }
