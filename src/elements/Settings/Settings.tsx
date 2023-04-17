@@ -1,8 +1,6 @@
-import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
-import { FilterSettings } from '../FilterSettings/FilterSettings'
+import { baatSymbol } from '../../core/BAAT'
 import { Accordion } from '../Accordion/Accordion'
 import { LibSelection } from '../LibSelection/LibSelection'
 import { baact } from '../../../baact/baact'
@@ -58,8 +56,8 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     <div>
                         <Checkbox
                             id='autorun'
-                            checked={baat.getSetting<boolean>('autorun')}
-                            onChange={function (this: HTMLInputElement) { baat.setSetting('autorun', this.checked); if(axeExists()) { baat.runAxe() } }}
+                            checked={window[baatSymbol].getSetting<boolean>('autorun')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('autorun', this.checked); if(axeExists()) { window[baatSymbol].runAxe() } }}
                             label='auto run when loaded'
                         />
                     </div>
@@ -75,41 +73,28 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     />
                 </Accordion>*/}
                 <Accordion folded={false} fixed={true}>
-                    <span slot="heading">Issue Impact filters</span>
-                    <FilterSettings
-                        setting='hiddenImpacts'
-                        pre='impact-'
-                        id='impactsSettings'
-                        // @ts-ignore
-                        getFilters={() => axe.constants.impact}
-                    />
-                </Accordion>
-                <Accordion folded={false} fixed={true}>
                     <span slot="heading">BAAT Settings</span>
                     <div>
                         <Checkbox
+                            id='showAdditionalInformation'
+                            checked={window[baatSymbol].getSetting<boolean>('showAdditionalInformation')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('showAdditionalInformation', this.checked) }}
+                            label='Show a short summary for each test result'
+                        />
+                        <Checkbox
                             id='developer'
-                            checked={baat.getSetting<boolean>('developer')}
-                            onChange={function (this: HTMLInputElement) { baat.setSetting('developer', this.checked) }}
+                            checked={window[baatSymbol].getSetting<boolean>('developer')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('developer', this.checked) }}
                             label='developer mode'
                         />
                     </div>
                 </Accordion>
                 <div id="info">
-                    <h2>
-                        BAAT
-                    </h2>
-                    <div role="doc-subtitle">Bookmarklet Accessibility Audit Tool v{baat.version}</div>
-                    <p>
-                        BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.
-                    </p>
-                    <p>
-                        You can find the documentation on the  <a href='https://github.com/mindscreen/baat'>BAAT GitHub Page</a>.
-                    </p>
+                    @INFORMATION@
                 </div>
             </div>
         )
-        baat.addEventListener(BAATEvent.ChangeCore, () => this.update());
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => this.update());
     }
 }
 

@@ -5,6 +5,7 @@ export const config = {
         hiddenImpacts: [ 'moderate', 'minor' ],
         autorun: false,
         developer: false,
+        showAdditionalInformation: false,
     },
     size: {
         width: 400,

@@ -2,7 +2,7 @@ import { Violation } from '../Violation/Violation'
 import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { AxeRunCompleted, BAATEvent, Result, StatusChange } from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
@@ -12,6 +12,10 @@ import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
+import { FilterSettings } from '../FilterSettings/FilterSettings'
+import * as axe from 'axe-core'
+import { Accordion } from '../Accordion/Accordion'
+import { Checkbox } from '../Checkbox/Checkbox'
 
 const styles = css`
     #container {
@@ -28,6 +32,7 @@ const styles = css`
         width: calc(100% - 2 * ${theme.sizing.relative.tiny});
         margin: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         box-sizing: border-box;
+        table-layout: fixed;
     }
     th {
         text-align: start;
@@ -35,6 +40,9 @@ const styles = css`
     }
     thead th {
         font-weight: bold;
+    }
+    td:first-child, th:first-child {
+        width: 1em;
     }
     caption {
         text-align: left;
@@ -84,6 +92,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     folded: boolean = true
     styles = styles
     private resultsContainerRef = createRef<HTMLDivElement>()
+    private statisticsContainerRef = createRef<HTMLDivElement>()
     private statusContainerRef = createRef<HTMLDivElement>()
     private filterPlaceholderRef = createRef<HTMLDivElement>()
 
@@ -111,19 +120,20 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             <div id='container'>
                 <div id='status' ref={this.statusContainerRef}></div>
                 <div id='results' ref={this.resultsContainerRef}></div>
+                <div id='statistics' ref={this.statisticsContainerRef}></div>
             </div>
         )
-        this.setAttribute('results', baat.lastResults)
-        baat.addEventListener(BAATEvent.ChangeCore, () => {
-            this.setAttribute('results', baat.lastResults)
+        this.setAttribute('results', window[baatSymbol].lastResults)
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => {
+            this.setAttribute('results', window[baatSymbol].lastResults)
             this.update()
         })
-        baat.addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
+        window[baatSymbol].addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
             this.setAttribute('results', e.detail.violations)
         }) as EventListener)
-        baat.addEventListener(BAATEvent.ChangeSettings, () => this.handleChangeSettings())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, () => this.handleChangeSettings())
 
-        baat.addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
+        window[baatSymbol].addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
             this.statusContainerRef.value.textContent = e.detail.message
         }) as EventListener)
         this.updateResults()
@@ -133,6 +143,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         if (!this.shadowRoot) return
 
         removeAllChildren(this.resultsContainerRef.value)
+        removeAllChildren(this.statisticsContainerRef.value)
 
         this.results
             .forEach((result) => {
@@ -141,7 +152,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 )
             })
 
-        if (this.results.length === 0 && baat.hasRun) {
+        if (this.results.length === 0 && window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
                     <h2>No Violations found</h2>
@@ -150,7 +161,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             )
         }
 
-        if (this.results.length === 0 && !baat.hasRun) {
+        if (this.results.length === 0 && !window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
                     <h2>Not yet run</h2>
@@ -166,7 +177,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             </div>
         )
 
-        if (this.results.length !== 0 && baat.hasRun) {
+        if (this.results.length !== 0 && window[baatSymbol].hasRun) {
             const elements = this.results.flatMap(result => result.nodes)
                 .flatMap(node => node.element)
                 .filter(and(uniquePredicate, (value) => value !== undefined))
@@ -174,25 +185,38 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const elementCounts = tally(this.results.flatMap(result => result.nodes.map(() => result.impact)).filter(notNullish))
             const counts = zip(impactCounts, elementCounts)
 
-            this.resultsContainerRef.value.appendChild(
+            this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
                     <thead>
                         <tr>
+                            <th> </th>
                             <th>Impact</th>
                             <th>Violations</th>
                             <th>Elements</th>
                         </tr>
                     </thead>
                     <tbody>
-                        { ...Object.entries(counts).map(([impact, [violations, elements]]) =>
-                            <tr>
+                        { ...Object.entries(counts).map(([impact, [violations, elements]]) => {
+                            const checked = !window[baatSymbol].getSetting<string[]>('hiddenImpacts').includes(impact)
+                            function handleChange(this: HTMLInputElement) {
+                                if (this.checked) {
+                                    window[baatSymbol].setSetting('hiddenImpacts', window[baatSymbol].getSetting<string[]>('hiddenImpacts').filter(hidden => hidden !== impact))
+                                } else {
+                                    window[baatSymbol].setSetting('hiddenImpacts', [ ...window[baatSymbol].getSetting<string[]>('hiddenImpacts'), impact ])
+                                }
+                            }
+                            return <tr>
+                                <td>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ `show ${ impact }` } labelHidden/>
+                                </td>
                                 <th>{ impact.charAt(0).toUpperCase() + impact.slice(1) }</th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
                             </tr>
-                        )}
+                        })}
                         <tr>
+                            <td></td>
                             <th>Total</th>
                             <td>{ this.results.length.toString() }</td>
                             <td>{ elements.length.toString() }</td>
@@ -200,8 +224,20 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </tbody>
                 </table>
             )
-            this.resultsContainerRef.value.appendChild(
-                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(baat.fullReport))}>
+            let cache: Array<any> = [];
+
+            this.statisticsContainerRef.value.appendChild(
+                <button type='button' onClick={() => download('baat-report.json', JSON.stringify(window[baatSymbol].fullReport, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (value.hasOwnProperty('element') && value.element instanceof HTMLElement) {
+                            const result = { ...value }
+                            delete result['element']
+                            return result
+                        }
+                        cache.push(value)
+                    }
+                    return value;
+                }))}>
                     <Icon width="16" height="16"><path d="m6 2h33l7 7v33c0 2.26-1.74 4-4 4h-36c-2.26 0-4-1.74-4-4v-36c0-2.26 1.74-3.99 4-4z"/><rect x="9" y="25" width="30" height="19"/><rect x="24" y="6" width="6" height="10"/><rect x="12" y="2" width="24" height="18"/></Icon>
                     Download Report
                 </button>
@@ -212,8 +248,8 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     }
 
     handleChangeSettings(): void {
-        const hiddenTags = baat.getSetting<string[]>('hiddenTags')
-        const hiddenImpacts = baat.getSetting<string[]>('hiddenImpacts')
+        const hiddenTags = window[baatSymbol].getSetting<string[]>('hiddenTags')
+        const hiddenImpacts = window[baatSymbol].getSetting<string[]>('hiddenImpacts')
 
         this.shadowRoot?.querySelectorAll(Violation.tagName)
             .forEach((violation) => {
@@ -230,7 +266,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         const numFiltered = this.shadowRoot?.querySelectorAll(`${Violation.tagName}.visuallyHidden`).length;
 
-        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === baat.lastResults.length))
+        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
     }
 }
 

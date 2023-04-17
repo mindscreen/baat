@@ -1,6 +1,6 @@
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
-import { baat } from '../../core/BAAT'
+import { baatSymbol } from '../../core/BAAT'
 import { AxeRunCompleted, BAATEvent, Result } from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { uniquePredicate } from '../../util/array'
@@ -45,12 +45,12 @@ export class MiniResults extends BaseHTMLElement<IResultsAccessor> implements IR
         this.shadowRoot?.appendChild(
             <span id='container' ref={this.containerRef}></span>
         )
-        this.setAttribute('results', baat.lastResults)
-        baat.addEventListener(BAATEvent.ChangeCore, () => {
-            this.setAttribute('results', baat.lastResults)
+        this.setAttribute('results', window[baatSymbol].lastResults)
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, () => {
+            this.setAttribute('results', window[baatSymbol].lastResults)
             this.update()
         })
-        baat.addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
+        window[baatSymbol].addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
             this.setAttribute('results', e.detail.violations)
         }) as EventListener)
 
@@ -60,7 +60,7 @@ export class MiniResults extends BaseHTMLElement<IResultsAccessor> implements IR
     updateResults(): void {
         if (!this.shadowRoot) return
 
-        if (this.results.length !== 0 && baat.hasRun) {
+        if (this.results.length !== 0 && window[baatSymbol].hasRun) {
             const elements = this.results.flatMap(result => result.nodes)
                 .flatMap(node => node.element)
                 .filter(and(uniquePredicate, (value) => value !== undefined))
