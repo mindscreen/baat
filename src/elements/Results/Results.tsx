@@ -42,7 +42,7 @@ const styles = css`
         font-weight: bold;
     }
     td:first-child, th:first-child {
-        width: 1rem;
+        width: 1em;
     }
     caption {
         text-align: left;
