@@ -16,28 +16,20 @@ There are two ways to install and use BAAT:
 
 ### Usage as a bookmarklet
 1. Head to the [BAAT GitHub releases page](https://github.com/mindscreen/baat/releases/latest).
-2. Download the bookmarklet.txt file.
-3. Create a new bookmark in your browser and paste the content of the bookmarklet.txt file into the URL field. _Note: the process of creating a bookmarklet can vary depending on your browser, so please refer to your browser's documentation for further information.
-4. Get a version of axe.min.js.
-
-   The axe.min.js file contains the rule definitions. It needs to be selected in the BAAT interface to enable the bookmarklet to run the tests.
-
-   You can [download a version of axe.min.js](https://mscr.it/baat/axe.min.js) (v4.6.3).
-5. Activate the bookmarklet on any page.
-6. Select the axe.min.js file to load the axe-core into BAAT and press the run button to run BAAT
+2. Download the baat-bookmark.txt file.
+3. Go to the bookmark management of your browser and import the bookmark from this file.
+   [Guideline for Firefox](https://support.mozilla.org/en-US/kb/import-bookmarks-html-file), [Chrome](https://support.google.com/chrome/answer/96816?hl=en) (use the "Bookmarks HTML file" option for import), [Edge](https://support.microsoft.com/en-us/windows/move-internet-explorer-favorites-to-a-new-pc-a03f02c7-e0b9-5d8b-1857-51dd70954e47#ID0EDF)
+4. You need to activate the bookmark toolbar. If the BAAT bookmarklet is not already in the bookmark toolbar, move it there.
+5. Activate the bookmarklet on any page. (The bookmarklet tries to load the axe.min.js rules file from jsdeliver into BAAT, if this does not work (e.g. due to CSP restrictions) you can provide a local version of the rules file in the settings)
+6. Press the play button in the top bar of BAAT to run the tests.
 
 ### Usage as an userscript
-1. Install a userscript manager, such as Tampermonkey. You will find installation instructions on the [Tampermonkey website](https://www.tampermonkey.net/).
+1. Install an userscript manager, such as Tampermonkey. You will find installation instructions on the [Tampermonkey website](https://www.tampermonkey.net/).
 2. Head to the [BAAT GitHub releases page](https://github.com/mindscreen/baat/releases/latest).
 3. Download the userscript.js file.
 4. Install the Userscript using your userscript manager.
-5. Get a version of axe.min.js.
-
-   The axe.min.js file contains the rule definitions. It needs to be selected in the BAAT interface to enable the bookmarklet to run the tests.
-
-   You can [download a version of axe.min.js](https://mscr.it/baat/axe.min.js) (v4.6.3).
-6. Activate the bookmarklet on any page.
-7. Select the axe.min.js file to load the axe-core into BAAT and press the run button to run BAAT
+5. Run the userscript on any page. (The userscript tries to load the axe.min.js rules file from jsdeliver into BAAT, if this does not work (e.g. due to CSP restrictions) you can provide a local version of the rules file in the settings)
+6. Press the play button in the top bar of BAAT to run the tests.
 
 
 ### Options
@@ -79,8 +71,7 @@ The primary color of the application is controlled by the following environment 
 ## Creating a new Rule
 BAAT allows you to run custom versions of axe-core. This way you can add your own rules to the test.
 To do so, you need to create a fork of the [axe-core repository]](https://github.com/dequelabs/axe-core) and [add your own rules](https://github.com/dequelabs/axe-core/blob/develop/doc/rule-development.md).
-After running `npm run build` in the root repository of the root folder of axe-core, you will find a file called `axe.min.js` in the root folder. T
-his file contains your custom rules and can be used with BAAT.
+After running `npm run build` in the root repository of the root folder of axe-core, you will find a file called `axe.min.js` in the root folder. This file contains your custom rules and can be used with BAAT.
 
 ## Notes
 If you have any questions or feedback, please [open an issue](https://github.com/mindscreen/baat/issues/new).
