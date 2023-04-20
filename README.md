@@ -70,7 +70,7 @@ The primary color of the application is controlled by the following environment 
 
 ## Creating a new Rule
 BAAT allows you to run custom versions of axe-core. This way you can add your own rules to the test.
-To do so, you need to create a fork of the [axe-core repository]](https://github.com/dequelabs/axe-core) and [add your own rules](https://github.com/dequelabs/axe-core/blob/develop/doc/rule-development.md).
+To do so, you need to create a fork of the [axe-core repository](https://github.com/dequelabs/axe-core) and [add your own rules](https://github.com/dequelabs/axe-core/blob/develop/doc/rule-development.md).
 After running `npm run build` in the root repository of the root folder of axe-core, you will find a file called `axe.min.js` in the root folder. This file contains your custom rules and can be used with BAAT.
 
 ## Notes
