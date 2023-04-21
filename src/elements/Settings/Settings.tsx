@@ -1,8 +1,6 @@
-import * as axe from 'axe-core'
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import { FilterSettings } from '../FilterSettings/FilterSettings'
 import { Accordion } from '../Accordion/Accordion'
 import { LibSelection } from '../LibSelection/LibSelection'
 import { baact } from '../../../baact/baact'
@@ -76,22 +74,18 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     />
                 </Accordion>*/}
                 <Accordion folded={false} fixed={true}>
-                    <span slot="heading">Issue Impact filters</span>
-                    <FilterSettings
-                        setting='hiddenImpacts'
-                        pre='impact-'
-                        id='impactsSettings'
-                        // @ts-ignore
-                        getFilters={() => axe.constants.impact}
-                    />
-                </Accordion>
-                <Accordion folded={false} fixed={true}>
                     <span slot="heading">Axe Settings</span>
                     <ReporterSettings />
                 </Accordion>
                 <Accordion folded={false} fixed={true}>
                     <span slot="heading">BAAT Settings</span>
                     <div>
+                        <Checkbox
+                            id='showAdditionalInformation'
+                            checked={window[baatSymbol].getSetting<boolean>('showAdditionalInformation')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('showAdditionalInformation', this.checked) }}
+                            label='Show a short summary for each test result'
+                        />
                         <Checkbox
                             id='developer'
                             checked={window[baatSymbol].getSetting<boolean>('developer')}
@@ -101,19 +95,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     </div>
                 </Accordion>
                 <div id="info">
-                    <h2>
-                        BAAT
-                    </h2>
-                    <div role="doc-subtitle">Bookmarklet Accessibility Audit Tool v{window[baatSymbol].version}</div>
-                    <p>
-                        BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.
-                    </p>
-                    <p>
-                        To be able to run BAAT you have to select a minified axe-core script. A copy can be obtained by compiling the source files available at the <a href='https://github.com/dequelabs/axe-core'>axe-core GitHub Page</a>.
-                    </p>
-                    <p>
-                        A word of caution. Since BAAT modifies the DOM it is generally recommended to reload the page before testing manually.
-                    </p>
+                    @INFORMATION@
                 </div>
             </div>
         )

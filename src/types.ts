@@ -1,5 +1,9 @@
 import * as axe from 'axe-core'
 
+export type ChangeCore = {
+    source: string
+}
+
 export type AxeRunCompleted = {
     violations: Result[]
 }
@@ -18,12 +22,17 @@ export type SettingsChanged = {
     oldValue: any,
 }
 
+export type HighlightElement = {
+    element: HTMLElement
+}
+
 export enum BAATEvent {
     ChangeCore = 'ChangeAxeCore',
     ChangeSettings = 'ChangeSettings',
     RunCompleted = 'RunCompleted',
     StatusChange = 'StatusChange',
     ChangeView = 'ChangeView',
+    HighlightElement = 'HighlightElement',
     ReporterAdded = 'ReporterAdded',
 }
 

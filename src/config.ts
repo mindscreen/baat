@@ -6,6 +6,7 @@ export const config = {
         autorun: false,
         developer: false,
         reporter: 'v2',
+        showAdditionalInformation: false,
     },
     size: {
         width: 400,

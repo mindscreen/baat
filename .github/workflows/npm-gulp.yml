@@ -3,8 +3,6 @@ name: NodeJS with Gulp
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -77,7 +75,7 @@ jobs:
           asset_path: ./bookmarklet.txt
           asset_name: bookmarklet.txt
           asset_content_type: text/plain
-      - name: Upload bookmarklet
+      - name: Upload Userscript
         id: upload-userscript
         uses: actions/upload-release-asset@v1
         env:
@@ -87,3 +85,13 @@ jobs:
           asset_path: ./userscript.js
           asset_name: userscript.js
           asset_content_type: text/javascript
+      - name: Upload Bookmark Export
+        id: upload-bookmark-export
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./baat-bookmark.html
+          asset_name: baat-bookmark.html
+          asset_content_type: text/html

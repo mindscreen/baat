@@ -17,6 +17,7 @@ export class BAAT extends EventTarget {
     private _hasRun = false
     private additionalReporters: [string, string][] = []
     public version = '@VERSION@'
+    private readonly axeMinUrl: string = '@AXE_MIN_URL@'
 
     private constructor() {
         super();
@@ -32,6 +33,14 @@ export class BAAT extends EventTarget {
 
         if (possibleScript) {
             this.createScript(possibleScript)
+        } else if(this.axeMinUrl !== '') {
+            fetch(this.axeMinUrl).then((response) => {
+                response.text().then((text) => {
+                    this.createScript(text, false, new URL(this.axeMinUrl).hostname)
+                })
+
+            })
+
         }
 
         this._view = BAATView[(localStorage.getItem('baat_view') ?? BAATView.Settings.toString()) as keyof typeof BAATView]
@@ -40,13 +49,13 @@ export class BAAT extends EventTarget {
         }
     }
 
-    createScript(script: string) {
+    createScript(script: string, writeToStorage = true, source = '') {
         if (!axeExists()) {
             if (script.includes('axe') && script.endsWith(';')) {
                 new Promise((resolve) => {
                     createScript(script, 'axeScript')
-                    localStorage.setItem('baat_core_script', script)
-                    this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore))
+                    if (writeToStorage) localStorage.setItem('baat_core_script', script)
+                    this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source } }))
                     resolve()
                 })
             } else {
@@ -59,7 +68,7 @@ export class BAAT extends EventTarget {
         // @ts-ignore
         axe = null
         localStorage.setItem('baat_core_script', "")
-        this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore))
+        this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source: '' } }))
     }
 
     getSetting<S>(name: string): S {
