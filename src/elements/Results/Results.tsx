@@ -187,7 +187,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const byImpact = (a: [string, any], b: [string, any]) => {
                 // @ts-ignore
                 const impactOrder = axe.constants.impact
-                return impactOrder.indexOf(a[0]) - impactOrder.indexOf(b[0])
+                return impactOrder.indexOf(b[0]) - impactOrder.indexOf(a[0])
             }
 
             this.statisticsContainerRef.value.appendChild(
