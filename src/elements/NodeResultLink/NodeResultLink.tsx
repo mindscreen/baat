@@ -114,7 +114,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             if (window[baatSymbol].getSetting('developer'))
                 console.log(this.result.element)
 
-            this.result.element?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+            this.result.element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {

@@ -16,15 +16,17 @@ const styles = css`
   
     .highlight {
         margin: -2px;
-        background-color: rgba(255, 255, 255, 0);
-        border: 2px solid rgba(0, 0, 0, 0);
+        padding: 2px;
+        background-color: transparent;
+        border-radius: 2px;
         pointer-events: none;
-        transition: all 0.75s ease-in;
+        transition: all 0.5s ease-out;
+        outline: 0px solid ${ theme.palette.primaryLight}77;
     }
   
     .blink {
         background-color: ${ theme.palette.primaryLight }77;
-        border: 2px solid ${ theme.palette.primary };
+        outline: 50px solid ${ theme.palette.primary}dd;
     }
 `;
 
