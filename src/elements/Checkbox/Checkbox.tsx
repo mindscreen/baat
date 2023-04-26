@@ -39,7 +39,6 @@ const styles = css`
         padding-left: ${theme.sizing.relative.large};
         cursor: pointer;
         margin-bottom: ${theme.sizing.relative.tiny};
-        //margin-top: ${theme.sizing.relative.tiny};
     }
 
     .container input[type="checkbox"] ~ .input {
