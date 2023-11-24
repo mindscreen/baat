@@ -24,6 +24,9 @@ const styles = css`
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
     }
+    .settingsContainer {
+      padding-top: ${theme.sizing.relative.tiny};
+    }
     [role=doc-subtitle] {
         font-style: italic;
     }
@@ -54,7 +57,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
             <div id='container'>
                 <Accordion folded={false} fixed={true}>
                     <span slot="heading">Testscript</span>
-                    <div>
+                    <div class="settingsContainer">
                         <Checkbox
                             id='autorun'
                             checked={window[baatSymbol].getSetting<boolean>('autorun')}
@@ -79,7 +82,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                 </Accordion>
                 <Accordion folded={false} fixed={true}>
                     <span slot="heading">BAAT Settings</span>
-                    <div>
+                    <div class="settingsContainer">
                         <Checkbox
                             id='showAdditionalInformation'
                             checked={window[baatSymbol].getSetting<boolean>('showAdditionalInformation')}

@@ -184,6 +184,11 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const impactCounts = tally(this.results.map(result => result.impact).filter(notNullish))
             const elementCounts = tally(this.results.flatMap(result => result.nodes.map(() => result.impact)).filter(notNullish))
             const counts = zip(impactCounts, elementCounts)
+            const byImpact = (a: [string, any], b: [string, any]) => {
+                // @ts-ignore
+                const impactOrder = axe.constants.impact
+                return impactOrder.indexOf(b[0]) - impactOrder.indexOf(a[0])
+            }
 
             this.statisticsContainerRef.value.appendChild(
                 <table>
@@ -197,7 +202,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                         </tr>
                     </thead>
                     <tbody>
-                        { ...Object.entries(counts).map(([impact, [violations, elements]]) => {
+                        { ...Object.entries(counts).sort(byImpact).map(([impact, [violations, elements]]) => {
                             const checked = !window[baatSymbol].getSetting<string[]>('hiddenImpacts').includes(impact)
                             function handleChange(this: HTMLInputElement) {
                                 if (this.checked) {
