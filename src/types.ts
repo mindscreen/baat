@@ -33,6 +33,7 @@ export enum BAATEvent {
     StatusChange = 'StatusChange',
     ChangeView = 'ChangeView',
     HighlightElement = 'HighlightElement',
+    ReporterAdded = 'ReporterAdded',
 }
 
 export enum BAATView {
@@ -48,3 +49,13 @@ export interface NodeResult extends axe.NodeResult {
 export interface Result extends axe.Result {
     nodes: NodeResult[]
 }
+
+export type HistoryEntry = {
+    id: string
+    nodes: {
+        html: string
+        all: { id: string }[]
+        any: { id: string }[]
+        target: string[]
+    }[]
+}[]

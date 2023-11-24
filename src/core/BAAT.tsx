@@ -1,19 +1,30 @@
 import { createScript } from '../util/dom'
-import { config } from '../config'
-import { axeExists } from '../util/axe'
+import {config, localStorageKeys, settingNames} from '../config'
+import { axeExists, ReporterInfos, shippedReporters } from '../util/axe'
 import * as axe from 'axe-core'
-import { AxeRunCompleted, BAATEvent, BAATView, SettingsChanged, ViewChanged, Result, StatusChange } from '../types'
-import { baact } from '../../baact/baact'
+import {
+    AxeRunCompleted,
+    BAATEvent,
+    BAATView,
+    SettingsChanged,
+    ViewChanged,
+    Result,
+    StatusChange,
+    HistoryEntry
+} from '../types'
 import { highlightContainer } from './highlight'
+import { clone } from '../util/object'
+import {convertViolationToHistoryEntry} from "../util/history";
 
 export class BAAT extends EventTarget {
-    private static instance: BAAT;
-    private settings: Record<string, any> = {};
-    private running: boolean = false;
+    private static instance: BAAT
+    private settings: Record<string, any> = {}
+    private running: boolean = false
     public lastResults: Result[] = []
-    public fullReport: axe.AxeResults | null = null;
+    public partialRunResult: axe.PartialResult | null = null
     private _view: BAATView
     private _hasRun = false
+    private additionalReporters: [string, string][] = []
     public version = '@VERSION@'
     private readonly axeMinUrl: string = '@AXE_MIN_URL@'
 
@@ -21,13 +32,13 @@ export class BAAT extends EventTarget {
         super();
 
         const localStorage = window.localStorage
-        const possibleScript = localStorage.getItem('baat_core_script')
+        const possibleScript = localStorage.getItem(localStorageKeys.coreScript)
 
         try {
-            this.settings = JSON.parse(localStorage.getItem('baat_settings') ?? '{}')
+            this.settings = JSON.parse(localStorage.getItem(localStorageKeys.settings) ?? '{}')
         } catch (e) {}
 
-        this.addEventListener(BAATEvent.ChangeCore, () => { if (this.getSetting('autorun') && axeExists()) { window.setTimeout(() => { this.runAxe() }, 100) }})
+        this.addEventListener(BAATEvent.ChangeCore, () => { if (this.getSetting(settingNames.autorun) && axeExists()) { window.setTimeout(() => { this.runAxe() }, 100) }})
 
         if (possibleScript) {
             this.createScript(possibleScript)
@@ -41,7 +52,7 @@ export class BAAT extends EventTarget {
 
         }
 
-        this._view = BAATView[(localStorage.getItem('baat_view') ?? BAATView.Settings.toString()) as keyof typeof BAATView]
+        this._view = BAATView[(localStorage.getItem(localStorageKeys.view) ?? BAATView.Settings.toString()) as keyof typeof BAATView]
         if (!axeExists()) {
             this._view = BAATView.Settings
         }
@@ -52,7 +63,7 @@ export class BAAT extends EventTarget {
             if (script.includes('axe') && script.endsWith(';')) {
                 new Promise((resolve) => {
                     createScript(script, 'axeScript')
-                    if (writeToStorage) localStorage.setItem('baat_core_script', script)
+                    if (writeToStorage) localStorage.setItem(localStorageKeys.coreScript, script)
                     this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source } }))
                     resolve()
                 })
@@ -65,7 +76,7 @@ export class BAAT extends EventTarget {
     unloadAxe() {
         // @ts-ignore
         axe = null
-        localStorage.setItem('baat_core_script', "")
+        localStorage.setItem(localStorageKeys.coreScript, "")
         this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source: '' } }))
     }
 
@@ -97,9 +108,26 @@ export class BAAT extends EventTarget {
         }))
 
         new Promise((resolve) => {
-            localStorage.setItem('baat_settings', JSON.stringify(this.settings))
+            localStorage.setItem(localStorageKeys.settings, JSON.stringify(this.settings))
             resolve()
         })
+    }
+
+    addHistory(violations: Result[]) {
+        const history = localStorage.getItem(localStorageKeys.history)
+        const historyArray = history ? JSON.parse(history) : []
+        const newEntry: HistoryEntry = convertViolationToHistoryEntry(violations);
+        historyArray.push(newEntry);
+        localStorage.setItem(localStorageKeys.history, JSON.stringify(historyArray))
+    }
+
+    getHistory(): HistoryEntry[] {
+        const history = localStorage.getItem(localStorageKeys.history)
+        return history ? JSON.parse(history) : []
+    }
+
+    clearHistory() {
+        localStorage.setItem(localStorageKeys.history, JSON.stringify([]))
     }
 
     dispatchStatusEvent(message: string) {
@@ -126,35 +154,39 @@ export class BAAT extends EventTarget {
             })
         })
 
-        axe.run(
+        axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
-            { elementRef: true }
+            {},
         )
             .then(results => {
-                this.running = false
-                let violations = results.violations as Result[]
+                this.partialRunResult = clone(results)
 
-                if (results.violations.length) {
-                    if (this.getSetting('developer'))
-                        console.log('violations', violations)
+                axe.finishRun([ results ], { elementRef: true }).then((defaultResults) => {
+                    this.running = false
+                    let violations = defaultResults.violations as Result[]
+                    if (defaultResults.violations.length) {
+                        if (this.getSetting(settingNames.developer))
+                            console.log('violations', violations)
 
-                    /*violations.forEach((violation) => {
-                        violation.nodes.forEach((result) => {
-                            result.highlight = addHighlightTo(result, violation)
-                        })
-                    })*/
+                        /*violations.forEach((violation) => {
+                            violation.nodes.forEach((result) => {
+                                result.highlight = addHighlightTo(result, violation)
+                            })
+                        })*/
 
-                    this.dispatchStatusEvent('Issues found!')
-                } else {
-                    this.dispatchStatusEvent('No issues found!')
-                }
+                        this.dispatchStatusEvent('Issues found!')
+                    } else {
+                        this.dispatchStatusEvent('No issues found!')
+                    }
 
-                this.dispatchStatusEvent('')
+                    this.dispatchStatusEvent('')
+
+                    this.addHistory(violations);
 
                 this.lastResults = violations
-                this.fullReport = results
-                this._hasRun = true;
-                this.dispatchEvent(new CustomEvent<AxeRunCompleted>(BAATEvent.RunCompleted, { detail: { violations: violations }}));
+                    this._hasRun = true;
+                    this.dispatchEvent(new CustomEvent<AxeRunCompleted>(BAATEvent.RunCompleted, { detail: { violations: violations }}));
+                })
             })
     }
 
@@ -165,11 +197,29 @@ export class BAAT extends EventTarget {
     set view(value: BAATView) {
         this._view = value
         this.dispatchEvent(new CustomEvent<ViewChanged>(BAATEvent.ChangeView,{ detail: { view: value }}))
-        localStorage.setItem('baat_view', value.toString())
+        localStorage.setItem(localStorageKeys.view, value.toString())
     }
 
     get hasRun(): boolean {
         return this._hasRun
+    }
+
+    public getFinalResults(): Promise<axe.AxeResults> {
+        const results = clone(this.partialRunResult)
+        // @ts-ignore
+        return axe.finishRun([ results ], { reporter: window[baatSymbol].getSetting<string>('reporter')})
+    }
+
+    public getReporters(): ReporterInfos {
+        if (!axeExists()) return []
+
+        return [...shippedReporters, ...this.additionalReporters].filter(([key, _]) => (axe as any).hasReporter(key));
+    }
+
+    public addReporter(reporter: any, options: { key: string, name: string}) {
+        (axe as any).addReporter(options.key, reporter)
+        this.additionalReporters.push([options.key, options.name])
+        this.dispatchEvent(new CustomEvent(BAATEvent.ReporterAdded))
     }
 
     public static getInstance(): BAAT {
