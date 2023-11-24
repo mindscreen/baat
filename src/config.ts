@@ -3,6 +3,7 @@ export const config = {
     defaultSettings: {
         hiddenTags: [] as string[],
         hiddenImpacts: [ 'moderate', 'minor' ],
+        hiddenResults: [] as string[],
         autorun: false,
         developer: false,
         showAdditionalInformation: false,

@@ -1,4 +1,5 @@
 import { Violation } from '../Violation/Violation'
+import { HiddenViolation } from '../HiddenViolation/HiddenViolation'
 import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
@@ -12,9 +13,7 @@ import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
-import { FilterSettings } from '../FilterSettings/FilterSettings'
 import * as axe from 'axe-core'
-import { Accordion } from '../Accordion/Accordion'
 import { Checkbox } from '../Checkbox/Checkbox'
 
 const styles = css`
@@ -148,7 +147,14 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         this.results
             .forEach((result) => {
                 this.resultsContainerRef.value.appendChild(
-                    <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)}/>
+                    <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="violation"/>
+                )
+            })
+
+        this.results
+            .forEach((result) => {
+                this.resultsContainerRef.value.appendChild(
+                    <HiddenViolation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="hiddenViolation"/>
                 )
             })
 
@@ -255,8 +261,9 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     handleChangeSettings(): void {
         const hiddenTags = window[baatSymbol].getSetting<string[]>('hiddenTags')
         const hiddenImpacts = window[baatSymbol].getSetting<string[]>('hiddenImpacts')
+        const hiddenResults = window[baatSymbol].getSetting<string[]>('hiddenResults')
 
-        this.shadowRoot?.querySelectorAll(Violation.tagName)
+        this.shadowRoot?.querySelectorAll(`${Violation.tagName}, ${HiddenViolation.tagName}`)
             .forEach((violation) => {
                 violation.classList.toggle('visuallyHidden', (
                     !violation
@@ -266,6 +273,10 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                         .reduce((acc, curr) => acc || curr, false) ?? false
                 ) || (
                     hiddenImpacts.includes(violation.getAttribute('data-impact') ?? "")
+                ) || (
+                    violation.getAttribute('data-type') === 'violation'
+                        ? hiddenResults.includes(violation.getAttribute('data-id') ?? "")
+                        : !hiddenResults.includes(violation.getAttribute('data-id') ?? "")
                 ))
             })
 

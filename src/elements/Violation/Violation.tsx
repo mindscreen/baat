@@ -9,6 +9,7 @@ import { Accordion } from '../Accordion/Accordion'
 import { NodeResult, Result } from '../../types'
 import { hideHighlight, showHighlight } from '../../core/highlight'
 import { Icon } from '..'
+import {baatSymbol} from "../../core/BAAT";
 
 const impactColors = {
     'critical': 'impactCritical',
@@ -31,14 +32,6 @@ const styles = css`
         font-size: ${theme.semanticSizing.font.large};
         margin-right: 0.25em;
     }
-    #indicator {
-        position: absolute;
-        top: 0;
-        right: 0;
-        height: ${theme.sizing.relative.larger};
-        width: ${theme.sizing.relative.larger};
-        box-sizing: border-box;
-    }
     .shrink {
         width: calc(100% - 3em)
     }
@@ -56,9 +49,12 @@ const styles = css`
         display: flex;
         align-items: center;
         justify-content: center;
+        top: 0;
+        right: 0;
         height: ${theme.sizing.relative.larger};
         width: ${theme.sizing.relative.larger};
         font-size: ${theme.sizing.relative.huge};
+        box-sizing: border-box;
     }
     .impactCritical {
         background-color: ${theme.palette.critical};
@@ -74,8 +70,8 @@ const styles = css`
     }
     .impactNone {
         background-color: gray;
-    } 
-  
+    }
+
     a {
       color: ${ theme.semanticColors.font.link };
     }
@@ -84,6 +80,22 @@ const styles = css`
     }
     a:disabled {
         color: ${theme.semanticColors.font.dark};
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        font-family: sans-serif;
+        gap: ${theme.sizing.relative.tiny};
+        background-color: ${theme.palette.white};
+        border: none;
+        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        cursor: pointer;
+        font-size: 1rem;
+    }
+  
+    button:hover {
+        background-color: ${theme.palette.gray};
     }
 `;
 
@@ -177,6 +189,12 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.result?.nodes.forEach(folded ? hideHighlight : showHighlight)
         }
 
+        const handleHide = () => {
+            if (!this.result) return;
+
+            window[baatSymbol].setSetting('hiddenResults', [ ...window[baatSymbol].getSetting<string[]>('hiddenResults'), this.result.id ])
+        }
+
         this.shadowRoot?.appendChild(
             <Accordion id='container' onChange={handleFoldChange}>
                 <div id='heading' slot='heading'>
@@ -191,6 +209,10 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                 </div>
                 <div id='description' ref={this.descriptionRef}></div>
                 <div id='link' ref={this.linkRef}></div>
+                <button onClick={handleHide}>
+                    <Icon width="16" height="16"><path d="M2.38 23.79C2.38 23.79 12.18 31.45 24.38 31.45S46.38 23.79 46.38 23.79" stroke="currentColor" stroke-width="4"/></Icon>
+                    Hide
+                </button>
                 <ol id='nodeList' ref={this.nodeListRef}></ol>
             </Accordion>
         );
