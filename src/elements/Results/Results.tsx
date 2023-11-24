@@ -1,9 +1,10 @@
 import { Violation } from '../Violation/Violation'
+import { HiddenViolation } from '../HiddenViolation/HiddenViolation'
 import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import { AxeRunCompleted, BAATEvent, Result, StatusChange } from '../../types'
+import {AxeRunCompleted, BAATEvent, Result, SettingsChanged, StatusChange} from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { and, notNullish } from '../../util/logic'
@@ -12,10 +13,11 @@ import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
-import { FilterSettings } from '../FilterSettings/FilterSettings'
 import * as axe from 'axe-core'
-import { Accordion } from '../Accordion/Accordion'
 import { Checkbox } from '../Checkbox/Checkbox'
+import { Accordion } from '../Accordion/Accordion';
+import {settingNames} from "../../config";
+import {convertViolationToHistoryEntry, historyEntryDiff} from "../../util/history";
 
 const styles = css`
     #container {
@@ -80,6 +82,11 @@ const styles = css`
     #status:empty {
         padding: 0;
     }
+    .listheading {
+        margin: 0;
+        font-size: ${theme.semanticSizing.font.large};
+        margin-left: ${theme.sizing.relative.tiny};
+    }
 `;
 
 interface IResultsAccessor {
@@ -89,12 +96,13 @@ interface IResultsAccessor {
 export class Results extends BaseHTMLElement<IResultsAccessor> implements IResultsAccessor {
     public static tagName: string = 'baat-results'
     results: Result[] = []
-    folded: boolean = true
     styles = styles
     private resultsContainerRef = createRef<HTMLDivElement>()
     private statisticsContainerRef = createRef<HTMLDivElement>()
     private statusContainerRef = createRef<HTMLDivElement>()
     private filterPlaceholderRef = createRef<HTMLDivElement>()
+    private hiddenCountRef = createRef<HTMLSpanElement>()
+    private hiddenContainerRef = createRef<Accordion>()
 
     attributeChangedCallback<T extends keyof IResultsAccessor>(name: T, oldValue: IResultsAccessor[T], newValue: IResultsAccessor[T]) {
         switch (name) {
@@ -131,7 +139,9 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         window[baatSymbol].addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
             this.setAttribute('results', e.detail.violations)
         }) as EventListener)
-        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, () => this.handleChangeSettings())
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((e: CustomEvent<SettingsChanged>) =>
+            this.handleChangeSettings(e.detail.name)
+        ) as EventListener)
 
         window[baatSymbol].addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
             this.statusContainerRef.value.textContent = e.detail.message
@@ -144,11 +154,50 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         removeAllChildren(this.resultsContainerRef.value)
         removeAllChildren(this.statisticsContainerRef.value)
+        const differenceMode = window[baatSymbol].getSetting(settingNames.differenceMode);
+
+        let newList: JSX.Element | Element = this.resultsContainerRef.value;
+        let unchangedList: JSX.Element | Element = this.resultsContainerRef.value;
+        let newEntries: string[] = [];
+
+        if (differenceMode) {
+            const history = window[baatSymbol].getHistory();
+            const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
+            newEntries = historyDiff.newEntries;
+
+            if (newEntries.length > 0) {
+                newList = <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.green}>
+                    <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+                </Accordion>
+
+                this.resultsContainerRef.value.appendChild(newList);
+            }
+
+            if (historyDiff.unchangedEntries.length > 0) {
+                unchangedList =
+                    <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
+                        <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
+                    </Accordion>
+
+                this.resultsContainerRef.value.appendChild(unchangedList);
+            }
+        }
 
         this.results
             .forEach((result) => {
-                this.resultsContainerRef.value.appendChild(
-                    <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)}/>
+                const list = newEntries.includes(result.id) ? newList : unchangedList;
+                list.appendChild(
+                    <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="violation"/>
+                )
+            })
+
+        let hiddenList = <Accordion folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading' slot={Accordion.slots.heading}>Hidden <span ref={this.hiddenCountRef}></span></h2></Accordion>
+        this.resultsContainerRef.value.appendChild(hiddenList);
+
+        this.results
+            .forEach((result) => {
+                hiddenList.appendChild(
+                    <HiddenViolation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="hiddenViolation"/>
                 )
             })
 
@@ -203,12 +252,12 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </thead>
                     <tbody>
                         { ...Object.entries(counts).sort(byImpact).map(([impact, [violations, elements]]) => {
-                            const checked = !window[baatSymbol].getSetting<string[]>('hiddenImpacts').includes(impact)
+                            const checked = !window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts).includes(impact)
                             function handleChange(this: HTMLInputElement) {
                                 if (this.checked) {
-                                    window[baatSymbol].setSetting('hiddenImpacts', window[baatSymbol].getSetting<string[]>('hiddenImpacts').filter(hidden => hidden !== impact))
+                                    window[baatSymbol].setSetting(settingNames.hiddenImpacts, window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts).filter(hidden => hidden !== impact))
                                 } else {
-                                    window[baatSymbol].setSetting('hiddenImpacts', [ ...window[baatSymbol].getSetting<string[]>('hiddenImpacts'), impact ])
+                                    window[baatSymbol].setSetting(settingNames.hiddenImpacts, [ ...window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts), impact ])
                                 }
                             }
                             return <tr>
@@ -252,12 +301,23 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         this.handleChangeSettings()
     }
 
-    handleChangeSettings(): void {
-        const hiddenTags = window[baatSymbol].getSetting<string[]>('hiddenTags')
-        const hiddenImpacts = window[baatSymbol].getSetting<string[]>('hiddenImpacts')
+    handleChangeSettings(reason?: string): void {
+        const hiddenTags = window[baatSymbol].getSetting<string[]>(settingNames.hiddenTags)
+        const hiddenImpacts = window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts)
+        const hiddenResults = window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults)
 
-        this.shadowRoot?.querySelectorAll(Violation.tagName)
+        if (reason === settingNames.differenceMode) {
+            this.updateResults();
+        }
+
+        let hiddenCount = 0;
+
+        this.shadowRoot?.querySelectorAll(`${Violation.tagName}, ${HiddenViolation.tagName}`)
             .forEach((violation) => {
+                const isHidden = hiddenResults.includes(violation.getAttribute('data-id') ?? "");
+                const isViolation = violation.getAttribute('data-type') === 'violation';
+                hiddenCount += isHidden && !isViolation ? 1 : 0;
+
                 violation.classList.toggle('visuallyHidden', (
                     !violation
                         .getAttribute('data-tags')
@@ -266,10 +326,16 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                         .reduce((acc, curr) => acc || curr, false) ?? false
                 ) || (
                     hiddenImpacts.includes(violation.getAttribute('data-impact') ?? "")
+                ) || (
+                    isViolation ? isHidden : !isHidden
                 ))
             })
 
         const numFiltered = this.shadowRoot?.querySelectorAll(`${Violation.tagName}.visuallyHidden`).length;
+
+
+        this.hiddenCountRef.value.innerText = `(${hiddenCount})`;
+        this.hiddenContainerRef.value?.classList.toggle('visuallyHidden', hiddenCount === 0)
 
         this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
     }

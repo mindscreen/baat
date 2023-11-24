@@ -22,6 +22,8 @@ const palette = {
     seriousTransparent: 'rgba(255,208,176,0.25)',
     moderateTransparent: 'rgba(255,224,178,0.25)',
     minorTransparent: 'rgba(255,236,179,0.25)',
+    green: '#77ad5a',
+    blue: '#5572bd',
 }
 
 const sizing = {
