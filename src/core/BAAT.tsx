@@ -3,7 +3,6 @@ import { config } from '../config'
 import { axeExists, ReporterInfos, shippedReporters } from '../util/axe'
 import * as axe from 'axe-core'
 import { AxeRunCompleted, BAATEvent, BAATView, SettingsChanged, ViewChanged, Result, StatusChange } from '../types'
-import { baact } from '../../baact/baact'
 import { highlightContainer } from './highlight'
 import { clone } from '../util/object'
 
@@ -183,6 +182,8 @@ export class BAAT extends EventTarget {
     }
 
     public getReporters(): ReporterInfos {
+        if (!axeExists()) return []
+
         return [...shippedReporters, ...this.additionalReporters].filter(([key, _]) => (axe as any).hasReporter(key));
     }
 
