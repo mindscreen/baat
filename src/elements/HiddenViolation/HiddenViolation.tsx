@@ -8,10 +8,12 @@ import { Icon } from '..'
 import {baatSymbol} from "../../core/BAAT";
 import {settingNames} from "../../config";
 
+const borderBottom = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`;
+
 const styles = css`
     .container {
         padding: ${theme.sizing.relative.tiny};
-        border-bottom: ${theme.sizing.absolute.tiny} solid ${theme.palette.gray};
+        border-bottom: ${borderBottom};
         display: flex;
         gap: ${theme.sizing.relative.tiny};
         justify-content: space-between;
