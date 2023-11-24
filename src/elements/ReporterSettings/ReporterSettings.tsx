@@ -37,6 +37,10 @@ export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor>
             this.selectRef.value?.setAttribute('options', window[baatSymbol].getReporters())
         })
 
+        window[baatSymbol].addEventListener(BAATEvent.ChangeCore, (e: Event) => {
+            this.selectRef.value?.setAttribute('options', window[baatSymbol].getReporters())
+        });
+
         this.shadowRoot?.appendChild(
             <div>
                 <Select
