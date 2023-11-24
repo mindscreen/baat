@@ -8,8 +8,6 @@ import { BAATEvent } from '../../types'
 import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
-import {button} from "../../styles/button";
-import {settingNames} from "../../config";
 
 const styles = css`
     #container {
@@ -25,17 +23,11 @@ const styles = css`
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
     }
-    ${button}
     .settingsContainer {
       padding-top: ${theme.sizing.relative.tiny};
     }
     [role=doc-subtitle] {
         font-style: italic;
-    }
-    .actions {
-        display: flex;
-        flex-direction: row;
-        gap: ${theme.sizing.relative.tiny};
     }
 `;
 
@@ -63,19 +55,19 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
         this.shadowRoot?.appendChild(
             <div id='container'>
                 <Accordion folded={false} fixed={true}>
-                    <span slot={Accordion.slots.heading}>Testscript</span>
+                    <span slot="heading">Testscript</span>
                     <div class="settingsContainer">
                         <Checkbox
                             id='autorun'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.autorun)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.autorun, this.checked); if(axeExists()) { window[baatSymbol].runAxe() } }}
+                            checked={window[baatSymbol].getSetting<boolean>('autorun')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('autorun', this.checked); if(axeExists()) { window[baatSymbol].runAxe() } }}
                             label='auto run when loaded'
                         />
                     </div>
                     <LibSelection />
                 </Accordion>
                 {/*<Accordion>
-                    <span slot={Accordion.slots.heading}>Issue Tag filters</span>
+                    <span slot="heading">Issue Tag filters</span>
                     <FilterSettings
                         setting='hiddenTags'
                         pre='tag-'
@@ -84,38 +76,20 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     />
                 </Accordion>*/}
                 <Accordion folded={false} fixed={true}>
-                    <span slot={Accordion.slots.heading}>BAAT Settings</span>
+                    <span slot="heading">BAAT Settings</span>
                     <div class="settingsContainer">
                         <Checkbox
                             id='showAdditionalInformation'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.showAdditionalInformation, this.checked) }}
+                            checked={window[baatSymbol].getSetting<boolean>('showAdditionalInformation')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('showAdditionalInformation', this.checked) }}
                             label='Show a short summary for each test result'
                         />
                         <Checkbox
-                            id='differenceMode'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.differenceMode)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.differenceMode, this.checked) }}
-                            label='history difference mode'
-                        />
-                        <Checkbox
                             id='developer'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.developer)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.developer, this.checked) }}
+                            checked={window[baatSymbol].getSetting<boolean>('developer')}
+                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('developer', this.checked) }}
                             label='developer mode'
                         />
-                        <div class="actions">
-                            <button
-                                onClick={window[baatSymbol].clearHistory}
-                            >
-                                Clear local history
-                            </button>
-                            <button
-                                onClick={() => { window[baatSymbol].setSetting(settingNames.hiddenResults, []) }}
-                            >
-                                Reset Hidden Results
-                            </button>
-                        </div>
                     </div>
                 </Accordion>
                 <div id="info">

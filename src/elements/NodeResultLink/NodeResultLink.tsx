@@ -7,7 +7,6 @@ import { isHidden, ownText, removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
 import { Icon } from '..'
-import {settingNames} from "../../config";
 
 const styles = css`
     :host, button {
@@ -80,7 +79,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         if (!this.shadowRoot || !this.isConnected) return
         let name = ""
         let hasLink = !isHidden(this.result?.element)
-        const devMode = window[baatSymbol].getSetting(settingNames.developer)
+        const devMode = window[baatSymbol].getSetting('developer')
 
         removeAllChildren(this.buttonRef.value)
 
@@ -100,7 +99,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
         this.buttonRef.value.appendChild(document.createTextNode(name))
 
-        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)
+        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>('showAdditionalInformation')
             ? this.result?.failureSummary ?? ''
             : ''
     }
@@ -112,14 +111,14 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
 
             if (this.result.element)
                 window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element: this.result.element }}))
-            if (window[baatSymbol].getSetting(settingNames.developer))
+            if (window[baatSymbol].getSetting('developer'))
                 console.log(this.result.element)
 
             this.result.element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === settingNames.developer || event.detail.name === settingNames.showAdditionalInformation) this.update()
+            if (event.detail.name === 'developer' || event.detail.name === 'showAdditionalInformation') this.update()
         }) as EventListener)
 
         this.shadowRoot?.appendChild(<div>
