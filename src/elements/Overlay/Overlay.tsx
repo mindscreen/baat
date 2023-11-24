@@ -1,13 +1,11 @@
 import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
+import { baact } from '../../../baact/baact'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement } from '../../types'
 import { theme } from '../../theme'
 import { getBoundingBox } from '../../util/dom'
 
-const outline = `0px solid ${ theme.palette.primaryLight}77`;
-const background = `${ theme.palette.primaryLight }77`;
-const outlineBlink = `50px solid ${ theme.palette.primary}dd;`
 const styles = css`
     :host {
         z-index: 999999;
@@ -23,12 +21,12 @@ const styles = css`
         border-radius: 2px;
         pointer-events: none;
         transition: all 0.5s ease-out;
-        outline: ${ outline };
+        outline: 0px solid ${ theme.palette.primaryLight}77;
     }
   
     .blink {
-        background-color: ${ background };
-        outline: ${ outlineBlink };
+        background-color: ${ theme.palette.primaryLight }77;
+        outline: 50px solid ${ theme.palette.primary}dd;
     }
 `;
 
