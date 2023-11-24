@@ -5,7 +5,6 @@ import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
-const contentBorder = `${theme.sizing.absolute.normal} solid ${theme.palette.gray}`
 
 const styles = css`
     #container {
@@ -38,6 +37,12 @@ const styles = css`
     .fixed #handle {
         cursor: revert;
     }
+    .nestedRoot #content {
+        padding: 0;
+    }
+    .nestedRoot.open #content {
+        border-bottom: none;
+    }
     #caret {
         margin: 0 ${theme.sizing.relative.tiny};
     }
@@ -47,7 +52,9 @@ const styles = css`
     #content {
         display: none;
         padding: ${theme.sizing.relative.tiny};
-        border-left: ${contentBorder};
+        border-left-color: var(--border-color, ${theme.palette.gray});
+        border-left-width: ${theme.sizing.absolute.normal};
+        border-left-style: solid;
     }
     .open #content {
         display: revert;
@@ -59,13 +66,18 @@ const styles = css`
 interface IAccordionAccessor {
     folded: boolean
     fixed: boolean
+    nestedRoot?: boolean
+    borderColor?: string
     onChange?: (folded: boolean) => void
 }
 
 export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IAccordionAccessor {
     public static tagName: string = 'baat-accordion'
+    public static slots = { heading: 'heading' }
     folded: boolean = true
     fixed: boolean = false
+    nestedRoot?: boolean = false
+    borderColor?: string
     private containerRef = createRef<HTMLDivElement>()
     private contentRef = createRef<HTMLDivElement>()
     onChange?: (folded: boolean) => void
@@ -79,10 +91,16 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
             case 'fixed':
                 this.updateFixed()
                 break
+            case 'nestedRoot':
+                this.updateNestedRoot()
+                break
+            case 'borderColor':
+                this.updateBorderColor()
+                break
         }
     }
 
-    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed' ] }
+    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'borderColor' ] }
 
     constructor() {
         super()
@@ -100,6 +118,18 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         if (!this.shadowRoot) return
 
         this.containerRef.value?.classList.toggle('fixed', this.fixed)
+    }
+
+    updateNestedRoot() {
+        if (!this.shadowRoot) return;
+
+        this.containerRef.value?.classList.toggle('nestedRoot', !!this.nestedRoot)
+    }
+
+    updateBorderColor() {
+        if (!this.shadowRoot) return;
+
+        this.containerRef.value?.style.setProperty('--border-color', this.borderColor ?? theme.palette.gray)
     }
 
     initialize() {
@@ -125,6 +155,8 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
 
         this.updateFixed()
         this.updateFolded()
+        this.updateNestedRoot()
+        this.updateBorderColor()
 
         this.initialized = true
     }

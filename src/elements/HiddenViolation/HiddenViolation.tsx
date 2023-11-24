@@ -6,6 +6,7 @@ import { baact, createRef } from '../../../baact/baact'
 import { NodeResult, Result } from '../../types'
 import { Icon } from '..'
 import {baatSymbol} from "../../core/BAAT";
+import {settingNames} from "../../config";
 
 const styles = css`
     .container {
@@ -89,8 +90,8 @@ export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> i
         const handleShow = () => {
             if (!this.result) return;
 
-            window[baatSymbol].setSetting('hiddenResults',
-                window[baatSymbol].getSetting<string[]>('hiddenResults').filter(hidden => hidden !== this.result.id)
+            window[baatSymbol].setSetting(settingNames.hiddenResults,
+                window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults).filter(hidden => hidden !== this.result.id)
             )
         }
 

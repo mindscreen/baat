@@ -1,10 +1,19 @@
 import { createScript } from '../util/dom'
-import { config } from '../config'
+import {config, settingNames} from '../config'
 import { axeExists } from '../util/axe'
 import * as axe from 'axe-core'
-import { AxeRunCompleted, BAATEvent, BAATView, SettingsChanged, ViewChanged, Result, StatusChange } from '../types'
-import { baact } from '../../baact/baact'
+import {
+    AxeRunCompleted,
+    BAATEvent,
+    BAATView,
+    SettingsChanged,
+    ViewChanged,
+    Result,
+    StatusChange,
+    HistoryEntry
+} from '../types'
 import { highlightContainer } from './highlight'
+import {convertViolationToHistoryEntry} from "../util/history";
 
 export class BAAT extends EventTarget {
     private static instance: BAAT;
@@ -27,7 +36,7 @@ export class BAAT extends EventTarget {
             this.settings = JSON.parse(localStorage.getItem('baat_settings') ?? '{}')
         } catch (e) {}
 
-        this.addEventListener(BAATEvent.ChangeCore, () => { if (this.getSetting('autorun') && axeExists()) { window.setTimeout(() => { this.runAxe() }, 100) }})
+        this.addEventListener(BAATEvent.ChangeCore, () => { if (this.getSetting(settingNames.autorun) && axeExists()) { window.setTimeout(() => { this.runAxe() }, 100) }})
 
         if (possibleScript) {
             this.createScript(possibleScript)
@@ -102,6 +111,24 @@ export class BAAT extends EventTarget {
         })
     }
 
+    addHistory(violations: Result[]) {
+        const history = localStorage.getItem('history')
+        const historyArray = history ? JSON.parse(history) : []
+        const newEntry: HistoryEntry = convertViolationToHistoryEntry(violations);
+        historyArray.push(newEntry);
+        localStorage.setItem('history', JSON.stringify(historyArray))
+    }
+
+    getHistory(): HistoryEntry[] {
+        const history = localStorage.getItem('history')
+        const historyArray = history ? JSON.parse(history) : []
+        return historyArray;
+    }
+
+    clearHistory() {
+        localStorage.setItem('history', JSON.stringify([]))
+    }
+
     dispatchStatusEvent(message: string) {
         this.dispatchEvent(new CustomEvent<StatusChange>(BAATEvent.StatusChange, { detail: { message } }))
     }
@@ -135,7 +162,7 @@ export class BAAT extends EventTarget {
                 let violations = results.violations as Result[]
 
                 if (results.violations.length) {
-                    if (this.getSetting('developer'))
+                    if (this.getSetting(settingNames.developer))
                         console.log('violations', violations)
 
                     /*violations.forEach((violation) => {
@@ -150,6 +177,8 @@ export class BAAT extends EventTarget {
                 }
 
                 this.dispatchStatusEvent('')
+
+                this.addHistory(violations);
 
                 this.lastResults = violations
                 this.fullReport = results

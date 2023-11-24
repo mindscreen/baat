@@ -5,6 +5,7 @@ export const config = {
         hiddenImpacts: [ 'moderate', 'minor' ],
         hiddenResults: [] as string[],
         autorun: false,
+        differenceMode: false,
         developer: false,
         showAdditionalInformation: false,
     },
@@ -13,3 +14,13 @@ export const config = {
         height: 650,
     }
 };
+
+export const settingNames = {
+    hiddenTags: 'hiddenTags',
+    hiddenImpacts: 'hiddenImpacts',
+    hiddenResults: 'hiddenResults',
+    autorun: 'autorun',
+    differenceMode: 'differenceMode',
+    developer: 'developer',
+    showAdditionalInformation: 'showAdditionalInformation',
+}
