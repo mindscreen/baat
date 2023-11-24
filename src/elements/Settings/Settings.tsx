@@ -9,6 +9,7 @@ import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { ReporterSettings } from '../ReporterSettings/ReporterSettings'
+import {button} from "../../styles/button";
 
 const styles = css`
     #container {
@@ -24,6 +25,7 @@ const styles = css`
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
     }
+    ${button}
     .settingsContainer {
       padding-top: ${theme.sizing.relative.tiny};
     }
@@ -95,6 +97,11 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting('developer', this.checked) }}
                             label='developer mode'
                         />
+                        <button
+                            onClick={() => { window[baatSymbol].setSetting('hiddenResults', []) }}
+                        >
+                            Reset Hidden Results
+                        </button>
                     </div>
                 </Accordion>
                 <div id="info">

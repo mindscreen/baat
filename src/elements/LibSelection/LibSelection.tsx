@@ -6,7 +6,8 @@ import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
-import { AxeRunCompleted, BAATEvent, ChangeCore } from '../../types'
+import { BAATEvent, ChangeCore } from '../../types'
+import {button} from "../../styles/button";
 
 const styles = css`
     .visuallyHidden { ${visuallyHiddenStyles} }
@@ -18,24 +19,8 @@ const styles = css`
     #fileButton {
         margin: 0.5em 0;
     }
-    
-    button {
-        background-color: ${theme.palette.primary};
-        color: ${theme.palette.light};
-        font-size: ${theme.semanticSizing.font.normal};
-        border: none;
-        padding: ${theme.semanticSizing.button.padding};
-        transition: background-color 0.2s ease-in-out;
-        cursor: pointer;
-    }
 
-    button:hover {
-        background-color: ${theme.palette.primaryDark};
-    }
-
-    button:active {
-        background-color: ${theme.palette.primaryLight};
-    }
+    ${button}
     
     input {
         font-size: ${theme.semanticSizing.font.normal};
