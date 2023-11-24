@@ -8,6 +8,7 @@ import { BAATEvent } from '../../types'
 import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
+import { ReporterSettings } from '../ReporterSettings/ReporterSettings'
 import {button} from "../../styles/button";
 import {settingNames} from "../../config";
 
@@ -83,6 +84,10 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         getFilters={() => axe.getRules().flatMap(rule => rule.tags).filter((x, i, a) => a.indexOf(x) == i).sort()}
                     />
                 </Accordion>*/}
+                <Accordion folded={false} fixed={true}>
+                    <span slot="heading">Axe Settings</span>
+                    <ReporterSettings />
+                </Accordion>
                 <Accordion folded={false} fixed={true}>
                     <span slot={Accordion.slots.heading}>BAAT Settings</span>
                     <div class="settingsContainer">

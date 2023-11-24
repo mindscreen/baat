@@ -16,3 +16,18 @@ export const zip = <S, T>(x: Record<Key, S>, y:  Record<Key, T>): Record<Key, [S
 
     return result
 }
+const isObject = (obj: unknown): obj is object => typeof obj === 'object'
+
+export const clone = <T>(obj: T): T => {
+    if (obj === null || !isObject(obj)) return obj
+
+    const copy = obj.constructor()
+
+    for (const attr in obj) {
+        if (obj.hasOwnProperty(attr)) {
+            copy[attr] = clone(obj[attr])
+        }
+    }
+
+    return copy
+}

@@ -33,6 +33,7 @@ export enum BAATEvent {
     StatusChange = 'StatusChange',
     ChangeView = 'ChangeView',
     HighlightElement = 'HighlightElement',
+    ReporterAdded = 'ReporterAdded',
 }
 
 export enum BAATView {

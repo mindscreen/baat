@@ -13,8 +13,10 @@ import { Accordion, register as registerAccordion } from './Accordion/Accordion'
 import { FilterSettings, register as registerFilterSettings } from './FilterSettings/FilterSettings'
 import { Icon, register as registerIcon } from './Icon/Icon'
 import { Overlay, register as registerOverlay } from './Overlay/Overlay'
+import { Select, register as registerSelect } from './Select/Select'
+import { ReporterSettings, register as registerReporterSettings } from './ReporterSettings/ReporterSettings'
 
-export { NodeResultLink, Violation, HiddenViolation, Checkbox, Results, MiniResults, Window, LibSelection, Switch, SwitchView, Settings, Accordion, FilterSettings, Icon, Overlay }
+export { NodeResultLink, Violation, HiddenViolation, Checkbox, Results, MiniResults, Window, LibSelection, Switch, SwitchView, Settings, Accordion, FilterSettings, Icon, Overlay, Select, ReporterSettings }
 
 export const register = () => {
     registerNodeLink()
@@ -32,4 +34,6 @@ export const register = () => {
     registerFilterSettings()
     registerIcon()
     registerOverlay()
+    registerSelect()
+    registerReporterSettings()
 }

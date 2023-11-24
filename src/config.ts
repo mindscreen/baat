@@ -7,6 +7,7 @@ export const config = {
         autorun: false,
         differenceMode: false,
         developer: false,
+        reporter: 'v2',
         showAdditionalInformation: false,
     },
     size: {
