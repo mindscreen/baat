@@ -10,6 +10,7 @@ import { NodeResult, Result } from '../../types'
 import { hideHighlight, showHighlight } from '../../core/highlight'
 import { Icon } from '..'
 import {baatSymbol} from "../../core/BAAT";
+import {settingNames} from "../../config";
 
 const impactColors = {
     'critical': 'impactCritical',
@@ -192,12 +193,12 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
         const handleHide = () => {
             if (!this.result) return;
 
-            window[baatSymbol].setSetting('hiddenResults', [ ...window[baatSymbol].getSetting<string[]>('hiddenResults'), this.result.id ])
+            window[baatSymbol].setSetting(settingNames.hiddenResults, [ ...window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults), this.result.id ])
         }
 
         this.shadowRoot?.appendChild(
             <Accordion id='container' onChange={handleFoldChange}>
-                <div id='heading' slot='heading'>
+                <div id='heading' slot={Accordion.slots.heading}>
                     <div class='shrink'>
                         <h2 id='title' ref={this.titleRef}></h2>
                         <div>
