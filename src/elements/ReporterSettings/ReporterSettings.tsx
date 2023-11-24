@@ -1,7 +1,6 @@
 import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
 import { BaseHTMLElement } from '../BaseHTMLElement'
-import { theme } from '../../theme'
 import { Select } from '../Select/Select'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent } from '../../types'
@@ -49,6 +48,7 @@ export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor>
                     selectedOption={window[baatSymbol].getSetting<boolean>('reporter')}
                     onChange={onChange}
                     ref={this.selectRef}
+                    noOptionsFallback={"Axe not loaded"}
                 />
             </div>
         )
