@@ -44,10 +44,13 @@ gulp.task('transpile-ts', function () {
         .pipe(replace('@INFORMATION@', String(process.env.SETTINGS_INFORMATION) !== "" ? String(process.env.SETTINGS_INFORMATION) : "false"))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
-        .pipe(sourcemaps.write({
+        .pipe(sourcemaps.write(".",{
             includeContent: false,
             sourceRoot: function (file) {
                 return path.relative(path.dirname(file.path), file.base);
+            },
+            sourceMappingURL: function (file) {
+                return `${file.relative}.map`;
             }
         }))
         .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
