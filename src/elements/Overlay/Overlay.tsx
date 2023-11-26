@@ -1,9 +1,9 @@
-import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement } from '../../types'
 import { theme } from '../../theme'
 import { getBoundingBox } from '../../util/dom'
+import {BaseHTMLElement} from "../../../baact/BaseHTMLElement";
 
 const outline = `0px solid ${ theme.palette.primaryLight}77`;
 const background = `${ theme.palette.primaryLight }77`;
@@ -38,10 +38,6 @@ interface IRunnerOverlayAccessor {
 export class Overlay extends BaseHTMLElement<IRunnerOverlayAccessor> implements IRunnerOverlayAccessor {
     public static tagName: string = 'baat-overlay'
     styles = styles
-
-    attributeChangedCallback<T extends keyof IRunnerOverlayAccessor>(name: T, oldValue: IRunnerOverlayAccessor[T], newValue: IRunnerOverlayAccessor[T]) {
-
-    }
 
     static get observedAttributes(): (keyof IRunnerOverlayAccessor)[] { return [] }
 

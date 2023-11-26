@@ -9,3 +9,14 @@ export const tally = <T extends string | number>(array: T[]): Record<T, number> 
 )
 
 export const zip = <S, T>(a: S[], b: T[]): [S, T][] => Array(Math.max(b.length, a.length)).fill([]).map((_,i) => [a[i], b[i]])
+
+export const partition = <T>(array: T[], predicate: (value: T, index: number, array: T[]) => boolean): [T[], T[]] => array.reduce(
+    (prev, curr, index) => {
+        if (predicate(curr, index, array)) {
+            prev[0].push(curr)
+        } else {
+            prev[1].push(curr)
+        }
+        return prev
+    }, [[], []] as [T[], T[]]
+)

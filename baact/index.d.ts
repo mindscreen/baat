@@ -31,6 +31,7 @@ declare namespace Baact {
     interface DOMAttributes<T, R> {
         ref?: BaactRef<R> | undefined;
         children?: BaactNode | undefined;
+        inert?: boolean | undefined;
         innerHTML?: string | undefined;
         onCopy?: EventHandler | undefined;
         onCopyCapture?: EventHandler | undefined;

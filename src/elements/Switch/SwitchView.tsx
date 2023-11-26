@@ -1,31 +1,20 @@
 import { baact } from '../../../baact/baact'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import {makeRegisterFunction} from "../../../baact/util/register";
+import {BaactComponent} from "../../../baact/BaactComponent";
 
 interface ISwitchViewAccessor {
     name: string
 }
 
-export class SwitchView extends BaseHTMLElement<ISwitchViewAccessor> implements ISwitchViewAccessor {
+export class SwitchView extends BaactComponent<ISwitchViewAccessor> implements ISwitchViewAccessor {
     public static tagName: string = 'baat-switch-view'
     name: string = ""
 
-    attributeChangedCallback<T extends keyof ISwitchViewAccessor>(name: T, oldValue: ISwitchViewAccessor[T], newValue: ISwitchViewAccessor[T]) {
-        this[name] = newValue
-    }
-
     static get observedAttributes(): (keyof ISwitchViewAccessor)[] { return [ 'name' ] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    initialize() {
-        this.shadowRoot?.appendChild(<slot></slot>)
+    render() {
+        return <>{...Array.from(this.children)}</>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(SwitchView.tagName))
-        customElements.define(SwitchView.tagName, SwitchView);
-}
+export const register = makeRegisterFunction(SwitchView.tagName, SwitchView)

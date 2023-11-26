@@ -1,8 +1,10 @@
-import { BaseHTMLElement } from '../BaseHTMLElement'
 import { Icon } from '../Icon/Icon'
 import { theme } from '../../theme'
-import { baact, createRef } from '../../../baact/baact'
+import { baact } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
+import { BaactComponent } from "../../../baact/BaactComponent";
+import { clx } from "../../../baact/util/classes";
+import { makeRegisterFunction } from "../../../baact/util/register";
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
 
@@ -60,7 +62,7 @@ const styles = css`
         display: revert;
         border-bottom: ${border};
     }
-`;
+`
 
 
 interface IAccordionAccessor {
@@ -71,68 +73,21 @@ interface IAccordionAccessor {
     onChange?: (folded: boolean) => void
 }
 
-export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IAccordionAccessor {
+export class Accordion extends BaactComponent<IAccordionAccessor> implements IAccordionAccessor {
     public static tagName: string = 'baat-accordion'
     public static slots = { heading: 'heading' }
     folded: boolean = true
     fixed: boolean = false
+    styles = styles
     nestedRoot?: boolean = false
     borderColor?: string
-    private containerRef = createRef<HTMLDivElement>()
-    private contentRef = createRef<HTMLDivElement>()
     onChange?: (folded: boolean) => void
-
-    attributeChangedCallback<T extends keyof IAccordionAccessor>(name: T, oldValue: IAccordionAccessor[T], newValue: IAccordionAccessor[T]) {
-        switch (name) {
-            case 'folded':
-                this.updateFolded()
-                this.onChange?.(this.folded)
-                break
-            case 'fixed':
-                this.updateFixed()
-                break
-            case 'nestedRoot':
-                this.updateNestedRoot()
-                break
-            case 'borderColor':
-                this.updateBorderColor()
-                break
-        }
-    }
 
     static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'borderColor' ] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
+    render() {
+        const classes = clx([!!this.nestedRoot && 'nestedRoot', this.fixed && 'fixed', !this.folded && 'open'])
 
-    updateFolded() {
-        if (!this.shadowRoot) return
-
-        this.containerRef.value?.classList.toggle('open', !this.folded)
-        this.contentRef.value?.toggleAttribute('inert', this.folded)
-    }
-
-    updateFixed() {
-        if (!this.shadowRoot) return
-
-        this.containerRef.value?.classList.toggle('fixed', this.fixed)
-    }
-
-    updateNestedRoot() {
-        if (!this.shadowRoot) return;
-
-        this.containerRef.value?.classList.toggle('nestedRoot', !!this.nestedRoot)
-    }
-
-    updateBorderColor() {
-        if (!this.shadowRoot) return;
-
-        this.containerRef.value?.style.setProperty('--border-color', this.borderColor ?? theme.palette.gray)
-    }
-
-    initialize() {
         const handleMouseUp = (e: Event) => {
             if ((window.getSelection()?.toString().length ?? 0) === 0 && !this.fixed) {
                 this.setAttribute('folded', !this.folded)
@@ -140,30 +95,20 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
             }
         }
 
-        this.shadowRoot?.appendChild(<style>{styles}</style>)
-        this.shadowRoot?.appendChild(
-            <div id='container' ref={this.containerRef}>
+        return <div id='container' class={classes}>
                 <button id='handle' onClick={handleMouseUp}>
                     <div id='caret'><Icon width="16" height="16"><path stroke-width="5" d="M 11,43 37,24 11,5"/></Icon></div>
                     <slot name='heading'></slot>
                 </button>
-                <div id='content' ref={this.contentRef}>
+                <div
+                    id='content'
+                    style={{ '--border-color': this.borderColor ?? theme.palette.gray }}
+                    inert={this.folded}
+                >
                     <slot></slot>
                 </div>
             </div>
-        );
-
-        this.updateFixed()
-        this.updateFolded()
-        this.updateNestedRoot()
-        this.updateBorderColor()
-
-        this.initialized = true
     }
 }
 
-export const register = () => {
-    if (!customElements.get(Accordion.tagName)) { // @ts-ignore
-        customElements.define(Accordion.tagName, Accordion)
-    }
-}
+export const register = makeRegisterFunction(Accordion.tagName, Accordion)

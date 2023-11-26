@@ -1,11 +1,12 @@
-import { visuallyHiddenStyles } from '../../util/style'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { theme } from '../../theme';
 import { baact, createRef } from '../../../baact/baact'
 import { slottedContains } from '../../util/dom'
 import { clamp } from '../../util/math'
 import { Icon } from '../Icon/Icon'
+import {makeRegisterFunction} from "../../../baact/util/register";
+import {visuallyHiddenStyles} from "../../styles/visuallyHidden";
 
 const scrollbarBorder = `${theme.semanticSizing.scrollbar.border} solid ${theme.palette.white}`
 const windowBorder = `${theme.semanticSizing.border.width} solid ${theme.palette.neutral}`
@@ -338,7 +339,4 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
     }
 }
 
-export const register = () => {
-    if (!customElements.get(Window.tagName))
-        customElements.define(Window.tagName, Window)
-}
+export const register = makeRegisterFunction(Window.tagName, Window)

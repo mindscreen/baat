@@ -1,9 +1,11 @@
 import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { Select } from '../Select/Select'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent } from '../../types'
+import {BaactComponent} from "../../../baact/BaactComponent";
+import {makeRegisterFunction} from "../../../baact/util/register";
 
 interface IReporterSettingsAccessor {
 }
@@ -11,26 +13,13 @@ interface IReporterSettingsAccessor {
 const styles = css`
 `;
 
-export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor> implements IReporterSettingsAccessor {
+export class ReporterSettings extends BaactComponent<IReporterSettingsAccessor> implements IReporterSettingsAccessor {
     public static tagName: string = 'baat-reportersettings'
     private selectRef = createRef<Select>()
 
-    attributeChangedCallback<T extends keyof IReporterSettingsAccessor>(name: T, oldValue: IReporterSettingsAccessor[T], newValue: IReporterSettingsAccessor[T]) {
-        switch (name) {
-        }
-    }
-
     static get observedAttributes(): (keyof IReporterSettingsAccessor)[] { return [ ] }
-
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
     initialize() {
-        const onChange = (e: Event) => {
-            window[baatSymbol].setSetting('reporter', (e.target as any).value)
-        }
+        super.initialize()
 
         window[baatSymbol].addEventListener(BAATEvent.ReporterAdded, (e: Event) => {
             this.selectRef.value?.setAttribute('options', window[baatSymbol].getReporters())
@@ -39,23 +28,24 @@ export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor>
         window[baatSymbol].addEventListener(BAATEvent.ChangeCore, (e: Event) => {
             this.selectRef.value?.setAttribute('options', window[baatSymbol].getReporters())
         });
+    }
 
-        this.shadowRoot?.appendChild(
-            <div>
-                <Select
-                    label={"Download Reporter: "}
-                    options={window[baatSymbol].getReporters()}
-                    selectedOption={window[baatSymbol].getSetting<boolean>('reporter')}
-                    onChange={onChange}
-                    ref={this.selectRef}
-                    noOptionsFallback={"Axe not loaded"}
-                />
-            </div>
-        )
+    render(): JSX.Element {
+        const onChange = (e: Event) => {
+            window[baatSymbol].setSetting('reporter', (e.target as any).value)
+        }
+
+        return <div>
+            <Select
+                label={"Download Reporter: "}
+                options={window[baatSymbol].getReporters()}
+                selectedOption={window[baatSymbol].getSetting<boolean>('reporter')}
+                onChange={onChange}
+                ref={this.selectRef}
+                noOptionsFallback={"Axe not loaded"}
+            />
+        </div>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(ReporterSettings.tagName))
-        customElements.define(ReporterSettings.tagName, ReporterSettings);
-}
+export const register = makeRegisterFunction(ReporterSettings.tagName, ReporterSettings)

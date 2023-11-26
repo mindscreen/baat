@@ -13,6 +13,9 @@ function DOMparseChildren(children: Baact.BaactNode[]): any {
 }
 
 function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baact.BaactNode[], isHTML: boolean): any {
+    if (element === undefined) {
+        return DOMparseChildren(children);
+    }
     const el = svgTags.includes(element) ? document.createElementNS('http://www.w3.org/2000/svg', element) : document.createElement(element);
 
     Object.entries(properties).forEach(([key, value]) => {
@@ -30,8 +33,12 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
         }
         if (key === 'style') {
             Object.entries(value as  Baact.CSSProperties).forEach(([key, value]) => {
-                // @ts-ignore
-                el.style[key] = value
+                if (key.startsWith('--')) {
+                    el.style.setProperty(key, value)
+                } else {
+                    // @ts-ignore
+                    el.style[key] = value
+                }
             })
             return
         }
@@ -60,12 +67,25 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
 
     });
 
-    DOMparseChildren(children).forEach((child: any) => {
+    DOMparseChildren(children.flat()).forEach((child: any) => {
+        if (el.tagName === 'ABBR') {
+            console.log(child)
+        }
         if (element === 'template') {
             (el as HTMLTemplateElement).content.appendChild(child)
             return
         }
-        el.appendChild(child);
+
+        if (!child) return
+
+        if (child instanceof HTMLCollection) {
+            Array.from(child).forEach((c) => {
+                el.appendChild(c)
+            })
+            return
+        } else {
+            el.appendChild(child);
+        }
     });
 
     return el;
@@ -73,7 +93,7 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
 
 export const baact = <P extends Baact.DOMAttributes<T, R>, T extends Element, R extends any>(element: string, properties: P | null, ...children: Baact.BaactNode[]): any => {
     if (typeof element === 'function') {
-        //@ts-ignore
+        // @ts-ignore
         return DOMparseNode<P>(element.tagName, properties ?? {}, children, false)
     }
     return DOMparseNode<P>(element, properties ?? {}, children, true);

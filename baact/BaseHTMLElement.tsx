@@ -1,4 +1,4 @@
-import { baact } from '../../baact/baact'
+import { baact } from './baact'
 
 export abstract class BaseHTMLElement<T extends Record<string, any>> extends HTMLElement {
     initialized: boolean = false

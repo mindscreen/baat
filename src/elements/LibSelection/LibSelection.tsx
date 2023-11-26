@@ -1,13 +1,16 @@
-import { visuallyHiddenStyles } from '../../util/style'
 import { axeExists } from '../../util/axe'
 import * as axe from 'axe-core'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { BAATEvent, ChangeCore } from '../../types'
 import {button} from "../../styles/button";
+import {BaactComponent} from "../../../baact/BaactComponent";
+import {makeRegisterFunction} from "../../../baact/util/register";
+import {clx} from "../../../baact/util/classes";
+import {visuallyHiddenStyles} from "../../styles/visuallyHidden";
 
 const styles = css`
     .visuallyHidden { ${visuallyHiddenStyles} }
@@ -30,82 +33,63 @@ const styles = css`
 interface ILibSelectionAccessor {
 }
 
-export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> implements ILibSelectionAccessor {
+export class LibSelection extends BaactComponent<ILibSelectionAccessor> implements ILibSelectionAccessor {
     loaded: boolean = false
     static tagName: string = 'baat-lib-selection'
-    private loadedContainerRef = createRef<HTMLDivElement>()
-    private unloadedContainerRef = createRef<HTMLDivElement>()
-    private loadedTextRef = createRef<HTMLDivElement>()
     private fileRef = createRef<HTMLInputElement>()
     private source: string = ''
-
-    attributeChangedCallback<T extends keyof ILibSelectionAccessor>(name: T, oldValue: ILibSelectionAccessor[T], newValue: ILibSelectionAccessor[T]) {
-        this.update()
-    }
+    styles = styles
 
     static get observedAttributes(): (keyof ILibSelectionAccessor)[] { return [] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    update() {
-        if (!this.shadowRoot) return
-
-        this.unloadedContainerRef.value.classList.toggle('visuallyHidden', axeExists());
-        this.loadedContainerRef.value.classList.toggle('visuallyHidden', !axeExists());
-
-        if (!axeExists()) return
-
-        let axeVersion = ''
-        if(typeof axe === 'object') {
-            axeVersion = '(' + axe.version + ')'
-        }
-        this.loadedTextRef.value.textContent = 'axe-core ' + axeVersion + ' loaded' + (this.source ? ' from ' + this.source : '')
-    }
-
     initialize() {
-        this.shadowRoot?.appendChild(<style>{styles}</style>)
+        super.initialize();
 
-        const handleFileChange = function (this: HTMLInputElement) {
-            var file = this.files ? this.files[0] : null
-            if (file) {
-                var reader = new FileReader()
-                reader.readAsText(file, 'UTF-8')
-                reader.onload = function (evt) {
-                    window[baatSymbol].createScript((evt?.target?.result as string) ?? '')
-                }
-            }
-        }
-
-        this.shadowRoot?.appendChild(
-            <div id='container'>
-                <div id='unloadedContainer' ref={this.unloadedContainerRef}>
-                    <input type='file' accept='.js, text/javascript' id='fileInput' onChange={handleFileChange} ref={this.fileRef}/>
-                    <button type='button' id='fileButton' onClick={() => this.fileRef.value.click()}>Select File</button>
-                </div>
-                <div id='loadedContainer' ref={this.loadedContainerRef}>
-                    <div id='loadedText' ref={this.loadedTextRef}></div>
-                    <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
-                </div>
-            </div>
-        )
         window[baatSymbol].addEventListener(BAATEvent.ChangeCore, ((e: CustomEvent<ChangeCore>) => {
             this.source = e.detail.source
-            this.update()
+            this.shouldRerender();
         }) as EventListener)
-
-        this.initialized = true;
     }
 
-    connectedCallback(): void {
-        super.connectedCallback()
-        this.update()
+    handleFileChange(this: HTMLInputElement) {
+        var file = this.files ? this.files[0] : null
+        if (file) {
+            var reader = new FileReader()
+            reader.readAsText(file, 'UTF-8')
+            reader.onload = function (evt) {
+                window[baatSymbol].createScript((evt?.target?.result as string) ?? '')
+            }
+        }
+    }
+
+    render() {
+        let axeVersion = (axeExists() && typeof axe === 'object') ? '(' + axe.version + ')' : ''
+
+        return <div id='container'>
+            <div id='unloadedContainer' class={clx([axeExists() && 'visuallyHidden'])}>
+                <input
+                    type='file'
+                    accept='.js, text/javascript'
+                    id='fileInput'
+                    onChange={this.handleFileChange}
+                    ref={this.fileRef}
+                />
+                <button
+                    type='button'
+                    id='fileButton'
+                    onClick={() => this.fileRef.value.click()}
+                >
+                    Select File
+                </button>
+            </div>
+            <div id='loadedContainer' class={clx([!axeExists() && 'visuallyHidden'])}>
+                <div id='loadedText'>
+                    {'axe-core ' + axeVersion + ' loaded' + (this.source ? ' from ' + this.source : '')}
+                </div>
+                <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
+            </div>
+        </div>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(LibSelection.tagName))
-        customElements.define(LibSelection.tagName, LibSelection);
-}
+export const register = makeRegisterFunction(LibSelection.tagName, LibSelection)

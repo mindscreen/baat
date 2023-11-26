@@ -1,13 +1,14 @@
-import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
-import { isHidden, ownText, removeAllChildren } from '../../util/dom'
+import { isHidden, ownText } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
-import { Icon } from '..'
-import {settingNames} from "../../config";
+import { Icon } from '../Icon/Icon'
+import { settingNames } from "../../config"
+import { BaactComponent } from "../../../baact/BaactComponent"
+import { makeRegisterFunction } from "../../../baact/util/register"
 
 const styles = css`
     :host, button {
@@ -57,7 +58,7 @@ interface INodeLinkAccessor {
     number: number
 }
 
-export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implements INodeLinkAccessor {
+export class NodeResultLink extends BaactComponent<INodeLinkAccessor> implements INodeLinkAccessor {
     result: NodeResult | undefined
     number: number = 0
     styles = styles
@@ -65,73 +66,64 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     private buttonRef = createRef<HTMLButtonElement>()
     private infoRef = createRef<HTMLDivElement>()
 
-    attributeChangedCallback<T extends keyof INodeLinkAccessor>(name: T, oldValue: INodeLinkAccessor[T], newValue: INodeLinkAccessor[T]) {
-        this.update()
-    }
-
     static get observedAttributes(): (keyof INodeLinkAccessor)[] { return [ 'result', 'number' ] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    update() {
-        if (!this.shadowRoot || !this.isConnected) return
-        let name = ""
-        let hasLink = !isHidden(this.result?.element)
-        const devMode = window[baatSymbol].getSetting(settingNames.developer)
-
-        removeAllChildren(this.buttonRef.value)
-
-        if (devMode) {
-            name = this.result?.target.join(', ') ?? this.result?.element?.tagName.toLowerCase() ?? ''
-        } else {
-            name = this.result?.element ? ownText(this.result?.element).trim() : ""
-
-            if (name === "") name = this.result?.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
-        }
-
-        if (hasLink || devMode) {
-            this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
-            this.buttonRef.value.removeAttribute('disabled')
-        } else {
-            this.buttonRef.value.setAttribute('disabled', 'true')
-        }
-        this.buttonRef.value.appendChild(document.createTextNode(name))
-
-        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)
-            ? this.result?.failureSummary ?? ''
-            : ''
-    }
-
     initialize() {
+        super.initialize()
+
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
+            if (event.detail.name === settingNames.developer || event.detail.name === settingNames.showAdditionalInformation) this.shouldRerender()
+        }) as EventListener)
+    }
+
+    render() {
+        const element = this.result?.element ?? document.querySelector(this?.result?.target?.join(', ') ?? '') as HTMLElement | null
         const handleClick = (e: Event) => {
             e.stopPropagation()
             if (!this.result) return
 
-            if (this.result.element)
-                window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element: this.result.element }}))
+            if (element)
+                window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element }}))
             if (window[baatSymbol].getSetting(settingNames.developer))
-                console.log(this.result.element)
+                console.log(element)
 
-            this.result.element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
+            element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
         }
 
-        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === settingNames.developer || event.detail.name === settingNames.showAdditionalInformation) this.update()
-        }) as EventListener)
+        let name = ""
+        let hasLink = !isHidden(element ?? undefined)
 
-        this.shadowRoot?.appendChild(<div>
-            <button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>
-            <div id='info' ref={this.infoRef}></div>
-        </div>)
+        const devMode = window[baatSymbol].getSetting(settingNames.developer)
 
-        this.update()
+        if (devMode) {
+            name = this.result?.target.join(', ') ?? element?.tagName.toLowerCase() ?? ''
+        } else {
+            name = element ? ownText(element).trim() : ""
+
+            if (name === "") name = element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
+        }
+
+        return <div>
+            <button
+                id='nodeLink'
+                type='button'
+                onClick={handleClick}
+                ref={this.buttonRef}
+                disabled={!hasLink && !devMode}
+            >
+                {(hasLink || devMode) && <Icon width="12" height="12">
+                    <path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" />
+                    <path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/>
+                </Icon>}
+                {name}
+            </button>
+            <div id='info' ref={this.infoRef}>{
+                window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)
+                    ? this.result?.failureSummary ?? ''
+                    : ''
+            }</div>
+        </div>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(NodeResultLink.tagName))
-        customElements.define(NodeResultLink.tagName, NodeResultLink);
-}
+export const register = makeRegisterFunction(NodeResultLink.tagName, NodeResultLink)
