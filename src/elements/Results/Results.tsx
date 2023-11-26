@@ -1,25 +1,23 @@
 import { Violation } from '../Violation/Violation'
 import { HiddenViolation } from '../HiddenViolation/HiddenViolation'
-import { BaseHTMLElement } from '../../../baact/BaseHTMLElement';
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import {AxeRunCompleted, BAATEvent, Result, SettingsChanged, StatusChange} from '../../types'
+import {AxeRunCompleted, BAATEvent, Result, SettingsChanged} from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { and, notNullish } from '../../util/logic'
 import {partition, tally, uniquePredicate} from '../../util/array'
-import { zip } from '../../util/object';
-import { removeAllChildren } from '../../util/dom'
+import { zip } from '../../util/object'
 import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
 import * as axe from 'axe-core'
 import { Checkbox } from '../Checkbox/Checkbox'
-import { Accordion } from '../Accordion/Accordion';
-import {settingNames} from "../../config";
-import {convertViolationToHistoryEntry, historyEntryDiff} from "../../util/history";
-import {BaactComponent} from "../../../baact/BaactComponent";
-import {makeRegisterFunction} from "../../../baact/util/register";
-import {visuallyHiddenStyles} from "../../styles/visuallyHidden";
+import { Accordion } from '../Accordion/Accordion'
+import { settingNames } from "../../config"
+import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history"
+import { BaactComponent } from "../../../baact/BaactComponent"
+import { makeRegisterFunction } from "../../../baact/util/register"
+import { visuallyHiddenStyles } from "../../styles/visuallyHidden"
 
 const styles = css`
     #container {
@@ -187,16 +185,16 @@ export class Results extends BaactComponent<IResultsAccessor> implements IResult
             <div id='results'>
                 {differenceMode
                     ? <>
-                        { newResults.length > 0 && <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.green}>
+                        { newResults.length > 0 && <Accordion key="newResults" folded={false} nestedRoot={true} borderColor={theme.palette.green}>
                             <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
-                            {newResults.map((result) => <Violation result={result}/>)}
+                            {newResults.map((result) => <Violation key={result.id} result={result}/>)}
                         </Accordion>}
-                        { unchangedResults.length > 0 && <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
+                        { unchangedResults.length > 0 && <Accordion key="unchangedResults" folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
                             <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
-                            {unchangedResults.map((result) => <Violation result={result}/>)}
+                            {unchangedResults.map((result) => <Violation key={result.id} result={result}/>)}
                         </Accordion>}
                     </>
-                    : results.map((result) => <Violation result={result}/>)
+                    : results.map((result) => <Violation key={result.id} result={result}/>)
                 }
                 {hidden.length > 0 && <Accordion
                     folded={true}
@@ -206,7 +204,7 @@ export class Results extends BaactComponent<IResultsAccessor> implements IResult
                         Hidden ({String(hidden.length)})
                     </h2>
                     {hidden.map((result) =>
-                        <HiddenViolation result={result}/>)}
+                        <HiddenViolation key={result.id} result={result}/>)}
                 </Accordion>}
             </div>
             <div id='statistics'>
@@ -232,7 +230,7 @@ export class Results extends BaactComponent<IResultsAccessor> implements IResult
                             }
                         }
 
-                        return <tr>
+                        return <tr key={impact}>
                             <td>
                                 <Checkbox checked={checked} id={`impact-${impact}`} onChange={handleChange}
                                           label={`show ${impact}`} labelHidden/>

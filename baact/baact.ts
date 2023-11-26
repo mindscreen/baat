@@ -7,11 +7,9 @@ function DOMparseChildren(children: Baact.BaactNode[]): any {
         if (typeof child === 'string') {
             return document.createTextNode(child);
         }
-
         return child;
     });
 }
-
 function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baact.BaactNode[], isHTML: boolean): any {
     if (element === undefined) {
         return DOMparseChildren(children);
@@ -67,10 +65,7 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
 
     });
 
-    DOMparseChildren(children.flat()).forEach((child: any) => {
-        if (el.tagName === 'ABBR') {
-            console.log(child)
-        }
+    DOMparseChildren(children).forEach((child: any) => {
         if (element === 'template') {
             (el as HTMLTemplateElement).content.appendChild(child)
             return
@@ -78,25 +73,30 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
 
         if (!child) return
 
+        let children: Node[] = []
         if (child instanceof HTMLCollection) {
-            Array.from(child).forEach((c) => {
-                el.appendChild(c)
-            })
-            return
+            children = Array.from(child)
+        } else if(Array.isArray(child)) {
+            children = child
         } else {
-            el.appendChild(child);
+            children = [child]
         }
+        children.forEach((c) => {
+            if (!c) return
+            el.appendChild(c)
+        })
     });
 
     return el;
 }
 
 export const baact = <P extends Baact.DOMAttributes<T, R>, T extends Element, R extends any>(element: string, properties: P | null, ...children: Baact.BaactNode[]): any => {
-    if (typeof element === 'function') {
-        // @ts-ignore
-        return DOMparseNode<P>(element.tagName, properties ?? {}, children, false)
-    }
-    return DOMparseNode<P>(element, properties ?? {}, children, true);
+    const isHTML = typeof element !== 'function'
+    // @ts-ignore
+    const name = isHTML ? element : element.tagName;
+    const result = DOMparseNode<P>(name, properties ?? {}, children, isHTML);
+    return result;
 }
+
 
 export const createRef = <T>(v?: T): Baact.BaactRef<T> => ({ value: v } as unknown as Baact.BaactRef<T>)

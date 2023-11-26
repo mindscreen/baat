@@ -3,7 +3,9 @@ import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement } from '../../types'
 import { theme } from '../../theme'
 import { getBoundingBox } from '../../util/dom'
-import {BaseHTMLElement} from "../../../baact/BaseHTMLElement";
+import { baact } from "../../../baact/baact";
+import {BaactComponent} from "../../../baact/BaactComponent";
+import {makeRegisterFunction} from "../../../baact/util/register";
 
 const outline = `0px solid ${ theme.palette.primaryLight}77`;
 const background = `${ theme.palette.primaryLight }77`;
@@ -35,32 +37,26 @@ const styles = css`
 interface IRunnerOverlayAccessor {
 }
 
-export class Overlay extends BaseHTMLElement<IRunnerOverlayAccessor> implements IRunnerOverlayAccessor {
+export class Overlay extends BaactComponent<IRunnerOverlayAccessor> implements IRunnerOverlayAccessor {
     public static tagName: string = 'baat-overlay'
     styles = styles
 
     static get observedAttributes(): (keyof IRunnerOverlayAccessor)[] { return [] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
     initialize() {
-        while (this.childNodes.length > 0) {
-            this.shadowRoot?.appendChild(this.childNodes[0]);
-        }
-
         window[baatSymbol].addEventListener(BAATEvent.HighlightElement, ((e: CustomEvent<HighlightElement>) => {
             const bb = getBoundingBox(e.detail.element);
 
-            const highlight = document.createElement('div');
-            highlight.classList.add('highlight');
-            highlight.style.position = 'absolute';
-            highlight.style.left = `${bb.x}px`;
-            highlight.style.top = `${bb.y}px`;
-            highlight.style.width = `${bb.w}px`;
-            highlight.style.height = `${bb.h}px`;
+            const highlight = (<div
+                class="highlight"
+                style={{
+                    position: "absolute",
+                    left: `${bb.x}px`,
+                    top: `${bb.y}px`,
+                    width: `${bb.w}px`,
+                    height: `${bb.h}px`,
+                }}
+            ></div>) as unknown as HTMLDivElement;
 
             this.shadowRoot?.appendChild(highlight);
             window.setTimeout(() => {
@@ -74,9 +70,10 @@ export class Overlay extends BaseHTMLElement<IRunnerOverlayAccessor> implements 
             }, 1500);
         }) as EventListener)
     }
+
+    render() {
+        return <>{...Array.from(this.children)}</>
+    }
 }
 
-export const register = () => {
-    if (!customElements.get(Overlay.tagName))
-        customElements.define(Overlay.tagName, Overlay)
-}
+export const register = makeRegisterFunction(Overlay.tagName, Overlay)

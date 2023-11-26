@@ -21,7 +21,7 @@ const styles = css`
 export class Select extends BaactComponent<ISelectAccessor> implements ISelectAccessor {
     public static tagName: string = 'baat-select'
     label: string = ""
-    options = []
+    options: [string, string][] = []
     selectedOption = '' as string
     styles = styles
     noOptionsFallback = 'No options available'
@@ -36,7 +36,7 @@ export class Select extends BaactComponent<ISelectAccessor> implements ISelectAc
                 ? <span>{this.noOptionsFallback}</span>
                 : <select onChange={this.onChange}>
                     {this.options.map(option =>
-                        <option value={option[0]} selected={option[0] === this.selectedOption}>{option[1]}</option>
+                        <option key={option[1]} value={option[0]} selected={option[0] === this.selectedOption}>{option[1]}</option>
                     )}
                 </select>
             }

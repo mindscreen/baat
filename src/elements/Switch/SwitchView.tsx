@@ -13,7 +13,7 @@ export class SwitchView extends BaactComponent<ISwitchViewAccessor> implements I
     static get observedAttributes(): (keyof ISwitchViewAccessor)[] { return [ 'name' ] }
 
     render() {
-        return <>{...Array.from(this.children)}</>
+        return <div>{this.children}</div>
     }
 }
 

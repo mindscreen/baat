@@ -4,7 +4,7 @@ import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { Accordion } from '../Accordion/Accordion'
-import { NodeResult, Result } from '../../types'
+import { Result } from '../../types'
 import { hideHighlight, showHighlight } from '../../core/highlight'
 import { Icon } from '../Icon/Icon'
 import { baatSymbol } from "../../core/BAAT"
@@ -105,12 +105,6 @@ interface IViolationAccessor {
     result?: Result
 }
 
-function createNodeLink(index: number, result: NodeResult, alternativeText?: string): HTMLLIElement {
-    return <li>
-        <NodeResultLink number={index} result={result} alternativeText={alternativeText}/>
-    </li> as unknown as HTMLLIElement;
-}
-
 export class Violation extends BaactComponent<IViolationAccessor> implements IViolationAccessor {
     public static tagName: string = 'baat-violation'
     result?: Result
@@ -161,7 +155,7 @@ export class Violation extends BaactComponent<IViolationAccessor> implements IVi
             </button>
             <ol id='nodeList'>
                 {this.result?.nodes.map((node, index) =>
-                    <li>
+                    <li key={index}>
                         <NodeResultLink number={index + 1} result={node} />
                     </li>
                 )}

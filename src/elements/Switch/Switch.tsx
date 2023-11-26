@@ -1,8 +1,8 @@
 import { css } from '../../util/taggedString'
 import { baact } from '../../../baact/baact'
-import {BaactComponent} from "../../../baact/BaactComponent";
-import {makeRegisterFunction} from "../../../baact/util/register";
-import {visuallyHiddenStyles} from "../../styles/visuallyHidden";
+import { BaactComponent } from "../../../baact/BaactComponent"
+import { makeRegisterFunction } from "../../../baact/util/register"
+import { visuallyHiddenStyles } from "../../styles/visuallyHidden"
 
 const styles = css`
     ::slotted(.visuallyHidden) { ${visuallyHiddenStyles} }
@@ -29,7 +29,7 @@ export class Switch extends BaactComponent<ISwitchAccessor> implements ISwitchAc
     render () {
         return <>
             {...Array.from(this.children).map(child => child.name === this.currentlyVisibleView
-                ? <div>{child}</div>
+                ? <div key={child.name}>{child}</div>
                 : <></>
             )}
         </>

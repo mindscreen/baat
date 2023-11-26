@@ -1,6 +1,6 @@
 'use strict'
 import { register, Results, Settings, Switch, SwitchView, Window, Icon, MiniResults, Overlay } from './elements'
-import {config, settingNames} from './config'
+import { config, settingNames } from './config'
 import { baatSymbol } from './core/BAAT'
 import { baact, createRef } from '../baact/baact'
 import { BAATEvent, BAATView } from './types'
