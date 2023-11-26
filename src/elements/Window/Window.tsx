@@ -283,8 +283,6 @@ export class Window extends BaactComponent<IRunnerWindowAccessor> implements IRu
             that.lastRatio = window.devicePixelRatio
         })
 
-        console.log(this.windowRef.value?.offsetHeight)
-
         const windowStyles = (this.folded) ? {
             bottom: `16px`
         } : {

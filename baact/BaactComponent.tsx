@@ -1,5 +1,5 @@
 import {BaseHTMLElement} from "./BaseHTMLElement";
-import {baact} from "./baact";
+import {baact, realize, render} from "./baact";
 
 export abstract class BaactComponent<T extends Record<string, any>> extends BaseHTMLElement<T> {
     private _shouldRerender: boolean = false
@@ -12,14 +12,15 @@ export abstract class BaactComponent<T extends Record<string, any>> extends Base
     public abstract render(): JSX.Element;
 
     private _render() {
+        //console.log("Rendering", this.tagName)
         if (!this.shadowRoot) return
         for (const child of this._children) {
             super.appendChild(child)
         }
         while (this.shadowRoot.lastElementChild) this.shadowRoot.removeChild(this.shadowRoot.lastElementChild)
         this.shadowRoot.textContent = ''
-        if (this.styles !== "") this.shadowRoot?.appendChild(<style>{this.styles}</style>)
-        this.shadowRoot?.append(...[this.render()].flat()); // TODO: Fix when everything is transfered to Baact
+        if (this.styles !== "") this.shadowRoot?.appendChild(realize(<style>{this.styles}</style>))
+        this.shadowRoot?.append(render(this.render(), this)); // TODO: Fix when everything is transfered to Baact
     }
 
     static get observedAttributes(): (keyof any)[] { return [] }

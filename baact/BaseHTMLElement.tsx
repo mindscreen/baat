@@ -23,7 +23,6 @@ export abstract class BaseHTMLElement<T extends Record<string, any>> extends HTM
 
     connectedCallback(): void {
         if (!this.initialized) {
-            if (this.styles !== "") this.shadowRoot?.appendChild(<style>{this.styles}</style>)
             this.initialize()
             this.initialized = true
         }
