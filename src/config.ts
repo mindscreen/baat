@@ -9,6 +9,7 @@ export const config = {
         developer: false,
         reporter: 'v2',
         showAdditionalInformation: false,
+        impactMapping: {}
     },
     size: {
         width: 400,
@@ -24,6 +25,7 @@ export const settingNames = {
     differenceMode: 'differenceMode',
     developer: 'developer',
     showAdditionalInformation: 'showAdditionalInformation',
+    impactMapping: 'impactMapping',
 }
 
 export const localStorageKeys = {
