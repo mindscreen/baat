@@ -1,6 +1,8 @@
 import { baact, createRef } from '../../../baact/baact'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { css } from '../../util/taggedString'
+import {BaactComponent} from "../../../baact/BaactComponent";
+import {makeRegisterFunction} from "../../../baact/util/register";
 
 interface IIconAccessor {
     width: number
@@ -21,41 +23,25 @@ const styles = css`
     }
 `;
 
-export class Icon extends BaseHTMLElement<IIconAccessor> implements IIconAccessor {
+export class Icon extends BaactComponent<IIconAccessor> implements IIconAccessor {
     public static tagName: string = 'baat-icon'
     public width: number = 48
     public height: number = 48
-    private svgRef = createRef<SVGSVGElement>()
     styles = styles
-
-    attributeChangedCallback<T extends keyof IIconAccessor>(name: T, oldValue: IIconAccessor[T], newValue: IIconAccessor[T]) {
-        this[name] = newValue;
-        this.svgRef.value?.setAttribute(name, String(newValue));
-    }
 
     static get observedAttributes(): (keyof IIconAccessor)[] { return [ 'width', 'height' ] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    initialize() {
-        this.shadowRoot?.appendChild(
-            <svg
+    render() {
+        return <svg
                 width={this.width}
                 height={this.height}
                 viewBox="0 0 48 48"
                 xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink" ref={this.svgRef}
-            ></svg>
-        );
-
-        this.svgRef.value?.append(...Array.from(this.children))
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+            >
+            {this.children}
+        </svg>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(Icon.tagName))
-        customElements.define(Icon.tagName, Icon);
-}
+export const register = makeRegisterFunction(Icon.tagName, Icon)

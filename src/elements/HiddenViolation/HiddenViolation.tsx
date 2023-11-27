@@ -1,14 +1,14 @@
-import { NodeResultLink } from '../NodeResultLink/NodeResultLink'
-import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
-import { baact, createRef } from '../../../baact/baact'
-import { NodeResult, Result } from '../../types'
-import { Icon } from '..'
-import {baatSymbol} from "../../core/BAAT";
-import {settingNames} from "../../config";
+import { baact } from '../../../baact/baact'
+import { Result } from '../../types'
+import { Icon } from '../Icon/Icon'
+import { baatSymbol } from "../../core/BAAT"
+import { settingNames } from "../../config"
+import { BaactComponent } from "../../../baact/BaactComponent"
+import { makeRegisterFunction } from "../../../baact/util/register"
 
-const borderBottom = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`;
+const borderBottom = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
 
 const styles = css`
     .container {
@@ -50,69 +50,31 @@ interface IHiddenViolationAccessor {
     result?: Result
 }
 
-function createNodeLink(index: number, result: NodeResult, alternativeText?: string): HTMLLIElement {
-    return <li>
-        <NodeResultLink number={index} result={result} alternativeText={alternativeText}/>
-    </li> as unknown as HTMLLIElement;
-}
-
-export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> implements IHiddenViolationAccessor {
+export class HiddenViolation extends BaactComponent<IHiddenViolationAccessor> implements IHiddenViolationAccessor {
     public static tagName: string = 'baat-hidden-violation'
     result?: Result
     folded: boolean = true
     styles = styles
-    private titleRef = createRef<HTMLHeadingElement>()
-
-    attributeChangedCallback<T extends keyof IHiddenViolationAccessor>(name: T, oldValue: IHiddenViolationAccessor[T], newValue: IHiddenViolationAccessor[T]) {
-        switch (name) {
-            case 'result':
-                this.updateResult()
-                break
-        }
-    }
 
     static get observedAttributes(): (keyof IHiddenViolationAccessor)[] { return [ 'result' ] }
 
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    updateResult() {
-        if (!this.shadowRoot || !this.isConnected) return
-
-        if (!this.result) {
-            this.titleRef.value.innerText = '';
-        } else {
-            this.titleRef.value.innerText = this.result.help;
-        }
-    }
-
-    initialize() {
+    render() {
         const handleShow = () => {
-            if (!this.result) return;
+            if (!this.result) return
 
             window[baatSymbol].setSetting(settingNames.hiddenResults,
-                window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults).filter(hidden => hidden !== this.result.id)
+                window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults).filter(hidden => hidden !== this.result?.id)
             )
         }
 
-        this.shadowRoot?.appendChild(
-            <div class='container'>
-                <h2 id='title' ref={this.titleRef}></h2>
-                <button onClick={handleShow}>
-                    <Icon width="16" height="16"><path d="M32 36C26.62 37.99 21.33 38.01 16 36C10.67 33.99 2 24 2 24c0 0 8.67-9.99 14-12 5.33-2.01 10.62-1.99 16 0 5.38 1.99 14 12 14 12 0 0-8.62 10.01-14 12z" fill="none" stroke="currentColor" stroke-width="3" /><circle cx="24" cy="24" r="8" fill="none" stroke="currentColor" stroke-width="3" /></Icon>
-                    Show
-                </button>
-            </div>
-        );
-
-        this.updateResult()
+        return <div class='container'>
+            <h2 id='title'>{this.result ? this.result.help : ''}</h2>
+            <button onClick={handleShow}>
+                <Icon width="16" height="16"><path d="M32 36C26.62 37.99 21.33 38.01 16 36C10.67 33.99 2 24 2 24c0 0 8.67-9.99 14-12 5.33-2.01 10.62-1.99 16 0 5.38 1.99 14 12 14 12 0 0-8.62 10.01-14 12z" fill="none" stroke="currentColor" stroke-width="3" /><circle cx="24" cy="24" r="8" fill="none" stroke="currentColor" stroke-width="3" /></Icon>
+                Show
+            </button>
+        </div>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(HiddenViolation.tagName)) { // @ts-ignore
-        customElements.define(HiddenViolation.tagName, HiddenViolation)
-    }
-}
+export const register = makeRegisterFunction(HiddenViolation.tagName, HiddenViolation)

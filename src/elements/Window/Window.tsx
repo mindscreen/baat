@@ -1,11 +1,13 @@
-import { visuallyHiddenStyles } from '../../util/style'
-import { BaseHTMLElement } from '../BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { theme } from '../../theme';
 import { baact, createRef } from '../../../baact/baact'
 import { slottedContains } from '../../util/dom'
 import { clamp } from '../../util/math'
 import { Icon } from '../Icon/Icon'
+import { makeRegisterFunction } from "../../../baact/util/register";
+import { visuallyHiddenStyles } from "../../styles/visuallyHidden";
+import { BaactComponent } from "../../../baact/BaactComponent";
+import { clx } from "../../../baact/util/classes";
 
 const scrollbarBorder = `${theme.semanticSizing.scrollbar.border} solid ${theme.palette.white}`
 const windowBorder = `${theme.semanticSizing.border.width} solid ${theme.palette.neutral}`
@@ -183,7 +185,7 @@ enum Anchoring {
     Far = 1,
 }
 
-export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IRunnerWindowAccessor {
+export class Window extends BaactComponent<IRunnerWindowAccessor> implements IRunnerWindowAccessor {
     public static tagName: string = 'baat-window'
     position: [number, number] = [0, 0]
     folded: boolean = false
@@ -198,40 +200,7 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
     private contentRef = createRef<HTMLDivElement>()
     private infoRef = createRef<HTMLDivElement>()
 
-    attributeChangedCallback<T extends keyof IRunnerWindowAccessor>(name: T, oldValue: IRunnerWindowAccessor[T], newValue: IRunnerWindowAccessor[T]) {
-        switch (name) {
-            case 'folded':
-                this.updateFolded()
-                break
-        }
-    }
-
     static get observedAttributes(): (keyof IRunnerWindowAccessor)[] { return [ 'folded' ] }
-
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    updateFolded() {
-        if (!this.shadowRoot) return
-
-        this.windowRef.value.classList.toggle('folded', this.folded)
-        this.contentRef.value.classList.toggle('visuallyHidden', this.folded)
-        this.infoRef.value.classList.toggle('visuallyHidden', !this.folded)
-
-        if (this.folded) {
-            this.buttonRef.value.setAttribute('aria-label', 'show BAAT')
-        } else {
-            this.buttonRef.value.setAttribute('aria-label', 'hide BAAT')
-        }
-
-        if (this.anchoring[1] === Anchoring.Far && this.windowRef.value.offsetTop < 16) {
-            this.windowRef.value.style.setProperty('bottom',
-                `${window.innerHeight - this.windowRef.value.offsetHeight - 16}px`
-            );
-        }
-    }
 
     updatePosition() {
         if (!this.shadowRoot || !this.isConnected) return
@@ -257,7 +226,7 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
         ]
     }
 
-    initialize() {
+    render() {
         this.lastRatio = window.devicePixelRatio;
         const handleClick = (e: Event) => {
             this.setAttribute('folded', !this.folded)
@@ -314,31 +283,37 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
             that.lastRatio = window.devicePixelRatio
         })
 
-        this.shadowRoot?.appendChild(
-            <div id='window' onMouseDown={handleMouseDown} onDragStart={handleDragStart} onDragEnd={handleDragEnd} ref={this.windowRef}>
-                <div id='handle' ref={this.handleRef} draggable>
-                    <slot name={windowSlots.icon}></slot>
-                    <slot name={windowSlots.heading}></slot>
-                    <div id='info' ref={this.infoRef}><slot name={windowSlots.info}></slot></div>
-                    <slot name={windowSlots.actions}></slot>
-                    <button id='foldButton' aria-label='hide window' aria-controls='fold' aria-expanded='true' onClick={handleClick} ref={this.buttonRef}>
-                        <Icon width="24" height="24"><path d="m5 24h40"/></Icon>
-                    </button>
-                </div>
-                <div id='content' ref={this.contentRef}><slot></slot></div>
+        const windowStyles = (this.folded) ? {
+            bottom: `16px`
+        } : {
+        }
+
+        return <div
+            id='window'
+            onMouseDown={handleMouseDown}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            ref={this.windowRef}
+            class={clx([this.folded && 'folded'])}
+            style={windowStyles}
+        >
+            <div id='handle' ref={this.handleRef} draggable>
+                <slot name={windowSlots.icon}></slot>
+                <slot name={windowSlots.heading}></slot>
+                <div id='info' ref={this.infoRef} class={clx([!this.folded && 'visuallyHidden'])}><slot name={windowSlots.info}></slot></div>
+                <slot name={windowSlots.actions}></slot>
+                <button id='foldButton' aria-label={this.folded ? 'show window' : 'hide window'} aria-controls='fold' aria-expanded='true' onClick={handleClick}>
+                    <Icon width="24" height="24"><path d="m5 24h40"/></Icon>
+                </button>
             </div>
-        );
+            <div id='content' ref={this.contentRef} class={clx([this.folded && 'visuallyHidden'])}><slot></slot></div>
+        </div>
 
         this.position = [
             this.handleRef.value.getBoundingClientRect().x,
             this.handleRef.value.getBoundingClientRect().y,
         ]
-
-        this.infoRef.value.classList.toggle('visuallyHidden', !this.folded)
     }
 }
 
-export const register = () => {
-    if (!customElements.get(Window.tagName))
-        customElements.define(Window.tagName, Window)
-}
+export const register = makeRegisterFunction(Window.tagName, Window)

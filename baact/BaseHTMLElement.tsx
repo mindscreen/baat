@@ -1,4 +1,4 @@
-import { baact } from '../../baact/baact'
+import { baact } from './baact'
 
 export abstract class BaseHTMLElement<T extends Record<string, any>> extends HTMLElement {
     initialized: boolean = false
@@ -23,7 +23,6 @@ export abstract class BaseHTMLElement<T extends Record<string, any>> extends HTM
 
     connectedCallback(): void {
         if (!this.initialized) {
-            if (this.styles !== "") this.shadowRoot?.appendChild(<style>{this.styles}</style>)
             this.initialize()
             this.initialized = true
         }

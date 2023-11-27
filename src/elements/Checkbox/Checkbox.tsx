@@ -1,7 +1,9 @@
 import { baact, createRef } from '../../../baact/baact'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
+import {BaactComponent} from "../../../baact/BaactComponent";
+import {makeRegisterFunction} from "../../../baact/util/register";
 
 interface ICheckboxAccessor {
     label: string
@@ -102,54 +104,28 @@ const styles = css`
     }
 `;
 
-export class Checkbox extends BaseHTMLElement<ICheckboxAccessor> implements ICheckboxAccessor {
+export class Checkbox extends BaactComponent<ICheckboxAccessor> implements ICheckboxAccessor {
     public static tagName: string = 'baat-checkbox'
     label: string = ""
     labelHidden: boolean = false
     checked: boolean = false
     styles = styles
     onChange = () => {}
-    private labelRef = createRef<HTMLSpanElement>()
-    private checkboxRef = createRef<HTMLInputElement>()
 
-    attributeChangedCallback<T extends keyof ICheckboxAccessor>(name: T, oldValue: ICheckboxAccessor[T], newValue: ICheckboxAccessor[T]) {
-        switch (name) {
-            case 'label':
-                this.updateLabel()
-                break
-            case 'checked':
-                this.updateChecked()
-                break
-        }
-    }
+    static get observedAttributes(): (keyof ICheckboxAccessor)[] { return [ 'label', 'checked', 'labelHidden' ] }
 
-    static get observedAttributes(): (keyof ICheckboxAccessor)[] { return [ 'label', 'checked' ] }
-
-    constructor() {
-        super()
-        this.attachShadow({ mode: 'open' })
-    }
-
-    initialize() {
-        this.shadowRoot?.appendChild(
-            <label class="container">
-                <span ref={this.labelRef}>{this.labelHidden ? '' : this.label}</span>
-                <input checked={this.checked} type="checkbox" ref={this.checkboxRef} onChange={this.onChange} aria-label={this.labelHidden ? this.label : undefined}/>
-                <div class="input"></div>
-            </label>
-        )
-    }
-
-    private updateLabel(): void {
-        
-    }
-
-    private updateChecked(): void {
-        
+    render() {
+        return <label class="container">
+            <span>{this.labelHidden ? '' : this.label}</span>
+            <input
+                checked={this.checked}
+                type="checkbox"
+                onChange={this.onChange}
+                aria-label={this.labelHidden ? this.label : undefined}
+            />
+            <div class="input"></div>
+        </label>
     }
 }
 
-export const register = () => {
-    if (!customElements.get(Checkbox.tagName))
-        customElements.define(Checkbox.tagName, Checkbox);
-}
+export const register = makeRegisterFunction(Checkbox.tagName, Checkbox)

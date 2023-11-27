@@ -4,7 +4,7 @@
     "target": "ES6",
     "module": "es6",
     "lib": ["es2019", "dom"],
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
     "outDir": "./build",
     "strict": true,

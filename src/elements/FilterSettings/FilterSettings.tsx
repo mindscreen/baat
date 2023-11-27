@@ -1,5 +1,5 @@
 import { axeExists } from '../../util/axe'
-import { BaseHTMLElement } from '../BaseHTMLElement'
+import { BaseHTMLElement } from '../../../baact/BaseHTMLElement'
 import { baatSymbol } from '../../core/BAAT'
 import { baact, createRef } from '../../../baact/baact'
 import { BAATEvent } from '../../types'
@@ -15,6 +15,11 @@ interface IFilterSettingsAccessor {
 const createCheckbox = (id: string, prefix: string, checked: boolean, onChange: (ev: Event) => any): Node =>
     <Checkbox checked={ checked } id={ prefix + id } onChange={ onChange } label={id}/>
 
+//
+/**
+ * @deprecated
+ * @todo convert to BaactComponent
+ */
 export class FilterSettings extends BaseHTMLElement<IFilterSettingsAccessor> implements IFilterSettingsAccessor {
     public static tagName: string = 'baat-filter-settings'
     pre: string = ""
