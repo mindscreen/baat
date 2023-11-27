@@ -87,6 +87,12 @@ const styles = css`
         font-size: ${theme.semanticSizing.font.large};
         margin-left: ${theme.sizing.relative.tiny};
     }
+    .list:not(:has(baat-violation:not(.visuallyHidden))) {
+        ${visuallyHiddenStyles}
+    }
+    .hidden-list:not(:has(baat-hidden-violation:not(.visuallyHidden))) {
+        ${visuallyHiddenStyles}
+    }
 `;
 
 interface IResultsAccessor {
@@ -165,22 +171,19 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
             newEntries = historyDiff.newEntries;
 
-            if (newEntries.length > 0) {
-                newList = <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.green}>
-                    <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+            newList = <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.green}>
+                <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+            </Accordion>
+
+            this.resultsContainerRef.value.appendChild(newList);
+
+
+            unchangedList =
+                <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
+                    <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
                 </Accordion>
 
-                this.resultsContainerRef.value.appendChild(newList);
-            }
-
-            if (historyDiff.unchangedEntries.length > 0) {
-                unchangedList =
-                    <Accordion folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
-                        <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
-                    </Accordion>
-
-                this.resultsContainerRef.value.appendChild(unchangedList);
-            }
+            this.resultsContainerRef.value.appendChild(unchangedList);
         }
 
         this.results
@@ -191,7 +194,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 )
             })
 
-        let hiddenList = <Accordion folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading' slot={Accordion.slots.heading}>Hidden <span ref={this.hiddenCountRef}></span></h2></Accordion>
+        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading' slot={Accordion.slots.heading}>Hidden <span ref={this.hiddenCountRef}></span></h2></Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
 
         this.results
@@ -325,7 +328,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
 
         this.hiddenCountRef.value.innerText = `(${hiddenCount})`;
-        this.hiddenContainerRef.value?.classList.toggle('visuallyHidden', hiddenCount === 0)
 
         this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
     }
