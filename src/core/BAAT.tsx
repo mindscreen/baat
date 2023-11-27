@@ -154,6 +154,17 @@ export class BAAT extends EventTarget {
             })
         })
 
+        const isregex = /\/(.+)\/[gimuy]*$/;
+        const mappings: [(x: string) => boolean, string][] = Object.entries(this.getSetting(settingNames.impactMapping)).map(([key, value]) => {
+            const match = key.match(isregex)
+            if (match) {
+                const regex = new RegExp(match[1])
+                return [(x: string) => regex.test(x), value as string]
+            } else {
+                return [(x: string) => x === key, value as string]
+            }
+        })
+
         axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
             {},
@@ -163,7 +174,13 @@ export class BAAT extends EventTarget {
 
                 axe.finishRun([ results ], { elementRef: true }).then((defaultResults) => {
                     this.running = false
-                    let violations = defaultResults.violations as Result[]
+                    let violations = defaultResults.violations.map(violation => {
+                        const mapping = mappings.find(([key, _]) => key(violation.id))
+                        return {
+                            ...violation,
+                            impact: mapping?.[1] ?? violation.impact
+                        }
+                    }) as Result[]
                     if (defaultResults.violations.length) {
                         if (this.getSetting(settingNames.developer))
                             console.log('violations', violations)

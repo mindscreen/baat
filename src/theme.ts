@@ -18,6 +18,7 @@ const palette = {
     serious: '#ffd0b0',
     moderate: '#ffe0b2',
     minor: '#ffecb3',
+    none: '#b5c7e3',
     criticalTransparent: 'rgba(255,188,175,0.25)',
     seriousTransparent: 'rgba(255,208,176,0.25)',
     moderateTransparent: 'rgba(255,224,178,0.25)',

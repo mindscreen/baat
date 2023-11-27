@@ -71,7 +71,7 @@ const styles = css`
         background-color: ${theme.palette.minor};
     }
     .impactNone {
-        background-color: gray;
+        background-color: ${theme.palette.none};
     }
 
     a {
@@ -139,6 +139,7 @@ export class Violation extends BaactComponent<IViolationAccessor> implements IVi
                     {(this.result?.impact === 'moderate') && <Icon width="24" height="24"><path d="m3 45h42l-21-42z" /><path d="m24 20v13" /><path d="m24 40v0"/></Icon>}
                     {(this.result?.impact === 'serious') && <Icon width="24" height="24"><path d="m3 45h42l-21-42z"/><path d="m17.5 27 13 13"/><path d="m30.5 27-13 13"/></Icon>}
                     {(this.result?.impact === 'critical') && <Icon width="24" height="24"><path d="m3 16 13-13h16l13 13v16l-13 13h-16l-13-13z"/></Icon>}
+                    {(!Object.keys(impactColors).includes(this.result?.impact ?? '')) && <Icon width="24" height="24"><path d="M14,17C14,17,15.48,7,24,7c6,0,10,4,10,10c0,8-10,8-10,18" /><circle cx="24" cy="44.02" r="2.5" fill="currentColor" stroke="none"/></Icon>}
                 </div>
             </div>
             <div id='description'>{this.result?.description ?? ''}</div>
