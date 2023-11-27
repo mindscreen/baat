@@ -165,8 +165,6 @@ export class BAAT extends EventTarget {
             }
         })
 
-        console.log('mappings', mappings)
-
         axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
             {},
