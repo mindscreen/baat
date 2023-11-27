@@ -5,7 +5,7 @@ export const config = {
         hiddenImpacts: [ 'moderate', 'minor' ],
         hiddenResults: [] as string[],
         autorun: false,
-        differenceMode: false,
+        differenceMode: true,
         developer: false,
         reporter: 'v2',
         showAdditionalInformation: false,
