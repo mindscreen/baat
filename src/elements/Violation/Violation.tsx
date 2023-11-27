@@ -208,12 +208,12 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                     <div id="indicator" ref={this.indicatorRef}>
                     </div>
                 </div>
-                <div id='description' ref={this.descriptionRef}></div>
-                <div id='link' ref={this.linkRef}></div>
                 <button onClick={handleHide}>
                     <Icon width="16" height="16"><path d="M2.38 23.79C2.38 23.79 12.18 31.45 24.38 31.45S46.38 23.79 46.38 23.79" stroke="currentColor" stroke-width="4"/></Icon>
                     Hide
                 </button>
+                <div id='description' ref={this.descriptionRef}></div>
+                <div id='link' ref={this.linkRef}></div>
                 <ol id='nodeList' ref={this.nodeListRef}></ol>
             </Accordion>
         );
