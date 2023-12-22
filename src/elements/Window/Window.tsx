@@ -50,6 +50,7 @@ const styles = css`
         all: initial;
         display: block;
         font-family: sans-serif;
+        z-index: 999999;
         font-size: ${theme.semanticSizing.font.base};
         color: ${theme.semanticColors.font.dark};
     }
