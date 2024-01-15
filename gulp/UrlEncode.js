@@ -1,11 +1,28 @@
 "use strict";
 const Transform = require("stream").Transform;
 
-function encodeRFC3986URIComponent(str) {
-    return encodeURIComponent(str).replace(
-        /[!'()*]/g,
-        (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
-    );
+function encodeURIComponentForBookmarklet(str) {
+    // encode only required special characters for bookmarklets
+    return str
+        .replaceAll('%',"%25")
+        .replaceAll('!',"%21")
+        .replaceAll('"',"%22")
+        .replaceAll('#',"%23")
+        .replaceAll('$',"%24")
+        .replaceAll('&',"%26")
+        .replaceAll('\'',"%27")
+        .replaceAll('*',"%2A")
+        .replaceAll('+',"%2B")
+        .replaceAll(',',"%2C")
+        .replaceAll('/',"%2F")
+        .replaceAll('?',"%3F")
+        .replaceAll('@',"%40")
+        .replaceAll('[',"%5B")
+        .replaceAll('\\',"%5C")
+        .replaceAll(']',"%5D")
+        .replaceAll('`',"%60")
+        .replaceAll('|',"%7C")
+    ;
 }
 
 const URLEncoder = () => {
@@ -19,7 +36,7 @@ const URLEncoder = () => {
             }
             const content = String(chunk.contents)
 
-            chunk.contents = Buffer.from(encodeRFC3986URIComponent(content));
+            chunk.contents = Buffer.from(encodeURIComponentForBookmarklet(content));
 
             callback(null, chunk);
         },
