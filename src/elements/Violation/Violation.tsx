@@ -211,7 +211,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                     </div>
                 </div>
                 <button onClick={handleHide}>
-                    <Icon width="16" height="16"><path d="M34.30 34.81C33.50 35.32 32.72 35.73 32 36L32 36C26.62 37.99 21.33 38.01 16 36C10.67 33.99 2 24 2 24C2 24 8.01 17.07 13.11 13.59" fill="none" stroke="currentColor" stroke-width="3" /><path d="M15.10 12.58C15.60 12.15 15.69 12.11 16 12C21.39 10.14 26.62 10.01 32 12C37.38 13.99 46 24 46 24C46 24 41.50 29.23 36.97 32.88C36.67 33.12 36.60 33.18 36.13 33.61" fill="none" stroke="currentColor" stroke-width="3" /><path d="M29.40 29.90A8 8 0 0 1 24 32A8 8 0 0 1 16 24A8 8 0 0 1 18.10 18.60" fill="none" stroke="currentColor" stroke-width="3" /><path d="M9 10 38 39" fill="none" stroke="currentColor" stroke-width="3" /></Icon>
+                    <Icon width="16" height="16"><g fill="none" stroke-width="3" stroke="currentColor"><path d="m2 24c14.4-16.1 30.4-15.9 44 0-13.4 15.7-28 16-44 0z"/><path d="m9 10 29 29"/></g></Icon>
                     Hide
                 </button>
                 <div id='description' ref={this.descriptionRef}></div>
