@@ -64,6 +64,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     static tagName: string = 'baat-node-link'
     private buttonRef = createRef<HTMLButtonElement>()
     private infoRef = createRef<HTMLDivElement>()
+    private element: HTMLElement | null = null;
 
     attributeChangedCallback<T extends keyof INodeLinkAccessor>(name: T, oldValue: INodeLinkAccessor[T], newValue: INodeLinkAccessor[T]) {
         this.update()
@@ -79,17 +80,18 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     update() {
         if (!this.shadowRoot || !this.isConnected) return
         let name = ""
-        let hasLink = !isHidden(this.result?.element)
+        this.element = this.result?.element ?? document.querySelector(this?.result?.target?.join(', ') ?? '') as HTMLElement | null
+        let hasLink = this.element && !isHidden(this.element)
         const devMode = window[baatSymbol].getSetting(settingNames.developer)
 
         removeAllChildren(this.buttonRef.value)
 
         if (devMode) {
-            name = this.result?.target.join(', ') ?? this.result?.element?.tagName.toLowerCase() ?? ''
+            name = this.result?.target.join(', ') ?? this.element?.tagName.toLowerCase() ?? ''
         } else {
-            name = this.result?.element ? ownText(this.result?.element).trim() : ""
+            name = this.element ? ownText(this.element).trim() : ""
 
-            if (name === "") name = this.result?.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
+            if (name === "") name = this.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
         }
 
         if (hasLink || devMode) {
@@ -110,12 +112,12 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             e.stopPropagation()
             if (!this.result) return
 
-            if (this.result.element)
-                window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element: this.result.element }}))
+            if (this.element)
+                window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement,{ detail: { element: this.element }}))
             if (window[baatSymbol].getSetting(settingNames.developer))
-                console.log(this.result.element)
+                console.log(this.element)
 
-            this.result.element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
+            this.element?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {

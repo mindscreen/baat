@@ -10,7 +10,6 @@ const background = `${ theme.palette.primaryLight }77`;
 const outlineBlink = `50px solid ${ theme.palette.primary}dd;`
 const styles = css`
     :host {
-        z-index: 999999;
         inset: 0;
         pointer-events: none;
         position: absolute;
@@ -65,6 +64,7 @@ export class Overlay extends BaseHTMLElement<IRunnerOverlayAccessor> implements 
             highlight.style.top = `${bb.y}px`;
             highlight.style.width = `${bb.w}px`;
             highlight.style.height = `${bb.h}px`;
+            highlight.style.zIndex = '999999';
 
             this.shadowRoot?.appendChild(highlight);
             window.setTimeout(() => {
