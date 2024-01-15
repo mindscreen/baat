@@ -101,7 +101,7 @@ export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> i
             <div class='container'>
                 <h2 id='title' ref={this.titleRef}></h2>
                 <button onClick={handleShow}>
-                    <Icon width="16" height="16"><path d="M32 36C26.62 37.99 21.33 38.01 16 36C10.67 33.99 2 24 2 24c0 0 8.67-9.99 14-12 5.33-2.01 10.62-1.99 16 0 5.38 1.99 14 12 14 12 0 0-8.62 10.01-14 12z" fill="none" stroke="currentColor" stroke-width="3" /><circle cx="24" cy="24" r="8" fill="none" stroke="currentColor" stroke-width="3" /></Icon>
+                    <Icon width="16" height="16"><g fill="none" stroke-width="3" stroke="currentColor"><path d="m2 24c14.4-16.1 30.4-15.9 44 0-13.4 15.7-28 16-44 0z"/><circle cx="24" cy="24" r="7.86"/></g></Icon>
                     Show
                 </button>
             </div>
