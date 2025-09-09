@@ -31,8 +31,8 @@ jobs:
         version: ${{ env.PACKAGE_VERSION }}
         git_commit_sha: ${{ github.sha }}
         git_tag_prefix: "v"
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.2
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: build-artifact
         path: build/*
@@ -42,8 +42,8 @@ jobs:
     needs: build
     
     steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v5
         with:
           name: build-artifact
       - name: Set tagname
