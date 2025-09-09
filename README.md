@@ -15,13 +15,7 @@ You can simply use axe-core or create your custom rulesets based on axe-core.
 There are two ways to install and use BAAT:
 
 ### Usage as a bookmarklet
-1. Head to the [BAAT GitHub releases page](https://github.com/mindscreen/baat/releases/latest).
-2. Download the baat-bookmark.txt file.
-3. Go to the bookmark management of your browser and import the bookmark from this file.
-   [Guideline for Firefox](https://support.mozilla.org/en-US/kb/import-bookmarks-html-file), [Chrome](https://support.google.com/chrome/answer/96816?hl=en) (use the "Bookmarks HTML file" option for import), [Edge](https://support.microsoft.com/en-us/windows/move-internet-explorer-favorites-to-a-new-pc-a03f02c7-e0b9-5d8b-1857-51dd70954e47#ID0EDF)
-4. You need to activate the bookmark toolbar. If the BAAT bookmarklet is not already in the bookmark toolbar, move it there.
-5. Activate the bookmarklet on any page. (The bookmarklet tries to load the axe.min.js rules file from jsdeliver into BAAT, if this does not work (e.g. due to CSP restrictions) you can provide a local version of the rules file in the settings)
-6. Press the play button in the top bar of BAAT to run the tests.
+Follow the instructions on the [BAAT website](https://tools.caat.report/baat/).
 
 ### Usage as an userscript
 1. Install an userscript manager, such as Tampermonkey. You will find installation instructions on the [Tampermonkey website](https://www.tampermonkey.net/).
@@ -47,7 +41,7 @@ It will also print some more debug info into the console.
 
 ## Links
 
-- 🌎 [BAAT Project website](https://mscr.it/baat/)
+- 🌎 [BAAT Project website](https://tools.caat.report/baat/)
 - 🌎 [Axe Core GitHub Page](https://github.com/dequelabs/axe-core)
 
 ## Troubleshooting
