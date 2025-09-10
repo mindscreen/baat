@@ -3,7 +3,7 @@ import { css } from '../../util/taggedString'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
-import { isHidden, ownText, removeAllChildren } from '../../util/dom'
+import { deepShadowQuerySelectorAll, isHidden, ownText, removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
 import { Icon } from '..'
@@ -80,7 +80,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     update() {
         if (!this.shadowRoot || !this.isConnected) return
         let name = ""
-        this.element = this.result?.element ?? document.querySelector(this?.result?.target?.join(', ') ?? '') as HTMLElement | null
+        this.element = this.result?.element ?? deepShadowQuerySelectorAll(this?.result?.target?.join(', ') ?? '').pop() as HTMLElement | null
         let hasLink = this.element && !isHidden(this.element)
         const devMode = window[baatSymbol].getSetting(settingNames.developer)
 
