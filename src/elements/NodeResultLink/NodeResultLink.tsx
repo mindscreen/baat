@@ -10,22 +10,31 @@ import { Icon } from '..'
 import {settingNames} from "../../config";
 
 const styles = css`
-    :host, button {
+    :host {
         width: 100%;
     }
     
     button {
         background-color: transparent;
-        border: none;
         text-align: left;
-        font-size: ${theme.semanticSizing.font.small};
+        font-size: 1rem;
         color: ${theme.semanticColors.font.link};
         cursor: pointer;
         overflow: hidden;
         white-space: nowrap;
-        display: block;
+        display: inline-block;
         text-overflow: ellipsis;
-        padding: 1px 6px;
+        padding: .2rem;
+        border: 1px solid;
+        border-radius: 2px;
+        max-width: 100%;
+    }
+    button:focus {
+        outline: 1px solid;
+        outline-offset: 1px;
+    }
+    button > baat-icon {
+        vertical-align: middle;
     }
   
     button:disabled {
@@ -35,7 +44,7 @@ const styles = css`
     }
     
     button:hover {
-        color: ${theme.semanticColors.font.linkHover};
+        background-color: ${theme.palette.grayLight};
     }
 
     button:disabled {
@@ -95,7 +104,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         if (hasLink || devMode) {
-            this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
+            this.buttonRef.value.appendChild(<Icon width="16" height="16"><g fill="none" stroke="#000" stroke-linecap="round" stroke-width="4.65"><circle cx="24" cy="24" r="16.3"/><path d="m24 2.5v11"/><path d="m24 35v10.5"/><path d="m45.5 24h-10.5"/><path d="m13.5 24h-11"/></g></Icon>)
             this.buttonRef.value.removeAttribute('disabled')
         } else {
             this.buttonRef.value.setAttribute('disabled', 'true')

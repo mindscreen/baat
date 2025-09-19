@@ -11,6 +11,7 @@ const styles = css`
         position: relative;
     }
     #handle {
+        position: relative;
         display: flex;
         align-items: baseline;
         box-sizing: border-box;
@@ -32,7 +33,7 @@ const styles = css`
         border-bottom: ${border};
     }
     .open #caret {
-        transform: rotate(-270deg);
+        transform: rotate(90deg);
     }
     .fixed #handle {
         cursor: revert;
@@ -45,13 +46,15 @@ const styles = css`
     }
     #caret {
         margin: 0 ${theme.sizing.relative.tiny};
+        z-index: 1;
     }
     .flex {
         display: flex;
     }
     #content {
         display: none;
-        padding: ${theme.sizing.relative.tiny};
+        padding: ${theme.sizing.relative.small};
+        padding-left:  ${theme.sizing.relative.larger};
         border-left-color: var(--border-color, ${theme.palette.gray});
         border-left-width: ${theme.sizing.absolute.normal};
         border-left-style: solid;

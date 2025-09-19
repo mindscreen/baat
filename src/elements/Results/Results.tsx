@@ -18,6 +18,7 @@ import { Checkbox } from '../Checkbox/Checkbox'
 import { Accordion } from '../Accordion/Accordion';
 import {settingNames} from "../../config";
 import {convertViolationToHistoryEntry, historyEntryDiff} from "../../util/history";
+import {button} from "../../styles/button";
 
 const styles = css`
     #container {
@@ -30,9 +31,33 @@ const styles = css`
     .placeholder {
         margin: ${theme.sizing.relative.normal}
     }
+    .accordionheader {
+        display: block;
+        width: 100%;
+        padding: .5rem 2rem;
+        margin: -.5rem -1.3rem -.25rem -2rem !important;
+    }
+    .unchanged {
+        background-color: ${theme.palette.blue};
+    }
+    .new {
+        background-color: ${theme.palette.green};
+    }
+    .hidden {
+        background-color: ${theme.palette.grayLight};
+    }
+    .count {
+        position:absolute;
+        background-color: #fff;
+        padding: .2rem .5rem;
+        font-size: 1rem;
+        font-weight: normal;
+        border-radius: 5px;
+        right: 1rem;
+    }
     table {
         width: calc(100% - 2 * ${theme.sizing.relative.tiny});
-        margin: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        margin: 1rem 2rem;
         box-sizing: border-box;
         table-layout: fixed;
     }
@@ -40,11 +65,11 @@ const styles = css`
         text-align: start;
         font-weight: normal;
     }
-    thead th {
-        font-weight: bold;
+    thead th, tfoot th, tfoot td {
+        font-weight: 600;
     }
-    td:first-child, th:first-child {
-        width: 1em;
+    tfoot th, tfoot td {
+        padding-top: .5rem;
     }
     caption {
         text-align: left;
@@ -57,28 +82,11 @@ const styles = css`
         padding: ${theme.sizing.relative.tiny};
         background-color: ${theme.palette.light};
     }
-    button {
-        display: flex;
-        gap: ${theme.sizing.relative.smaller};
-        background-color: ${theme.palette.primary};
-        color: ${theme.palette.light};
-        font-size: 1em;
-        border: none;
-        padding: 0.25em 1em;
-        transition: background-color 0.2s ease-in-out;
-        margin: ${theme.sizing.relative.smaller};
-        cursor: pointer;
-        align-items: center;
-    }
-
-    button:hover {
-        background-color: ${theme.palette.primaryDark};
-    }
     
-    button:active {
-        background-color: ${theme.palette.primaryLight};
+    ${button}
+    button {
+        margin: 2rem;
     }
-
     #status:empty {
         padding: 0;
     }
@@ -109,6 +117,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     private filterPlaceholderRef = createRef<HTMLDivElement>()
     private hiddenCountRef = createRef<HTMLSpanElement>()
     private hiddenContainerRef = createRef<Accordion>()
+    private downloadContainerRef = createRef<HTMLDivElement>()
 
     attributeChangedCallback<T extends keyof IResultsAccessor>(name: T, oldValue: IResultsAccessor[T], newValue: IResultsAccessor[T]) {
         switch (name) {
@@ -132,9 +141,10 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     initialize() {
         this.shadowRoot?.appendChild(
             <div id='container'>
+                <div id='statistics' ref={this.statisticsContainerRef}></div>
                 <div id='status' ref={this.statusContainerRef}></div>
                 <div id='results' ref={this.resultsContainerRef}></div>
-                <div id='statistics' ref={this.statisticsContainerRef}></div>
+                <div id='download' ref={this.downloadContainerRef}></div>
             </div>
         )
         this.setAttribute('results', window[baatSymbol].lastResults)
@@ -160,6 +170,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         removeAllChildren(this.resultsContainerRef.value)
         removeAllChildren(this.statisticsContainerRef.value)
+        removeAllChildren(this.downloadContainerRef.value)
         const differenceMode = window[baatSymbol].getSetting(settingNames.differenceMode);
 
         let newList: JSX.Element | Element = this.resultsContainerRef.value;
@@ -172,7 +183,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             newEntries = historyDiff.newEntries;
 
             newList = <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.green}>
-                <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+                <h2 class='listheading accordionheader new' slot={Accordion.slots.heading}>New</h2>
             </Accordion>
 
             this.resultsContainerRef.value.appendChild(newList);
@@ -180,7 +191,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
             unchangedList =
                 <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
-                    <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
+                    <h2 class='listheading accordionheader unchanged' slot={Accordion.slots.heading}>Unchanged</h2>
                 </Accordion>
 
             this.resultsContainerRef.value.appendChild(unchangedList);
@@ -194,7 +205,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 )
             })
 
-        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading' slot={Accordion.slots.heading}>Hidden <span ref={this.hiddenCountRef}></span></h2></Accordion>
+        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading accordionheader hidden' slot={Accordion.slots.heading}>Hidden <span class="count" ref={this.hiddenCountRef}></span></h2></Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
 
         this.results
@@ -247,7 +258,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     <caption>Run Statistics</caption>
                     <thead>
                         <tr>
-                            <th> </th>
                             <th>Impact</th>
                             <th>Violations</th>
                             <th>Elements</th>
@@ -264,29 +274,28 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                                 }
                             }
                             return <tr>
-                                <td>
-                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ `show ${ impact }` } labelHidden/>
-                                </td>
-                                <th>{ impact.charAt(0).toUpperCase() + impact.slice(1) }</th>
+                                <th>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ impact.charAt(0).toUpperCase() + impact.slice(1) }/>
+                                </th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
                             </tr>
                         })}
+                    </tbody>
+                    <tfoot>
                         <tr>
-                            <td></td>
                             <th>Total</th>
                             <td>{ this.results.length.toString() }</td>
                             <td>{ elements.length.toString() }</td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
             )
             let cache: Array<any> = [];
 
-            this.statisticsContainerRef.value.appendChild(
+            this.downloadContainerRef.value.appendChild(
                 <button type='button' onClick={() => window[baatSymbol].getFinalResults().then(result => download('baat-report.json', JSON.stringify(result)))}>
-                    <Icon width="16" height="16"><path d="m6 2h33l7 7v33c0 2.26-1.74 4-4 4h-36c-2.26 0-4-1.74-4-4v-36c0-2.26 1.74-3.99 4-4z"/><rect x="9" y="25" width="30" height="19"/><rect x="24" y="6" width="6" height="10"/><rect x="12" y="2" width="24" height="18"/></Icon>
-                    Download Report
+                    Download axe report as JSON file
                 </button>
             );
         }
@@ -316,7 +325,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                         .getAttribute('data-tags')
                         ?.split(' ')
                         .map(tag => !hiddenTags.includes(tag))
-                        .reduce((acc, curr) => acc || curr, false) ?? false
+                        .reduce((acc, curr) => acc || curr, false)
                 ) || (
                     hiddenImpacts.includes(violation.getAttribute('data-impact') ?? "")
                 ) || (
@@ -327,7 +336,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         const numFiltered = this.shadowRoot?.querySelectorAll(`${Violation.tagName}.visuallyHidden`).length;
 
 
-        this.hiddenCountRef.value.innerText = `(${hiddenCount})`;
+        this.hiddenCountRef.value.innerText = `${hiddenCount} ×`;
 
         this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
     }

@@ -3,20 +3,19 @@ import {css} from "../util/taggedString";
 
 export const button = css`
     button {
-        background-color: ${theme.palette.primary};
+        background-color: #000;
         color: ${theme.palette.light};
         font-size: ${theme.semanticSizing.font.normal};
-        border: none;
+        border:none;
+        border-radius: 2px;
         padding: ${theme.semanticSizing.button.padding};
-        transition: background-color 0.2s ease-in-out;
         cursor: pointer;
     }
-
     button:hover {
         background-color: ${theme.palette.primaryDark};
     }
-
-    button:active {
-        background-color: ${theme.palette.primaryLight};
+    button:focus {
+        outline: 1px solid #000;
+        outline-offset: 1px;
     }
 `;
