@@ -18,7 +18,7 @@ const styles = css`
         background-color: transparent;
         text-align: left;
         font-size: 1rem;
-        color: ${theme.semanticColors.font.link};
+        color: ${theme.palette.primaryDark};
         cursor: pointer;
         overflow: hidden;
         white-space: nowrap;
@@ -39,7 +39,7 @@ const styles = css`
   
     button:disabled {
         cursor: default;
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
         padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
     }
     
@@ -48,7 +48,7 @@ const styles = css`
     }
 
     button:disabled {
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
     }
   
     button > * {

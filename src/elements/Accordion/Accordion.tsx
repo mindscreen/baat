@@ -22,7 +22,7 @@ const styles = css`
         background-color: ${theme.palette.white};
         width: 100%;
         cursor: pointer;
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
         font-size: ${theme.sizing.relative.normal};
     }
     #handle:focus {

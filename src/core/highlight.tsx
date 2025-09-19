@@ -14,7 +14,7 @@ const styles = css`
         all: initial;
         padding: 0;
         position: absolute;
-        font-size: ${ theme.semanticSizing.font.normal };
+        font-size: 1rem;
         cursor: pointer;
         display: none;
         z-index: 9005;
@@ -77,7 +77,7 @@ const styles = css`
     }
 
     #infoWindow h3 {
-        font-size: ${ theme.semanticSizing.font.normal };
+        font-size: 1rem;
         margin: 0;
         margin-top: ${ theme.sizing.relative.tiny };
         margin-bottom: ${ theme.sizing.relative.tiny };

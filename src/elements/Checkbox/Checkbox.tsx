@@ -47,7 +47,7 @@ const styles = css`
         width: 1.25rem;
         height: 1.25rem;
         margin: .25rem;
-        border: 1px solid ${theme.semanticColors.font.dark};
+        border: 1px solid #333;
         color: transparent;
     }
     .container input[type="checkbox"] ~ .checkbox > i > svg {
@@ -58,7 +58,7 @@ const styles = css`
     }
     .container input[type="checkbox"]:checked ~ .checkbox {
         color: #fff;
-        background: ${theme.semanticColors.font.dark};
+        background: #333;
     }
     .container input[type="checkbox"]:focus ~ .checkbox {
         outline: rgb(96, 94, 92) solid 1px;             

@@ -49,14 +49,6 @@ const sizing = {
 
 export const theme = {
     palette,
-    semanticColors: {
-        font: {
-            link: palette.primaryDark,
-            linkHover: palette.primary,
-            dark: palette.dark,
-            light: palette.light,
-        },
-    },
     sizing,
     semanticSizing: {
         button: {

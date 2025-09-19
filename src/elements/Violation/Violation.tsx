@@ -63,13 +63,13 @@ const styles = css`
         margin-bottom: .25rem;
     }
     a {
-      color: ${ theme.semanticColors.font.link };
+      color: ${ theme.palette.primaryDark };
     }
     a:hover {
-        color: ${theme.semanticColors.font.linkHover};
+        color: ${theme.palette.primary};
     }
     a:disabled {
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
     }
 
     button {
