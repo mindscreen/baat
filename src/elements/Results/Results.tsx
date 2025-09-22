@@ -33,12 +33,13 @@ const styles = css`
     }
     .accordionheader {
         display: block;
-        width: 100%;
+        width: calc( 100% - 3.2rem );
         padding: .5rem 2rem;
         margin: -.5rem -1.3rem -.25rem -2rem !important;
     }
     .unchanged {
         background-color: ${theme.palette.blue};
+        color: #fff;
     }
     .new {
         background-color: ${theme.palette.green};
@@ -190,7 +191,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
 
             unchangedList =
-                <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}>
+                <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}textColor={theme.palette.white}>
                     <h2 class='listheading accordionheader unchanged' slot={Accordion.slots.heading}>Unchanged</h2>
                 </Accordion>
 

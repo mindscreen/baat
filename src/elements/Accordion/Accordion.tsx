@@ -25,6 +25,9 @@ const styles = css`
         color: #333;
         font-size: ${theme.sizing.relative.normal};
     }
+    #handle baat-icon {
+        color: var(--text-color);
+    }
     #handle:focus {
         border-left-color: ${theme.palette.primaryDark};
         outline: none;
@@ -71,6 +74,7 @@ interface IAccordionAccessor {
     fixed: boolean
     nestedRoot?: boolean
     borderColor?: string
+    textColor?: string
     onChange?: (folded: boolean) => void
 }
 
@@ -81,6 +85,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
     fixed: boolean = false
     nestedRoot?: boolean = false
     borderColor?: string
+    textColor?: string
     private containerRef = createRef<HTMLDivElement>()
     private contentRef = createRef<HTMLDivElement>()
     onChange?: (folded: boolean) => void
@@ -100,10 +105,13 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
             case 'borderColor':
                 this.updateBorderColor()
                 break
+            case 'textColor':
+                this.updateTextColor()
+                break
         }
     }
 
-    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'borderColor' ] }
+    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'textColor' ] }
 
     constructor() {
         super()
@@ -135,6 +143,12 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.containerRef.value?.style.setProperty('--border-color', this.borderColor ?? theme.palette.gray)
     }
 
+    updateTextColor() {
+        if (!this.shadowRoot) return;
+
+        this.containerRef.value?.style.setProperty('--text-color', this.textColor ?? theme.palette.dark)
+    }
+
     initialize() {
         const handleMouseUp = (e: Event) => {
             if ((window.getSelection()?.toString().length ?? 0) === 0 && !this.fixed) {
@@ -147,7 +161,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.shadowRoot?.appendChild(
             <div id='container' ref={this.containerRef}>
                 <button id='handle' onClick={handleMouseUp}>
-                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" d="M 11,43 37,24 11,5"/></Icon></div>
+                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" stroke="currentColor" d="M 11,43 37,24 11,5"/></Icon></div>
                     <slot name='heading'></slot>
                 </button>
                 <div id='content' ref={this.contentRef}>
@@ -160,6 +174,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.updateFolded()
         this.updateNestedRoot()
         this.updateBorderColor()
+        this.updateTextColor()
 
         this.initialized = true
     }
