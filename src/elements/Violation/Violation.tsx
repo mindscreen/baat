@@ -37,12 +37,13 @@ const styles = css`
         margin: .1rem 0;
         max-width: 100%;
         font-weight: bold;
+        font-size: .75rem;
         white-space: nowrap;
         outline-offset: -1px;
     }
     .critical {
         outline-color: #bc1313;
-        background-color: bc1313;
+        background-color: #bc1313;
         color: #fff
     }
     .serious {
@@ -83,13 +84,15 @@ const styles = css`
         padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         cursor: pointer;
         font-size: 1rem;
+        max-width:100%;
     }
+
     button:focus {
         outline: 1px solid;
-        outline-offset: -3px;
+        outline-offset: 1px;
     }
     button:hover {
-        background-color: ${theme.palette.gray};
+        background-color: ${theme.palette.grayLight};
     }
     #hideButton {
         margin-top: 1.25rem;
