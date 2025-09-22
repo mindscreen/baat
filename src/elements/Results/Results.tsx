@@ -56,7 +56,7 @@ const styles = css`
         right: 1rem;
     }
     table {
-        width: calc(100% - 2 * ${theme.sizing.relative.tiny});
+        width: calc(100% - 2rem);
         margin: 1rem 2rem;
         box-sizing: border-box;
         table-layout: fixed;
