@@ -24,7 +24,9 @@ const styles = css`
         border-radius: 2px;
         padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         cursor: pointer;
-        max-width:100%;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
     }
     button:focus {
         outline: 1px solid;

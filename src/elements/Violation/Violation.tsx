@@ -84,7 +84,9 @@ const styles = css`
         padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         cursor: pointer;
         font-size: 1rem;
-        max-width:100%;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     button:focus {
@@ -186,6 +188,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                     </div>
                 </div>
                 <div id='description' ref={this.descriptionRef}></div>
+                <h3>Errors on page</h3>
                 <ol id='nodeList' ref={this.nodeListRef}></ol>
                 <div id='link' ref={this.linkRef}></div>
                 <button id='hideButton' onClick={handleHide}>
