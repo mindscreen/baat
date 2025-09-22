@@ -12,7 +12,7 @@ export const button = css`
         cursor: pointer;
     }
     button:hover {
-        background-color: ${theme.palette.primaryDark};
+        background-color: #767573;
     }
     button:focus {
         outline: 1px solid #000;

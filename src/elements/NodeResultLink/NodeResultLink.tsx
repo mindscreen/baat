@@ -13,48 +13,38 @@ const styles = css`
     :host {
         width: 100%;
     }
-    
+
     button {
-        background-color: transparent;
-        text-align: left;
-        font-size: 1rem;
-        color: ${theme.palette.primaryDark};
-        cursor: pointer;
-        overflow: hidden;
-        white-space: nowrap;
-        display: inline-block;
-        text-overflow: ellipsis;
-        padding: .2rem;
+        display: flex;
+        align-items: center;
+        font-family: sans-serif;
+        gap: ${theme.sizing.relative.tiny};
+        background-color: ${theme.palette.white};
         border: 1px solid;
         border-radius: 2px;
-        max-width: 100%;
+        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        cursor: pointer;
+        max-width:100%;
     }
     button:focus {
         outline: 1px solid;
         outline-offset: 1px;
     }
-    button > baat-icon {
-        vertical-align: middle;
-    }
-  
-    button:disabled {
-        cursor: default;
-        color: #333;
-        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
-    }
-    
     button:hover {
         background-color: ${theme.palette.grayLight};
     }
 
     button:disabled {
+        cursor: default;
         color: #333;
+        border: none;
+        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
     }
-  
-    button > * {
-        margin-right: ${theme.sizing.relative.smaller};
+
+    button:disabled:hover {
+        background-color: #fff;
     }
-  
+
     #info {
         padding-left: ${theme.sizing.relative.huge};
         font-size: ${theme.semanticSizing.font.small};
@@ -108,6 +98,7 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             this.buttonRef.value.removeAttribute('disabled')
         } else {
             this.buttonRef.value.setAttribute('disabled', 'true')
+            console.log(this.buttonRef);
         }
         this.buttonRef.value.appendChild(document.createTextNode(name))
 

@@ -60,69 +60,15 @@ const styles = css`
         color: #fff;
         background: #333;
     }
+    .container:hover input[type="checkbox"] ~ .checkbox {
+        color: #605E5C;
+    }
+    .container:hover input[type="checkbox"]:checked ~ .checkbox {
+        color: #fff;
+    }
     .container input[type="checkbox"]:focus ~ .checkbox {
-        outline: rgb(96, 94, 92) solid 1px;             
+        outline: #605E5C solid 1px;
         outline-offset: 1px;
-    }
-
-    .container input[type="checkbox"] ~ .input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: ${theme.sizing.relative.small};
-        width: ${theme.sizing.relative.small};
-        background: ${theme.palette.white};
-        transition: background 250ms;
-        border: 1px solid ${theme.palette.primary};
-        border-radius: 0.2em;
-    }
-
-    .container input[type="checkbox"] ~ .input::after {
-        content: "";
-        position: absolute;
-        display: none;
-        left: calc(${theme.sizing.relative.small} / 2 - 0.175rem);
-        top: calc(${theme.sizing.relative.small} / 2 - 0.4em);
-        width: 0.25em;
-        height: 0.5em;
-        border: solid #ffffff;
-        border-width: 0 2px 2px 0;
-        transition: background 250ms;
-        transform: rotate(45deg);
-    }
-    
-    .container input[type="checkbox"]:disabled ~ .input::after {
-        border-color: #ffffff;
-    }
-
-    .container input:checked ~ .input::after {
-        display: block;
-    }
-
-    .container:hover input[type="checkbox"]:not([disabled]) ~ .input,
-    .container input[type="checkbox"]:focus ~ .input {
-        background: ${theme.palette.primaryLight};
-        border-color: ${theme.palette.primaryLight};
-    }
-
-    .container input:focus ~ .input {
-        box-shadow: 0 0 0 2px ${theme.palette.black};
-    }
-
-    .container input[type="checkbox"]:checked ~ .input {
-        background: ${theme.palette.primary};
-        border-color: ${theme.palette.primary};
-    }
-
-    .container input[type="checkbox"]:disabled ~ .input {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .container:hover input[type="checkbox"]:not([disabled]):checked ~ .input,
-    .container input[type="checkbox"]:checked:focus ~ .input {
-        background: ${theme.palette.primaryLight};
-        border-color: ${theme.palette.primaryLight};
     }
 `;
 
