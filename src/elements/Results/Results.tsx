@@ -253,7 +253,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 const impactOrder = axe.constants.impact
                 return impactOrder.indexOf(b[0]) - impactOrder.indexOf(a[0])
             }
-
+            const countAllElements = new Set(this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || [])).size;
             this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
@@ -287,7 +287,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                         <tr>
                             <th>Total</th>
                             <td>{ this.results.length.toString() }</td>
-                            <td>{ elements.length.toString() }</td>
+                            <td>{ countAllElements.toString() }</td>
                         </tr>
                     </tfoot>
                 </table>
