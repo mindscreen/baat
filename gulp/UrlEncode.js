@@ -6,7 +6,6 @@ function encodeURIComponentForBookmarklet(str) {
     return str
         .replaceAll('%',"%25")
         .replaceAll('!',"%21")
-        .replaceAll('"',"%22")
         .replaceAll('#',"%23")
         .replaceAll('$',"%24")
         .replaceAll('&',"%26")
@@ -22,6 +21,7 @@ function encodeURIComponentForBookmarklet(str) {
         .replaceAll(']',"%5D")
         .replaceAll('`',"%60")
         .replaceAll('|',"%7C")
+        .replaceAll('"',"&quot;")
     ;
 }
 

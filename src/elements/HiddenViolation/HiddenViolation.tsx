@@ -27,7 +27,6 @@ const styles = css`
         overflow: hidden;
         font-weight: normal;
     }
-  
     button {
         display: flex;
         align-items: center;
@@ -93,7 +92,7 @@ export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> i
             if (!this.result) return;
 
             window[baatSymbol].setSetting(settingNames.hiddenResults,
-                window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults).filter(hidden => hidden !== this.result.id)
+                window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults).filter(hidden => hidden !== this.result?.id)
             )
         }
 

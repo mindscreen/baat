@@ -10,42 +10,43 @@ import { Icon } from '..'
 import {settingNames} from "../../config";
 
 const styles = css`
-    :host, button {
+    :host {
         width: 100%;
     }
-    
+
     button {
-        background-color: transparent;
-        border: none;
-        text-align: left;
-        font-size: ${theme.semanticSizing.font.small};
-        color: ${theme.semanticColors.font.link};
+        display: flex;
+        align-items: center;
+        font-family: sans-serif;
+        gap: ${theme.sizing.relative.tiny};
+        background-color: ${theme.palette.white};
+        border: 1px solid;
+        border-radius: 2px;
+        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         cursor: pointer;
+        max-width: 100%;
         overflow: hidden;
         white-space: nowrap;
-        display: block;
-        text-overflow: ellipsis;
-        padding: 1px 6px;
     }
-  
-    button:disabled {
-        cursor: default;
-        color: ${theme.semanticColors.font.dark};
-        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
+    button:focus {
+        outline: 1px solid;
+        outline-offset: 1px;
     }
-    
     button:hover {
-        color: ${theme.semanticColors.font.linkHover};
+        background-color: ${theme.palette.grayLight};
     }
 
     button:disabled {
-        color: ${theme.semanticColors.font.dark};
+        cursor: default;
+        color: #333;
+        border: none;
+        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
     }
-  
-    button > * {
-        margin-right: ${theme.sizing.relative.smaller};
+
+    button:disabled:hover {
+        background-color: #fff;
     }
-  
+
     #info {
         padding-left: ${theme.sizing.relative.huge};
         font-size: ${theme.semanticSizing.font.small};
@@ -95,10 +96,11 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         if (hasLink || devMode) {
-            this.buttonRef.value.appendChild(<Icon width="12" height="12"><path d="m28.8 19.3c3.58 3.58 3.57 9.34 0 12.9l-7.87 7.85c-3.58 3.58-9.34 3.58-12.9 0-3.59-3.6-3.58-9.36 0-12.9" /><path d="m19.2 28.8c-3.59-3.6-3.58-9.36 0-12.9l7.86-7.85c3.59-3.58 9.34-3.57 12.9 0.02 3.57 3.59 3.57 9.34 0 12.9"/></Icon>)
+            this.buttonRef.value.appendChild(<Icon width="16" height="16"><g fill="none" stroke="#000" stroke-linecap="round" stroke-width="4.65"><circle cx="24" cy="24" r="16.3"/><path d="m24 2.5v11"/><path d="m24 35v10.5"/><path d="m45.5 24h-10.5"/><path d="m13.5 24h-11"/></g></Icon>)
             this.buttonRef.value.removeAttribute('disabled')
         } else {
             this.buttonRef.value.setAttribute('disabled', 'true')
+            console.log(this.buttonRef);
         }
         this.buttonRef.value.appendChild(document.createTextNode(name))
 

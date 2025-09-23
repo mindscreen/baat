@@ -10,67 +10,11 @@ const styles = css`
         position: relative;
     }
 
-    #highlight {
-        position: absolute;
-        pointer-events: none;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        border-width: 0;
-        border-style: solid;
-        border-color: ${ theme.palette.gray };
-        border-radius: ${ theme.sizing.absolute.small };
-        box-sizing: border-box;
-        z-index: 9002;
-        outline-color: ${ theme.palette.black };
-        outline-style: solid;
-        outline-width: 0;
-        background-color: rgba(0, 0, 0, 0);
-    }
-
-    .visible > #highlight {
-        border-width: ${ theme.sizing.absolute.small };
-        outline-width: ${ theme.sizing.absolute.tiny };
-    }
-
-    .critical > #highlight {
-        border-color: ${ theme.palette.critical };
-    }
-
-    .serious > #highlight {
-        border-color: ${ theme.palette.serious };
-    }
-
-    .moderate > #highlight {
-        border-color: ${ theme.palette.moderate };
-    }
-
-    .minor > #highlight {
-        border-color: ${ theme.palette.minor };
-    }
-
-    #container.critical.visible:hover > #highlight {
-        background-color: ${ theme.palette.criticalTransparent };
-    }
-
-    #container.serious.visible:hover > #highlight {
-        background-color: ${ theme.palette.seriousTransparent };
-    }
-
-    #container.moderate.visible:hover > #highlight {
-        background-color: ${ theme.palette.moderateTransparent };
-    }
-
-    #container.minor.visible:hover > #highlight {
-        background-color: ${ theme.palette.minorTransparent };
-    }
-
     #infoButton {
         all: initial;
         padding: 0;
         position: absolute;
-        font-size: ${ theme.semanticSizing.font.normal };
+        font-size: 1rem;
         cursor: pointer;
         display: none;
         z-index: 9005;
@@ -121,7 +65,6 @@ const styles = css`
         display: none;
         z-index: 9008;
     }
-
     #infoWindow > h2 {
         background-color: ${ theme.palette.white };
         width: 100%;
@@ -134,7 +77,7 @@ const styles = css`
     }
 
     #infoWindow h3 {
-        font-size: ${ theme.semanticSizing.font.normal };
+        font-size: 1rem;
         margin: 0;
         margin-top: ${ theme.sizing.relative.tiny };
         margin-bottom: ${ theme.sizing.relative.tiny };

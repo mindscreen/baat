@@ -9,7 +9,7 @@ const palette = {
     neutralDark: '@THEME_NEUTRAL_DARK@',
     white: "#FFFFFF",
     black: "#000000",
-    grayLight: '#D6D6D6',
+    grayLight: '#F3F2F1',
     gray: '#BCBCBC',
     grayDark: '#A1A1A1',
     dark: '#333',
@@ -49,14 +49,6 @@ const sizing = {
 
 export const theme = {
     palette,
-    semanticColors: {
-        font: {
-            link: palette.primaryDark,
-            linkHover: palette.primary,
-            dark: palette.dark,
-            light: palette.light,
-        },
-    },
     sizing,
     semanticSizing: {
         button: {

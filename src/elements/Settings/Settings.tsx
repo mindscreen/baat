@@ -95,7 +95,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                             id='showAdditionalInformation'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)}
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.showAdditionalInformation, this.checked) }}
-                            label='Show a short summary for each test result'
+                            label='Show a summary for test results'
                         />
                         <Checkbox
                             id='differenceMode'

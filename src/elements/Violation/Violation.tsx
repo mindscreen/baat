@@ -12,29 +12,13 @@ import { Icon } from '..'
 import {baatSymbol} from "../../core/BAAT";
 import {settingNames} from "../../config";
 
-const impactColors = {
-    'critical': 'impactCritical',
-    'serious': 'impactSerious',
-    'moderate': 'impactModerate',
-    'minor': 'impactMinor',
-}
-const getImpactClass = (impact: axe.ImpactValue | undefined): string => {
-    return (impact && impact in impactColors ? impactColors[impact] : 'impactNone')
-}
-
 const styles = css`
-    #container {
-    }
     #heading {
         width: 100%;
     }
     #title {
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
-        margin-right: 0.25em;
-    }
-    .shrink {
-        width: calc(100% - 3em)
     }
     ol {
         list-style-type: none;
@@ -45,42 +29,48 @@ const styles = css`
         margin: 0.3em 0;
     }
     .visuallyHidden { ${visuallyHiddenStyles} }
-    #indicator {
-        position: absolute;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        top: 0;
-        right: 0;
-        height: ${theme.sizing.relative.larger};
-        width: ${theme.sizing.relative.larger};
-        font-size: ${theme.sizing.relative.huge};
-        box-sizing: border-box;
+    .chip {
+        display: inline-block;
+        border-radius: 1rem;
+        padding: .2rem .5rem;
+        outline: 2px solid;
+        margin: .1rem 0;
+        max-width: 100%;
+        font-weight: bold;
+        font-size: .75rem;
+        white-space: nowrap;
+        outline-offset: -1px;
     }
-    .impactCritical {
-        background-color: ${theme.palette.critical};
+    .critical {
+        outline-color: #bc1313;
+        background-color: #bc1313;
+        color: #fff
     }
-    .impactSerious {
-        background-color: ${theme.palette.serious};
+    .serious {
+        outline-color: #bc1313;
+        color: #bc1313
     }
-    .impactModerate {
-        background-color: ${theme.palette.moderate};
+    .moderate {
+        outline-color: #D87000;
+        color: #B35C00
     }
-    .impactMinor {
-        background-color: ${theme.palette.minor};
+    .minor {
+        outline-color: #E7CD03;
+        color: #776A03;
     }
-    .impactNone {
-        background-color: ${theme.palette.none};
+    h3 {
+        font-size: 1rem;
+        margin-top: 1.25rem;
+        margin-bottom: .25rem;
     }
-
     a {
-      color: ${ theme.semanticColors.font.link };
+      color: ${ theme.palette.primaryDark };
     }
     a:hover {
-        color: ${theme.semanticColors.font.linkHover};
+        color: ${theme.palette.primary};
     }
     a:disabled {
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
     }
 
     button {
@@ -89,14 +79,25 @@ const styles = css`
         font-family: sans-serif;
         gap: ${theme.sizing.relative.tiny};
         background-color: ${theme.palette.white};
-        border: none;
+        border: 1px solid;
+        border-radius: 2px;
         padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
         cursor: pointer;
         font-size: 1rem;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
     }
-  
+
+    button:focus {
+        outline: 1px solid;
+        outline-offset: 1px;
+    }
     button:hover {
-        background-color: ${theme.palette.gray};
+        background-color: ${theme.palette.grayLight};
+    }
+    #hideButton {
+        margin-top: 1.25rem;
     }
 `;
 
@@ -115,9 +116,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
     result?: Result
     folded: boolean = true
     styles = styles
-    private indicatorRef = createRef<HTMLDivElement>()
     private titleRef = createRef<HTMLHeadingElement>()
-    private subtitleRef = createRef<HTMLSpanElement>()
     private impactRef = createRef<HTMLLabelElement>()
     private descriptionRef = createRef<HTMLDivElement>()
     private nodeListRef = createRef<HTMLOListElement>()
@@ -142,48 +141,28 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
         if (!this.shadowRoot || !this.isConnected) return
 
         if (!this.result) {
-            this.indicatorRef.value.className = 'impactNone';
             this.titleRef.value.innerText = '';
             this.impactRef.value.innerText = '';
             this.descriptionRef.value.innerText = '';
-            this.linkRef.value.innerHTML = '';
             this.nodeListRef.value.innerHTML = '';
+            this.linkRef.value.innerHTML = '';
         } else {
-            this.indicatorRef.value.className = getImpactClass(this.result.impact);
             this.titleRef.value.innerText = this.result.help;
-            this.subtitleRef.value.innerText = this.result.id;
             this.impactRef.value.innerText = String(this.result.impact);
+            this.impactRef.value.className = "chip "+this.result.impact;
             this.descriptionRef.value.innerText = this.result.description;
-
-            if (this.result.helpUrl && this.result.helpUrl !== "") {
-                this.linkRef.value.innerHTML = `<a href="${this.result.helpUrl}" target="_blank" rel="noreferrer">Learn more about ${this.result.id} at Deque University</a>`
-            }
 
             const nodeList = this.nodeListRef.value
             nodeList.innerHTML = '';
-            !!this.indicatorRef.value.lastElementChild ?? this.indicatorRef.value.removeChild(this.indicatorRef.value.lastElementChild as Node)
-
-            switch (this.result.impact) {
-                case 'minor':
-                    this.indicatorRef.value.appendChild(<Icon width="24" height="24"><path d="m3 3h42l-21 42z"/></Icon>)
-                    break;
-                case 'moderate':
-                    this.indicatorRef.value.appendChild(<Icon width="24" height="24"><path d="m3 45h42l-21-42z" /><path d="m24 20v13" /><path d="m24 40v0"/></Icon>)
-                    break;
-                case 'serious':
-                    this.indicatorRef.value.appendChild(<Icon width="24" height="24"><path d="m3 45h42l-21-42z"/><path d="m17.5 27 13 13"/><path d="m30.5 27-13 13"/></Icon>)
-                    break;
-                case 'critical':
-                    this.indicatorRef.value.appendChild(<Icon width="24" height="24"><path d="m3 16 13-13h16l13 13v16l-13 13h-16l-13-13z"/></Icon>)
-                    break;
-                default:
-                    this.indicatorRef.value.appendChild(<Icon width="24" height="24"><path d="M14,17C14,17,15.48,7,24,7c6,0,10,4,10,10c0,8-10,8-10,18" /><circle cx="24" cy="44.02" r="2.5" fill="currentColor" stroke="none"/></Icon>)
-            }
 
             this.result.nodes.forEach((node, index) => {
                 const li = createNodeLink(index + 1, node)
                 nodeList.appendChild(li)
             })
+
+            if (this.result.helpUrl && this.result.helpUrl !== "") {
+                this.linkRef.value.innerHTML = `<h3>Help for this error</h3><a href="${this.result.helpUrl}" target="_blank" rel="noreferrer">${this.result.id} on Deque University</a>`
+            }
         }
     }
 
@@ -201,22 +180,21 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
         this.shadowRoot?.appendChild(
             <Accordion id='container' onChange={handleFoldChange}>
                 <div id='heading' slot={Accordion.slots.heading}>
-                    <div class='shrink'>
+                    <div>
                         <h2 id='title' ref={this.titleRef}></h2>
                         <div>
-                            <span id='subtitle' ref={this.subtitleRef}></span> - <label id='impact' ref={this.impactRef}></label>
+                            <label id='impact' ref={this.impactRef}></label>
                         </div>
                     </div>
-                    <div id="indicator" ref={this.indicatorRef}>
-                    </div>
                 </div>
-                <button onClick={handleHide}>
-                    <Icon width="16" height="16"><g fill="none" stroke-width="3" stroke="currentColor"><path d="m2 24c14.4-16.1 30.4-15.9 44 0-13.4 15.7-28 16-44 0z"/><path d="m9 10 29 29"/></g></Icon>
-                    Hide
-                </button>
                 <div id='description' ref={this.descriptionRef}></div>
-                <div id='link' ref={this.linkRef}></div>
+                <h3>Errors on page</h3>
                 <ol id='nodeList' ref={this.nodeListRef}></ol>
+                <div id='link' ref={this.linkRef}></div>
+                <button id='hideButton' onClick={handleHide}>
+                    <Icon width="16" height="16"><g fill="currentColor" stroke="none"><path d="m46 2.74c0.88 0.882 0.73 2.14 0.3 2.66l-8.27 8.15c3.25 2.04 6.19 4.53 8.79 7.35 1.5 1.68 1.5 4.22 0 5.91-5.23 5.76-13.9 11.8-22.6 11.8h-0.61c-3.03-0.1-6.03-0.7-8.79-1.93l-8.45 8.49c-0.689 0.67-1.76 0.79-2.57 0.24-1.12-0.67-1.19-2.05-0.701-2.51l39.8-39.8c0.68-0.777 2.18-1.28 3.07-0.398zm-14 17.2c-0.3 0-0.34 0-0.46 0.16l-11.4 11.4c-0.12 0-0.18 0.3-0.15 0.46 0 0.3 0.12 0.3 0.27 0.36 1.99 0.92 4.26 1.04 6.34 0.4 2.94-0.95 5.21-3.24 6.13-6.18 0.61-2.07 0.49-4.29-0.43-6.25 0-0.15-0.31-0.24-0.37-0.28z"/><path d="m15.1 26.7c0.13-0.13 0.17-0.31 0.12-0.49-0.22-0.77-0.35-1.56-0.35-2.37 0-5.08 4.1-9.18 9.18-9.18 0.8 0 1.6 0.12 2.37 0.35 0.18 0.1 0.36 0 0.49-0.12l3.96-3.95c0-0.12 0.3-0.31 0-0.49 0-0.18 0-0.31-0.34-0.37-2.01-0.691-4.26-1.03-6.49-1.02-8.79-0.119-17.5 6.03-22.8 11.9-1.53 1.67-1.54 4.22 0 5.91 2.11 2.31 4.47 4.38 7.01 6.19h0.665l6.22-6.22z"/></g></Icon>
+                    Hide issue
+                </button>
             </Accordion>
         );
 

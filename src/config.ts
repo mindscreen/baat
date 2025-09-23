@@ -2,10 +2,10 @@ export const config = {
     panelId: 'baat-panel',
     defaultSettings: {
         hiddenTags: [] as string[],
-        hiddenImpacts: [ 'moderate', 'minor' ],
+        hiddenImpacts: [],
         hiddenResults: [] as string[],
-        autorun: false,
-        differenceMode: true,
+        autorun: true,
+        differenceMode: false,
         developer: false,
         reporter: 'v2',
         showAdditionalInformation: false,

@@ -12,7 +12,7 @@ interface ICheckboxAccessor {
 
 const styles = css`
     :host {
-        min-height: 1rem;
+        min-height: 1.25rem;
         display: block;
     }
     .container *,
@@ -28,77 +28,47 @@ const styles = css`
     }
 
     .container span {
-        line-height: 1;
+        line-height: 1.75;
         font-size: 1em;
         font-family: inherit;
     }
 
     .container {
-        display: table;
         position: relative;
-        padding-left: ${theme.sizing.relative.large};
+        padding-top:.5rem;
+        padding-left: 2rem;
         cursor: pointer;
         margin-bottom: ${theme.sizing.relative.tiny};
     }
-
-    .container input[type="checkbox"] ~ .input {
+    .container input[type="checkbox"] ~ .checkbox {
         position: absolute;
         top: 0;
         left: 0;
-        height: ${theme.sizing.relative.small};
-        width: ${theme.sizing.relative.small};
-        background: ${theme.palette.white};
-        transition: background 250ms;
-        border: 1px solid ${theme.palette.primary};
-        border-radius: 0.2em;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: .25rem;
+        border: 1px solid #333;
+        color: transparent;
     }
-
-    .container input[type="checkbox"] ~ .input::after {
-        content: "";
-        position: absolute;
-        display: none;
-        left: calc(${theme.sizing.relative.small} / 2 - 0.175rem);
-        top: calc(${theme.sizing.relative.small} / 2 - 0.4em);
-        width: 0.25em;
-        height: 0.5em;
-        border: solid #ffffff;
-        border-width: 0 2px 2px 0;
-        transition: background 250ms;
-        transform: rotate(45deg);
+    .container input[type="checkbox"] ~ .checkbox > i > svg {
+        margin: .25rem;
+        width: .75rem;
+        height: .75rem;
+        
     }
-    
-    .container input[type="checkbox"]:disabled ~ .input::after {
-        border-color: #ffffff;
+    .container input[type="checkbox"]:checked ~ .checkbox {
+        color: #fff;
+        background: #333;
     }
-
-    .container input:checked ~ .input::after {
-        display: block;
+    .container:hover input[type="checkbox"] ~ .checkbox {
+        color: #605E5C;
     }
-
-    .container:hover input[type="checkbox"]:not([disabled]) ~ .input,
-    .container input[type="checkbox"]:focus ~ .input {
-        background: ${theme.palette.primaryLight};
-        border-color: ${theme.palette.primaryLight};
+    .container:hover input[type="checkbox"]:checked ~ .checkbox {
+        color: #fff;
     }
-
-    .container input:focus ~ .input {
-        box-shadow: 0 0 0 2px ${theme.palette.black};
-    }
-
-    .container input[type="checkbox"]:checked ~ .input {
-        background: ${theme.palette.primary};
-        border-color: ${theme.palette.primary};
-    }
-
-    .container input[type="checkbox"]:disabled ~ .input {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .container:hover input[type="checkbox"]:not([disabled]):checked ~ .input,
-    .container input[type="checkbox"]:checked:focus ~ .input {
-        background: ${theme.palette.primaryLight};
-        border-color: ${theme.palette.primaryLight};
+    .container input[type="checkbox"]:focus ~ .checkbox {
+        outline: #605E5C solid 1px;
+        outline-offset: 1px;
     }
 `;
 
@@ -135,7 +105,9 @@ export class Checkbox extends BaseHTMLElement<ICheckboxAccessor> implements IChe
             <label class="container">
                 <span ref={this.labelRef}>{this.labelHidden ? '' : this.label}</span>
                 <input checked={this.checked} type="checkbox" ref={this.checkboxRef} onChange={this.onChange} aria-label={this.labelHidden ? this.label : undefined}/>
-                <div class="input"></div>
+                <div class="checkbox">
+                    <i aria-hidden="true" class="checkbox-checkmark"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sm-55"><path d="M22 6L10.8889 21.5556L2 12.6667" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></i>
+                </div>
             </label>
         )
     }

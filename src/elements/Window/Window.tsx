@@ -52,7 +52,7 @@ const styles = css`
         font-family: sans-serif;
         z-index: 999999;
         font-size: ${theme.semanticSizing.font.base};
-        color: ${theme.semanticColors.font.dark};
+        color: #333;
     }
     
     #window {
