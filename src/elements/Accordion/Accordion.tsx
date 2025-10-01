@@ -3,7 +3,6 @@ import { Icon } from '../Icon/Icon'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
-import {contrastPick} from '../../util/color';
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
 
@@ -14,7 +13,7 @@ const styles = css`
     #handle {
         position: relative;
         display: flex;
-        align-items: baseline;
+        align-items: center;
         box-sizing: border-box;
         padding: ${theme.sizing.relative.smaller};
         border: none;
@@ -24,8 +23,11 @@ const styles = css`
         width: 100%;
         cursor: pointer;
         color: var(--text-color);
-        font-size: ${theme.sizing.relative.normal};
         background-color: var(--color, ${theme.palette.white});
+    }
+    ::slotted([slot='heading']) {
+        margin: 0;
+        font-size: ${theme.sizing.relative.large};
     }
     #handle baat-icon {
         color: var(--text-color);
@@ -50,7 +52,7 @@ const styles = css`
         border-bottom: none;
     }
     #caret {
-        margin: 0 ${theme.sizing.relative.tiny};
+        margin: ${theme.sizing.relative.tiny};
         z-index: 1;
     }
     #content {
