@@ -35,15 +35,15 @@ const sizing = {
         large: '8px',
     },
     relative: {
-        tiny: '0.25em',
-        smaller: '0.5em',
-        small: '0.75em',
-        normalSmall: '0.875em',
-        normal: '1em',
-        large: '1.25em',
-        larger: '1.5em',
-        huge: '2em',
-        immense: '3em',
+        tiny: '0.25rem',
+        smaller: '0.5rem',
+        small: '0.75rem',
+        normalSmall: '0.875rem',
+        normal: '1rem',
+        large: '1.25rem',
+        larger: '1.5rem',
+        huge: '2rem',
+        immense: '3rem',
     }
 }
 

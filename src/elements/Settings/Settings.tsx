@@ -64,7 +64,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
         this.shadowRoot?.appendChild(
             <div id='container'>
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <span slot={Accordion.slots.heading}>Testscript</span>
+                    <h2 slot={Accordion.slots.heading}>Testscript</h2>
                     <div class="settingsContainer">
                         <Checkbox
                             id='autorun'
@@ -85,11 +85,11 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     />
                 </Accordion>*/}
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <span slot="heading">Axe Settings</span>
+                    <h2 slot="heading">Axe Settings</h2>
                     <ReporterSettings />
                 </Accordion>
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <span slot={Accordion.slots.heading}>BAAT Settings</span>
+                    <h2 slot={Accordion.slots.heading}>BAAT Settings</h2>
                     <div class="settingsContainer">
                         <Checkbox
                             id='differenceMode'
