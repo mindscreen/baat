@@ -11,14 +11,13 @@ import { and, notNullish } from '../../util/logic'
 import { tally, uniquePredicate } from '../../util/array'
 import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
-import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
 import * as axe from 'axe-core'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { Accordion } from '../Accordion/Accordion';
-import {settingNames} from "../../config";
-import {convertViolationToHistoryEntry, historyEntryDiff} from "../../util/history";
-import {button} from "../../styles/button";
+import { settingNames } from "../../config";
+import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history";
+import { button } from "../../styles/button";
 
 const styles = css`
     #container {
@@ -31,34 +30,16 @@ const styles = css`
     .placeholder {
         margin: ${theme.sizing.relative.normal}
     }
-    .accordionheader {
-        display: block;
-        width: calc( 100% - 3.2rem );
-        padding: .5rem 2rem;
-        margin: -.5rem -1.3rem -.25rem -2rem !important;
-    }
-    .unchanged {
-        background-color: ${theme.palette.blue};
-        color: #fff;
-    }
-    .new {
-        background-color: ${theme.palette.green};
-    }
-    .hidden {
-        background-color: ${theme.palette.grayLight};
-    }
     .count {
-        position:absolute;
         background-color: #fff;
         padding: .2rem .5rem;
         font-size: 1rem;
         font-weight: normal;
         border-radius: 5px;
-        right: 1rem;
     }
     table {
         width: calc(100% - 2rem);
-        margin: 1rem 2rem;
+        margin: 0.5rem 1rem;
         box-sizing: border-box;
         table-layout: fixed;
     }
@@ -95,6 +76,7 @@ const styles = css`
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
         margin-left: ${theme.sizing.relative.tiny};
+        flex-grow: 1;
     }
     .list:not(:has(baat-violation:not(.visuallyHidden))) {
         ${visuallyHiddenStyles}
@@ -183,16 +165,16 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
             newEntries = historyDiff.newEntries;
 
-            newList = <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.green}>
-                <h2 class='listheading accordionheader new' slot={Accordion.slots.heading}>New</h2>
+            newList = <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.green}>
+                <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
             </Accordion>
 
             this.resultsContainerRef.value.appendChild(newList);
 
 
             unchangedList =
-                <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}textColor={theme.palette.white}>
-                    <h2 class='listheading accordionheader unchanged' slot={Accordion.slots.heading}>Unchanged</h2>
+                <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.blue} textColor={theme.palette.white}>
+                    <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
                 </Accordion>
 
             this.resultsContainerRef.value.appendChild(unchangedList);
@@ -206,7 +188,10 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 )
             })
 
-        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading accordionheader hidden' slot={Accordion.slots.heading}>Hidden <span class="count" ref={this.hiddenCountRef}></span></h2></Accordion>
+        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef} color={theme.palette.grayDark}>
+            <h2 class='listheading' slot={Accordion.slots.heading}>Hidden</h2>
+            <div class="count" ref={this.hiddenCountRef} slot={Accordion.slots.heading}></div>
+        </Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
 
         this.results

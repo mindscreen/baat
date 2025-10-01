@@ -6,8 +6,8 @@ import { NodeResult } from 'axe-core'
 import { isHidden, ownText, removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
-import { Icon } from '..'
-import {settingNames} from "../../config";
+import { Icon } from '../Icon/Icon'
+import { settingNames } from "../../config";
 
 const styles = css`
     :host {
@@ -103,10 +103,6 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
             console.log(this.buttonRef);
         }
         this.buttonRef.value.appendChild(document.createTextNode(name))
-
-        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)
-            ? this.result?.failureSummary ?? ''
-            : ''
     }
 
     initialize() {
@@ -123,12 +119,11 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === settingNames.developer || event.detail.name === settingNames.showAdditionalInformation) this.update()
+            if (event.detail.name === settingNames.developer) this.update()
         }) as EventListener)
 
         this.shadowRoot?.appendChild(<div>
             <button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>
-            <div id='info' ref={this.infoRef}></div>
         </div>)
 
         this.update()

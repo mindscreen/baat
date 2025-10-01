@@ -3,6 +3,7 @@ import { Icon } from '../Icon/Icon'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
+import {contrastPick} from '../../util/color';
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
 
@@ -15,15 +16,16 @@ const styles = css`
         display: flex;
         align-items: baseline;
         box-sizing: border-box;
-        padding: ${theme.sizing.relative.tiny};
-        border: 2px solid transparent;
+        padding: ${theme.sizing.relative.smaller};
+        border: none;
         text-align: left;
         border-bottom: ${border};
         background-color: ${theme.palette.white};
         width: 100%;
         cursor: pointer;
-        color: #333;
+        color: var(--text-color);
         font-size: ${theme.sizing.relative.normal};
+        background-color: var(--color, ${theme.palette.white});
     }
     #handle baat-icon {
         color: var(--text-color);
@@ -33,7 +35,7 @@ const styles = css`
         outline: none;
     }
     .open #handle {
-        border-bottom: ${border};
+        border-bottom: none;
     }
     .open #caret {
         transform: rotate(90deg);
@@ -51,14 +53,10 @@ const styles = css`
         margin: 0 ${theme.sizing.relative.tiny};
         z-index: 1;
     }
-    .flex {
-        display: flex;
-    }
     #content {
         display: none;
-        padding: ${theme.sizing.relative.small};
-        padding-left:  ${theme.sizing.relative.larger};
-        border-left-color: var(--border-color, ${theme.palette.gray});
+        padding: ${theme.sizing.relative.smaller} ${theme.sizing.relative.small};
+        border-left-color: var(--color, ${theme.palette.white});
         border-left-width: ${theme.sizing.absolute.normal};
         border-left-style: solid;
     }
@@ -73,7 +71,7 @@ interface IAccordionAccessor {
     folded: boolean
     fixed: boolean
     nestedRoot?: boolean
-    borderColor?: string
+    color?: string
     textColor?: string
     onChange?: (folded: boolean) => void
 }
@@ -84,7 +82,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
     folded: boolean = true
     fixed: boolean = false
     nestedRoot?: boolean = false
-    borderColor?: string
+    color?: string
     textColor?: string
     private containerRef = createRef<HTMLDivElement>()
     private contentRef = createRef<HTMLDivElement>()
@@ -102,8 +100,8 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
             case 'nestedRoot':
                 this.updateNestedRoot()
                 break
-            case 'borderColor':
-                this.updateBorderColor()
+            case 'color':
+                this.updateColor()
                 break
             case 'textColor':
                 this.updateTextColor()
@@ -137,10 +135,10 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.containerRef.value?.classList.toggle('nestedRoot', !!this.nestedRoot)
     }
 
-    updateBorderColor() {
+    updateColor() {
         if (!this.shadowRoot) return;
 
-        this.containerRef.value?.style.setProperty('--border-color', this.borderColor ?? theme.palette.gray)
+        this.containerRef.value?.style.setProperty('--color', this.color ?? theme.palette.white)
     }
 
     updateTextColor() {
@@ -173,7 +171,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.updateFixed()
         this.updateFolded()
         this.updateNestedRoot()
-        this.updateBorderColor()
+        this.updateColor()
         this.updateTextColor()
 
         this.initialized = true
