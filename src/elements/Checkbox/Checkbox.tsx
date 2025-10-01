@@ -35,8 +35,8 @@ const styles = css`
 
     .container {
         position: relative;
-        padding-top:.5rem;
-        padding-left: 2rem;
+        padding-top:.25rem;
+        padding-left: 1.75rem;
         cursor: pointer;
         margin-bottom: ${theme.sizing.relative.tiny};
     }
@@ -46,15 +46,14 @@ const styles = css`
         left: 0;
         width: 1.25rem;
         height: 1.25rem;
-        margin: .25rem;
         border: 1px solid #333;
+        border-radius: 2px;
         color: transparent;
     }
     .container input[type="checkbox"] ~ .checkbox > i > svg {
         margin: .25rem;
         width: .75rem;
         height: .75rem;
-        
     }
     .container input[type="checkbox"]:checked ~ .checkbox {
         color: #fff;

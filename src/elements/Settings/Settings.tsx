@@ -63,7 +63,7 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
     initialize() {
         this.shadowRoot?.appendChild(
             <div id='container'>
-                <Accordion folded={false} fixed={true}>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
                     <span slot={Accordion.slots.heading}>Testscript</span>
                     <div class="settingsContainer">
                         <Checkbox
@@ -84,19 +84,13 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         getFilters={() => axe.getRules().flatMap(rule => rule.tags).filter((x, i, a) => a.indexOf(x) == i).sort()}
                     />
                 </Accordion>*/}
-                <Accordion folded={false} fixed={true}>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
                     <span slot="heading">Axe Settings</span>
                     <ReporterSettings />
                 </Accordion>
-                <Accordion folded={false} fixed={true}>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
                     <span slot={Accordion.slots.heading}>BAAT Settings</span>
                     <div class="settingsContainer">
-                        <Checkbox
-                            id='showAdditionalInformation'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.showAdditionalInformation, this.checked) }}
-                            label='Show a summary for test results'
-                        />
                         <Checkbox
                             id='differenceMode'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.differenceMode)}

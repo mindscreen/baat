@@ -4,9 +4,9 @@ import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { NodeResult, Result } from '../../types'
-import { Icon } from '..'
-import {baatSymbol} from "../../core/BAAT";
-import {settingNames} from "../../config";
+import { Icon } from '../Icon/Icon'
+import { baatSymbol } from "../../core/BAAT";
+import { settingNames } from "../../config";
 
 const borderBottom = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`;
 
