@@ -4,61 +4,45 @@ import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import {AxeRunCompleted, BAATEvent, Result, SettingsChanged, StatusChange} from '../../types'
+import { AxeRunCompleted, BAATEvent, Result, StatusChange } from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { and, notNullish } from '../../util/logic'
-import { tally, uniquePredicate } from '../../util/array'
+import { partition, tally, uniquePredicate } from '../../util/array';
 import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
-import { Icon } from '../Icon/Icon'
 import { download } from '../../util/file'
 import * as axe from 'axe-core'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { Accordion } from '../Accordion/Accordion';
-import {settingNames} from "../../config";
-import {convertViolationToHistoryEntry, historyEntryDiff} from "../../util/history";
-import {button} from "../../styles/button";
+import { settingNames } from "../../config";
+import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history";
+import { button } from "../../styles/button";
+import {capitlizeFirstLetter} from '../../util/string';
+
+const margin = `${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny}`;
 
 const styles = css`
     #container {
         display: flex;
         flex-direction: column;
         height: 100%;
-        margin-bottom: 1em;
     }
     .visuallyHidden { ${visuallyHiddenStyles} }
     .placeholder {
         margin: ${theme.sizing.relative.normal}
     }
-    .accordionheader {
-        display: block;
-        width: calc( 100% - 3.2rem );
-        padding: .5rem 2rem;
-        margin: -.5rem -1.3rem -.25rem -2rem !important;
-    }
-    .unchanged {
-        background-color: ${theme.palette.blue};
-        color: #fff;
-    }
-    .new {
-        background-color: ${theme.palette.green};
-    }
-    .hidden {
-        background-color: ${theme.palette.grayLight};
-    }
     .count {
-        position:absolute;
         background-color: #fff;
+        color: ${theme.palette.dark};
         padding: .2rem .5rem;
         font-size: 1rem;
         font-weight: normal;
         border-radius: 5px;
-        right: 1rem;
     }
     table {
         width: calc(100% - 2rem);
-        margin: 1rem 2rem;
+        margin: 0.5rem 1rem;
         box-sizing: border-box;
         table-layout: fixed;
     }
@@ -76,7 +60,7 @@ const styles = css`
         text-align: left;
         font-size: ${theme.semanticSizing.font.large};
         font-weight: bold;
-        margin: ${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny};
+        margin: ${margin};
     }
     
     #status {
@@ -86,15 +70,14 @@ const styles = css`
     
     ${button}
     button {
-        margin: 2rem;
+        margin: 1rem;
     }
     #status:empty {
         padding: 0;
     }
     .listheading {
-        margin: 0;
-        font-size: ${theme.semanticSizing.font.large};
         margin-left: ${theme.sizing.relative.tiny};
+        flex-grow: 1;
     }
     .list:not(:has(baat-violation:not(.visuallyHidden))) {
         ${visuallyHiddenStyles}
@@ -116,7 +99,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
     private statisticsContainerRef = createRef<HTMLDivElement>()
     private statusContainerRef = createRef<HTMLDivElement>()
     private filterPlaceholderRef = createRef<HTMLDivElement>()
-    private hiddenCountRef = createRef<HTMLSpanElement>()
     private hiddenContainerRef = createRef<Accordion>()
     private downloadContainerRef = createRef<HTMLDivElement>()
 
@@ -156,14 +138,32 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         window[baatSymbol].addEventListener(BAATEvent.RunCompleted, ((e: CustomEvent<AxeRunCompleted>) => {
             this.setAttribute('results', e.detail.violations)
         }) as EventListener)
-        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((e: CustomEvent<SettingsChanged>) =>
-            this.handleChangeSettings(e.detail.name)
+        window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, (() =>
+            this.handleChangeSettings()
         ) as EventListener)
 
         window[baatSymbol].addEventListener(BAATEvent.StatusChange, ((e: CustomEvent<StatusChange>) => {
             this.statusContainerRef.value.textContent = e.detail.message
         }) as EventListener)
         this.updateResults()
+    }
+
+    private shouldShowViolation(result: axe.Result, isHiddenSection: boolean): boolean {
+        const hiddenTags = window[baatSymbol].getSetting<string[]>(settingNames.hiddenTags);
+        const hiddenImpacts = window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts);
+        const hiddenResults = window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults);
+
+        const isHidden = hiddenResults.includes(result.id);
+        const hasVisibleTag = result.tags.some(tag => !hiddenTags.includes(tag));
+        const hasVisibleImpact = !hiddenImpacts.includes(String(result.impact));
+
+        // For regular violations: show if not explicitly hidden AND has visible tags AND has visible impact
+        // For hidden section: show if explicitly hidden
+        if (isHiddenSection) {
+            return isHidden;
+        } else {
+            return !isHidden && hasVisibleTag && hasVisibleImpact;
+        }
     }
 
     updateResults(): void {
@@ -176,40 +176,52 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         let newList: JSX.Element | Element = this.resultsContainerRef.value;
         let unchangedList: JSX.Element | Element = this.resultsContainerRef.value;
-        let newEntries: string[] = [];
+
+        const visibleResults = this.results.filter(result => this.shouldShowViolation(result, false));
+        const history = window[baatSymbol].getHistory();
+        const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
+        const [ newResults, unchangedResults ] = partition(visibleResults, result => historyDiff.newEntries.includes(result.id));
 
         if (differenceMode) {
-            const history = window[baatSymbol].getHistory();
-            const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
-            newEntries = historyDiff.newEntries;
-
-            newList = <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.green}>
-                <h2 class='listheading accordionheader new' slot={Accordion.slots.heading}>New</h2>
+            newList = <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.green}>
+                <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+                <div class="count" slot={Accordion.slots.heading}>{`${newResults.length}×`}</div>
             </Accordion>
 
             this.resultsContainerRef.value.appendChild(newList);
 
 
             unchangedList =
-                <Accordion class="list" folded={false} nestedRoot={true} borderColor={theme.palette.blue}textColor={theme.palette.white}>
-                    <h2 class='listheading accordionheader unchanged' slot={Accordion.slots.heading}>Unchanged</h2>
+                <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.blue} textColor={theme.palette.white}>
+                    <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
+                    <div class="count" slot={Accordion.slots.heading}>{`${unchangedResults.length}×`}</div>
                 </Accordion>
 
             this.resultsContainerRef.value.appendChild(unchangedList);
         }
 
-        this.results
-            .forEach((result) => {
-                const list = newEntries.includes(result.id) ? newList : unchangedList;
-                list.appendChild(
-                    <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="violation"/>
-                )
-            })
+        newResults.forEach((result) => {
+            newList.appendChild(
+                <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="violation"/>
+            )
+        })
 
-        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef}><h2 class='listheading accordionheader hidden' slot={Accordion.slots.heading}>Hidden <span class="count" ref={this.hiddenCountRef}></span></h2></Accordion>
+        unchangedResults.forEach((result) => {
+            unchangedList.appendChild(
+                <Violation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="violation"/>
+            )
+        })
+
+
+        const hiddenResults = this.results.filter(result => this.shouldShowViolation(result, true));
+
+        let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef} color={theme.palette.grayDark}>
+            <h2 class='listheading' slot={Accordion.slots.heading}>Hidden</h2>
+            <div class="count" slot={Accordion.slots.heading}>{`${hiddenResults.length}×`}</div>
+        </Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
 
-        this.results
+        hiddenResults
             .forEach((result) => {
                 hiddenList.appendChild(
                     <HiddenViolation result={result} data-tags={result.tags.join(' ')} data-impact={String(result.impact)} data-id={result.id} data-type="hiddenViolation"/>
@@ -241,6 +253,8 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             </div>
         )
 
+        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(visibleResults.length === 0 && this.results.length > 0));
+
         if (this.results.length !== 0 && window[baatSymbol].hasRun) {
             const elements = this.results.flatMap(result => result.nodes)
                 .flatMap(node => node.element)
@@ -253,7 +267,9 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 const impactOrder = axe.constants.impact
                 return impactOrder.indexOf(b[0]) - impactOrder.indexOf(a[0])
             }
-            const countAllElements = new Set(this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || [])).size;
+
+            // This might be changed in the future to show only unique elements
+            const countAllElements = this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || []).length;
             this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
@@ -276,7 +292,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                             }
                             return <tr>
                                 <th>
-                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ impact.charAt(0).toUpperCase() + impact.slice(1) }/>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ capitlizeFirstLetter(impact) }/>
                                 </th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
@@ -292,7 +308,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </tfoot>
                 </table>
             )
-            let cache: Array<any> = [];
 
             this.downloadContainerRef.value.appendChild(
                 <button type='button' onClick={() => window[baatSymbol].getFinalResults().then(result => download('baat-report.json', JSON.stringify(result)))}>
@@ -300,46 +315,11 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 </button>
             );
         }
-
-        this.handleChangeSettings()
     }
 
-    handleChangeSettings(reason?: string): void {
-        const hiddenTags = window[baatSymbol].getSetting<string[]>(settingNames.hiddenTags)
-        const hiddenImpacts = window[baatSymbol].getSetting<string[]>(settingNames.hiddenImpacts)
-        const hiddenResults = window[baatSymbol].getSetting<string[]>(settingNames.hiddenResults)
-
-        if (reason === settingNames.differenceMode) {
-            this.updateResults();
-        }
-
-        let hiddenCount = 0;
-
-        this.shadowRoot?.querySelectorAll(`${Violation.tagName}, ${HiddenViolation.tagName}`)
-            .forEach((violation) => {
-                const isHidden = hiddenResults.includes(violation.getAttribute('data-id') ?? "");
-                const isViolation = violation.getAttribute('data-type') === 'violation';
-                hiddenCount += isHidden && !isViolation ? 1 : 0;
-
-                violation.classList.toggle('visuallyHidden', (
-                    !violation
-                        .getAttribute('data-tags')
-                        ?.split(' ')
-                        .map(tag => !hiddenTags.includes(tag))
-                        .reduce((acc, curr) => acc || curr, false)
-                ) || (
-                    hiddenImpacts.includes(violation.getAttribute('data-impact') ?? "")
-                ) || (
-                    isViolation ? isHidden : !isHidden
-                ))
-            })
-
-        const numFiltered = this.shadowRoot?.querySelectorAll(`${Violation.tagName}.visuallyHidden`).length;
-
-
-        this.hiddenCountRef.value.innerText = `${hiddenCount} ×`;
-
-        this.filterPlaceholderRef?.value?.classList.toggle('visuallyHidden', !(numFiltered !== 0 && numFiltered === window[baatSymbol].lastResults.length))
+    handleChangeSettings(): void {
+        // Simply trigger a complete re-render when settings change
+        this.updateResults();
     }
 }
 

@@ -3,11 +3,14 @@ import { css } from '../../util/taggedString'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { NodeResult } from 'axe-core'
-import { isHidden, ownText, removeAllChildren } from '../../util/dom'
+import { removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
-import { Icon } from '..'
-import {settingNames} from "../../config";
+import { Icon } from '../Icon/Icon'
+import { settingNames } from "../../config";
+import { getElementFromNodeResult, getNameFromNodeResult } from '../../util/axe';
+
+const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
 
 const styles = css`
     :host {
@@ -20,9 +23,10 @@ const styles = css`
         font-family: sans-serif;
         gap: ${theme.sizing.relative.tiny};
         background-color: ${theme.palette.white};
+        color: ${theme.palette.black};
         border: 1px solid;
         border-radius: 2px;
-        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        padding: ${padding};
         cursor: pointer;
         max-width: 100%;
         overflow: hidden;
@@ -34,22 +38,6 @@ const styles = css`
     }
     button:hover {
         background-color: ${theme.palette.grayLight};
-    }
-
-    button:disabled {
-        cursor: default;
-        color: #333;
-        border: none;
-        padding-left: calc(6px + 12px + ${theme.sizing.relative.smaller});
-    }
-
-    button:disabled:hover {
-        background-color: #fff;
-    }
-
-    #info {
-        padding-left: ${theme.sizing.relative.huge};
-        font-size: ${theme.semanticSizing.font.small};
     }
 `
 
@@ -64,7 +52,6 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
     styles = styles
     static tagName: string = 'baat-node-link'
     private buttonRef = createRef<HTMLButtonElement>()
-    private infoRef = createRef<HTMLDivElement>()
     private element: HTMLElement | null = null;
 
     attributeChangedCallback<T extends keyof INodeLinkAccessor>(name: T, oldValue: INodeLinkAccessor[T], newValue: INodeLinkAccessor[T]) {
@@ -80,33 +67,14 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
 
     update() {
         if (!this.shadowRoot || !this.isConnected) return
-        let name = ""
-        this.element = this.result?.element ?? document.querySelector(this?.result?.target?.join(', ') ?? '') as HTMLElement | null
-        let hasLink = this.element && !isHidden(this.element)
-        const devMode = window[baatSymbol].getSetting(settingNames.developer)
+        let name = getNameFromNodeResult(this.result, window[baatSymbol].getSetting(settingNames.developer));
+        this.element = getElementFromNodeResult(this.result);
 
         removeAllChildren(this.buttonRef.value)
 
-        if (devMode) {
-            name = this.result?.target.join(', ') ?? this.element?.tagName.toLowerCase() ?? ''
-        } else {
-            name = this.element ? ownText(this.element).trim() : ""
+        this.buttonRef.value.appendChild(<Icon width="16" height="16"><g fill="none" stroke="#000" stroke-linecap="round" stroke-width="4.65"><circle cx="24" cy="24" r="16.3"/><path d="m24 2.5v11"/><path d="m24 35v10.5"/><path d="m45.5 24h-10.5"/><path d="m13.5 24h-11"/></g></Icon>)
 
-            if (name === "") name = this.element?.tagName.toLowerCase() ?? this.result?.target.join(', ') ?? ""
-        }
-
-        if (hasLink || devMode) {
-            this.buttonRef.value.appendChild(<Icon width="16" height="16"><g fill="none" stroke="#000" stroke-linecap="round" stroke-width="4.65"><circle cx="24" cy="24" r="16.3"/><path d="m24 2.5v11"/><path d="m24 35v10.5"/><path d="m45.5 24h-10.5"/><path d="m13.5 24h-11"/></g></Icon>)
-            this.buttonRef.value.removeAttribute('disabled')
-        } else {
-            this.buttonRef.value.setAttribute('disabled', 'true')
-            console.log(this.buttonRef);
-        }
         this.buttonRef.value.appendChild(document.createTextNode(name))
-
-        this.infoRef.value.innerText = window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)
-            ? this.result?.failureSummary ?? ''
-            : ''
     }
 
     initialize() {
@@ -123,12 +91,11 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         }
 
         window[baatSymbol].addEventListener(BAATEvent.ChangeSettings, ((event: CustomEvent<SettingsChanged>) => {
-            if (event.detail.name === settingNames.developer || event.detail.name === settingNames.showAdditionalInformation) this.update()
+            if (event.detail.name === settingNames.developer) this.update()
         }) as EventListener)
 
         this.shadowRoot?.appendChild(<div>
             <button id='nodeLink' type='button' onClick={handleClick} ref={this.buttonRef}></button>
-            <div id='info' ref={this.infoRef}></div>
         </div>)
 
         this.update()

@@ -5,6 +5,7 @@ import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
+const padding = `${theme.sizing.relative.smaller} ${theme.sizing.relative.small}`
 
 const styles = css`
     #container {
@@ -13,19 +14,24 @@ const styles = css`
     #handle {
         position: relative;
         display: flex;
-        align-items: baseline;
+        align-items: center;
         box-sizing: border-box;
-        padding: ${theme.sizing.relative.tiny};
-        border: 2px solid transparent;
+        padding: ${theme.sizing.relative.smaller};
+        border: none;
         text-align: left;
         border-bottom: ${border};
         background-color: ${theme.palette.white};
         width: 100%;
         cursor: pointer;
-        color: #333;
-        font-size: ${theme.sizing.relative.normal};
+        color: var(--text-color);
+        background-color: var(--color, ${theme.palette.white});
+    }
+    ::slotted([slot='heading']) {
+        margin: 0;
+        font-size: ${theme.sizing.relative.large};
     }
     #handle baat-icon {
+        align-self: baseline;
         color: var(--text-color);
     }
     #handle:focus {
@@ -33,7 +39,7 @@ const styles = css`
         outline: none;
     }
     .open #handle {
-        border-bottom: ${border};
+        border-bottom: none;
     }
     .open #caret {
         transform: rotate(90deg);
@@ -48,17 +54,14 @@ const styles = css`
         border-bottom: none;
     }
     #caret {
-        margin: 0 ${theme.sizing.relative.tiny};
+        margin: ${theme.sizing.relative.tiny};
+        align-self: baseline;
         z-index: 1;
-    }
-    .flex {
-        display: flex;
     }
     #content {
         display: none;
-        padding: ${theme.sizing.relative.small};
-        padding-left:  ${theme.sizing.relative.larger};
-        border-left-color: var(--border-color, ${theme.palette.gray});
+        padding: ${padding};
+        border-left-color: var(--color, ${theme.palette.white});
         border-left-width: ${theme.sizing.absolute.normal};
         border-left-style: solid;
     }
@@ -73,7 +76,7 @@ interface IAccordionAccessor {
     folded: boolean
     fixed: boolean
     nestedRoot?: boolean
-    borderColor?: string
+    color?: string
     textColor?: string
     onChange?: (folded: boolean) => void
 }
@@ -84,7 +87,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
     folded: boolean = true
     fixed: boolean = false
     nestedRoot?: boolean = false
-    borderColor?: string
+    color?: string
     textColor?: string
     private containerRef = createRef<HTMLDivElement>()
     private contentRef = createRef<HTMLDivElement>()
@@ -102,8 +105,8 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
             case 'nestedRoot':
                 this.updateNestedRoot()
                 break
-            case 'borderColor':
-                this.updateBorderColor()
+            case 'color':
+                this.updateColor()
                 break
             case 'textColor':
                 this.updateTextColor()
@@ -137,10 +140,10 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.containerRef.value?.classList.toggle('nestedRoot', !!this.nestedRoot)
     }
 
-    updateBorderColor() {
+    updateColor() {
         if (!this.shadowRoot) return;
 
-        this.containerRef.value?.style.setProperty('--border-color', this.borderColor ?? theme.palette.gray)
+        this.containerRef.value?.style.setProperty('--color', this.color ?? theme.palette.white)
     }
 
     updateTextColor() {
@@ -161,7 +164,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.shadowRoot?.appendChild(
             <div id='container' ref={this.containerRef}>
                 <button id='handle' onClick={handleMouseUp}>
-                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" stroke="currentColor" d="M 11,43 37,24 11,5"/></Icon></div>
+                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" stroke="currentColor" d="M12.213 45.213L33.426 24L12.213 2.787"/></Icon></div>
                     <slot name='heading'></slot>
                 </button>
                 <div id='content' ref={this.contentRef}>
@@ -173,7 +176,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.updateFixed()
         this.updateFolded()
         this.updateNestedRoot()
-        this.updateBorderColor()
+        this.updateColor()
         this.updateTextColor()
 
         this.initialized = true

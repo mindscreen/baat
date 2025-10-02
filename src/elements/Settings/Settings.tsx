@@ -9,8 +9,9 @@ import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { ReporterSettings } from '../ReporterSettings/ReporterSettings'
-import {button} from "../../styles/button";
-import {settingNames} from "../../config";
+import { button } from "../../styles/button";
+import { settingNames } from "../../config";
+import { link } from '../../styles/link';
 
 const styles = css`
     #container {
@@ -38,6 +39,7 @@ const styles = css`
         flex-direction: row;
         gap: ${theme.sizing.relative.tiny};
     }
+    ${link}
 `;
 
 interface ISettingsAccessor {
@@ -63,8 +65,8 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
     initialize() {
         this.shadowRoot?.appendChild(
             <div id='container'>
-                <Accordion folded={false} fixed={true}>
-                    <span slot={Accordion.slots.heading}>Testscript</span>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
+                    <h2 slot={Accordion.slots.heading}>Testscript</h2>
                     <div class="settingsContainer">
                         <Checkbox
                             id='autorun'
@@ -84,19 +86,13 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                         getFilters={() => axe.getRules().flatMap(rule => rule.tags).filter((x, i, a) => a.indexOf(x) == i).sort()}
                     />
                 </Accordion>*/}
-                <Accordion folded={false} fixed={true}>
-                    <span slot="heading">Axe Settings</span>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
+                    <h2 slot="heading">Axe Settings</h2>
                     <ReporterSettings />
                 </Accordion>
-                <Accordion folded={false} fixed={true}>
-                    <span slot={Accordion.slots.heading}>BAAT Settings</span>
+                <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
+                    <h2 slot={Accordion.slots.heading}>BAAT Settings</h2>
                     <div class="settingsContainer">
-                        <Checkbox
-                            id='showAdditionalInformation'
-                            checked={window[baatSymbol].getSetting<boolean>(settingNames.showAdditionalInformation)}
-                            onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.showAdditionalInformation, this.checked) }}
-                            label='Show a summary for test results'
-                        />
                         <Checkbox
                             id='differenceMode'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.differenceMode)}

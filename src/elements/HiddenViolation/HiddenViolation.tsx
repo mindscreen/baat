@@ -4,11 +4,12 @@ import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { NodeResult, Result } from '../../types'
-import { Icon } from '..'
-import {baatSymbol} from "../../core/BAAT";
-import {settingNames} from "../../config";
+import { Icon } from '../Icon/Icon'
+import { baatSymbol } from "../../core/BAAT";
+import { settingNames } from "../../config";
 
 const borderBottom = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`;
+const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
 
 const styles = css`
     .container {
@@ -34,7 +35,7 @@ const styles = css`
         gap: ${theme.sizing.relative.tiny};
         background-color: ${theme.palette.white};
         border: none;
-        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        padding: ${padding};
         cursor: pointer;
         font-size: 1rem;
         margin: -${theme.sizing.relative.tiny};
@@ -47,12 +48,6 @@ const styles = css`
 
 interface IHiddenViolationAccessor {
     result?: Result
-}
-
-function createNodeLink(index: number, result: NodeResult, alternativeText?: string): HTMLLIElement {
-    return <li>
-        <NodeResultLink number={index} result={result} alternativeText={alternativeText}/>
-    </li> as unknown as HTMLLIElement;
 }
 
 export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> implements IHiddenViolationAccessor {
