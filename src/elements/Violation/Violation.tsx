@@ -15,6 +15,7 @@ import { getElementFromNodeResult, getNameFromNodeResult, transformInfoToHTMLLis
 import { isHidden } from '../../util/dom';
 import { partition } from '../../util/array';
 import { link } from '../../styles/link';
+import {capitlizeFirstLetter} from '../../util/string';
 
 const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
 
@@ -159,7 +160,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.infoRef.value.innerHTML = '';
         } else {
             this.titleRef.value.innerText = this.result.help;
-            this.impactRef.value.innerText = String(this.result.impact);
+            this.impactRef.value.innerText = capitlizeFirstLetter(String(this.result.impact));
             this.impactRef.value.className = "chip "+this.result.impact;
             this.descriptionRef.value.innerText = this.result.description;
 
