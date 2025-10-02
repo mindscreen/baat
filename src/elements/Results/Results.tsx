@@ -4,11 +4,11 @@ import { visuallyHiddenStyles } from '../../util/style'
 import { BaseHTMLElement } from '../BaseHTMLElement';
 import { css } from '../../util/taggedString'
 import { baatSymbol } from '../../core/BAAT'
-import {AxeRunCompleted, BAATEvent, Result, StatusChange} from '../../types'
+import { AxeRunCompleted, BAATEvent, Result, StatusChange } from '../../types'
 import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { and, notNullish } from '../../util/logic'
-import { tally, uniquePredicate } from '../../util/array'
+import { partition, tally, uniquePredicate } from '../../util/array';
 import { zip } from '../../util/object';
 import { removeAllChildren } from '../../util/dom'
 import { download } from '../../util/file'
@@ -19,12 +19,13 @@ import { settingNames } from "../../config";
 import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history";
 import { button } from "../../styles/button";
 
+const margin = `${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny}`;
+
 const styles = css`
     #container {
         display: flex;
         flex-direction: column;
         height: 100%;
-        margin-bottom: 1em;
     }
     .visuallyHidden { ${visuallyHiddenStyles} }
     .placeholder {
@@ -58,7 +59,7 @@ const styles = css`
         text-align: left;
         font-size: ${theme.semanticSizing.font.large};
         font-weight: bold;
-        margin: ${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny};
+        margin: ${margin};
     }
     
     #status {
@@ -68,7 +69,7 @@ const styles = css`
     
     ${button}
     button {
-        margin: 2rem;
+        margin: 1rem;
     }
     #status:empty {
         padding: 0;
@@ -158,10 +159,8 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         // For regular violations: show if not explicitly hidden AND has visible tags AND has visible impact
         // For hidden section: show if explicitly hidden
         if (isHiddenSection) {
-            console.log({isHidden, hasVisibleTag, hasVisibleImpact, a: isHidden, result, isHiddenSection});
             return isHidden;
         } else {
-            console.log({isHidden, hasVisibleTag, hasVisibleImpact, a: !isHidden && hasVisibleTag && hasVisibleImpact, result, isHiddenSection});
             return !isHidden && hasVisibleTag && hasVisibleImpact;
         }
     }
@@ -176,20 +175,16 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         let newList: JSX.Element | Element = this.resultsContainerRef.value;
         let unchangedList: JSX.Element | Element = this.resultsContainerRef.value;
-        let newEntries: string[] = [];
 
         const visibleResults = this.results.filter(result => this.shouldShowViolation(result, false));
-        const newResults = visibleResults.filter(result => newEntries.includes(result.id));
-        const unchangedResults = visibleResults.filter(result => !newEntries.includes(result.id));
+        const history = window[baatSymbol].getHistory();
+        const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
+        const [ newResults, unchangedResults ] = partition(visibleResults, result => historyDiff.newEntries.includes(result.id));
 
         if (differenceMode) {
-            const history = window[baatSymbol].getHistory();
-            const historyDiff = historyEntryDiff(history[history.length - 2] ?? [], convertViolationToHistoryEntry(this.results));
-            newEntries = historyDiff.newEntries;
-
             newList = <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.green}>
                 <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
-                <div class="count" slot={Accordion.slots.heading}>{`${newResults.length} ×`}</div>
+                <div class="count" slot={Accordion.slots.heading}>{`${newResults.length}×`}</div>
             </Accordion>
 
             this.resultsContainerRef.value.appendChild(newList);
@@ -198,7 +193,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             unchangedList =
                 <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.blue} textColor={theme.palette.white}>
                     <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
-                    <div class="count" slot={Accordion.slots.heading}>{`${unchangedResults.length} ×`}</div>
+                    <div class="count" slot={Accordion.slots.heading}>{`${unchangedResults.length}×`}</div>
                 </Accordion>
 
             this.resultsContainerRef.value.appendChild(unchangedList);
@@ -221,7 +216,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef} color={theme.palette.grayDark}>
             <h2 class='listheading' slot={Accordion.slots.heading}>Hidden</h2>
-            <div class="count" slot={Accordion.slots.heading}>{`${hiddenResults.length} ×`}</div>
+            <div class="count" slot={Accordion.slots.heading}>{`${hiddenResults.length}×`}</div>
         </Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
 
@@ -271,7 +266,9 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                 const impactOrder = axe.constants.impact
                 return impactOrder.indexOf(b[0]) - impactOrder.indexOf(a[0])
             }
-            const countAllElements = new Set(this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || [])).size;
+
+            // This might be changed in the future to show only unique elements
+            const countAllElements = this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || []).length;
             this.statisticsContainerRef.value.appendChild(
                 <table>
                     <caption>Run Statistics</caption>
@@ -310,7 +307,6 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </tfoot>
                 </table>
             )
-            let cache: Array<any> = [];
 
             this.downloadContainerRef.value.appendChild(
                 <button type='button' onClick={() => window[baatSymbol].getFinalResults().then(result => download('baat-report.json', JSON.stringify(result)))}>
