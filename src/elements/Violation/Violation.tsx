@@ -11,7 +11,12 @@ import { hideHighlight, showHighlight } from '../../core/highlight'
 import { Icon } from '../Icon/Icon'
 import { baatSymbol } from "../../core/BAAT";
 import { settingNames } from "../../config";
-import {transformInfoToHTMLLists} from '../../util/axe';
+import { getElementFromNodeResult, getNameFromNodeResult, transformInfoToHTMLLists } from '../../util/axe';
+import { isHidden } from '../../util/dom';
+import { partition } from '../../util/array';
+import { link } from '../../styles/link';
+
+const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
 
 const styles = css`
     #heading {
@@ -21,9 +26,13 @@ const styles = css`
         margin: 0;
         font-size: ${theme.semanticSizing.font.large};
     }
-    ol {
+    #nodeListButtons {
         list-style-type: none;
         padding-left: 0;
+        margin-bottom: 0;
+    }
+    ul {
+        padding-left: 1.5rem;
         margin-bottom: 0;
     }
     li {
@@ -64,15 +73,7 @@ const styles = css`
         margin-top: 1.25rem;
         margin-bottom: .25rem;
     }
-    a {
-      color: ${ theme.palette.primaryDark };
-    }
-    a:hover {
-        color: ${theme.palette.primary};
-    }
-    a:disabled {
-        color: #333;
-    }
+    ${link}
     .list {
         padding-left: 1.5rem;
         margin-block: 0;
@@ -86,7 +87,7 @@ const styles = css`
         background-color: ${theme.palette.white};
         border: 1px solid;
         border-radius: 2px;
-        padding: ${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller};
+        padding: ${padding};
         cursor: pointer;
         font-size: 1rem;
         max-width: 100%;
@@ -124,9 +125,12 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
     private titleRef = createRef<HTMLHeadingElement>()
     private impactRef = createRef<HTMLLabelElement>()
     private descriptionRef = createRef<HTMLDivElement>()
-    private nodeListRef = createRef<HTMLOListElement>()
+    private nodeListButtonsRef = createRef<HTMLOListElement>()
+    private nodeListTextRef = createRef<HTMLOListElement>()
     private linkRef = createRef<HTMLDivElement>()
     private infoRef = createRef<HTMLDivElement>()
+    private highlightTitleRef = createRef<HTMLHeadingElement>()
+    private otherTitleRef = createRef<HTMLHeadingElement>()
 
     attributeChangedCallback<T extends keyof IViolationAccessor>(name: T, oldValue: IViolationAccessor[T], newValue: IViolationAccessor[T]) {
         switch (name) {
@@ -150,7 +154,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.titleRef.value.innerText = '';
             this.impactRef.value.innerText = '';
             this.descriptionRef.value.innerText = '';
-            this.nodeListRef.value.innerHTML = '';
+            this.nodeListButtonsRef.value.innerHTML = '';
             this.linkRef.value.innerHTML = '';
             this.infoRef.value.innerHTML = '';
         } else {
@@ -159,13 +163,25 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.impactRef.value.className = "chip "+this.result.impact;
             this.descriptionRef.value.innerText = this.result.description;
 
-            const nodeList = this.nodeListRef.value
-            nodeList.innerHTML = '';
+            this.nodeListButtonsRef.value.innerHTML = '';
 
-            this.result.nodes.forEach((node, index) => {
-                const li = createNodeLink(index + 1, node)
-                nodeList.appendChild(li)
+            const [ linkedResults, textResults ] = partition(this.result.nodes, (node) => {
+                const element = getElementFromNodeResult(node)
+                let hasLink = !!element && !isHidden(element)
+                return hasLink || window[baatSymbol].getSetting(settingNames.developer);
             })
+
+            linkedResults.forEach((node, index) => {
+                const li = createNodeLink(index + 1, node)
+                this.nodeListButtonsRef.value.appendChild(li)
+            })
+            this.highlightTitleRef.value.style.display = linkedResults.length > 0 ? 'block' : 'none';
+
+            textResults.forEach((node, index) => {
+                this.nodeListTextRef.value.appendChild(<li>{getNameFromNodeResult(node, window[baatSymbol].getSetting(settingNames.developer))}</li>)
+            })
+            this.otherTitleRef.value.style.display = textResults.length > 0 ? 'block' : 'none';
+            this.otherTitleRef.value.innerHTML = linkedResults.length > 0 ? 'Other elements with errors' : 'Elements with errors';
 
             this.infoRef.value.innerHTML = transformInfoToHTMLLists(this.result.nodes[0].failureSummary ?? '', 'list');
 
@@ -197,8 +213,10 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
                     </div>
                 </div>
                 <div id='description' ref={this.descriptionRef}></div>
-                <h3>Errors on page</h3>
-                <ol id='nodeList' ref={this.nodeListRef}></ol>
+                <h3 ref={this.highlightTitleRef}>Highlight error on page</h3>
+                <ol id='nodeListButtons' ref={this.nodeListButtonsRef}></ol>
+                <h3 ref={this.otherTitleRef}></h3>
+                <ul id='nodeListText' ref={this.nodeListTextRef}></ul>
                 <div id='link' ref={this.linkRef}></div>
                 <p id='info' ref={this.infoRef}></p>
                 <button id='hideButton' onClick={handleHide}>

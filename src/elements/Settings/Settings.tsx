@@ -9,8 +9,9 @@ import { theme } from '../../theme'
 import { axeExists } from '../../util/axe'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { ReporterSettings } from '../ReporterSettings/ReporterSettings'
-import {button} from "../../styles/button";
-import {settingNames} from "../../config";
+import { button } from "../../styles/button";
+import { settingNames } from "../../config";
+import { link } from '../../styles/link';
 
 const styles = css`
     #container {
@@ -38,6 +39,7 @@ const styles = css`
         flex-direction: row;
         gap: ${theme.sizing.relative.tiny};
     }
+    ${link}
 `;
 
 interface ISettingsAccessor {

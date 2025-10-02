@@ -1,5 +1,6 @@
 import * as axe from 'axe-core'
 import {escapeHtml} from './html';
+import { ownText } from './dom';
 
 export const axeExists = (): boolean => (typeof axe !== 'undefined' && axe !== null)
 
@@ -41,4 +42,23 @@ export const transformInfoToHTMLLists = (text: string, ulClass?: string, liClass
     }
 
     return result.join('\n');
+}
+
+export const getElementFromNodeResult = (nodeResult: axe.NodeResult | undefined): HTMLElement | null =>
+    nodeResult?.element ?? document.querySelector(nodeResult?.target?.join(', ') ?? '')
+
+export const getNameFromNodeResult = (nodeResult: axe.NodeResult | undefined, devMode?: boolean): string => {
+    const element = getElementFromNodeResult(nodeResult)
+
+    if (devMode) {
+        return nodeResult?.target.join(', ') ?? element?.tagName.toLowerCase() ?? ''
+    }
+
+    const name = element ? ownText(element).trim() : ""
+
+    if (name === "") {
+        return (element?.tagName.toLowerCase() ?? nodeResult?.target.join(', ') ?? "")
+    }
+
+    return name;
 }

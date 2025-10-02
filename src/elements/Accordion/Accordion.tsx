@@ -5,6 +5,7 @@ import { baact, createRef } from '../../../baact/baact'
 import { css } from '../../util/taggedString'
 
 const border = `${theme.sizing.absolute.tiny} solid ${theme.palette.gray}`
+const padding = `${theme.sizing.relative.smaller} ${theme.sizing.relative.small}`
 
 const styles = css`
     #container {
@@ -30,6 +31,7 @@ const styles = css`
         font-size: ${theme.sizing.relative.large};
     }
     #handle baat-icon {
+        align-self: baseline;
         color: var(--text-color);
     }
     #handle:focus {
@@ -53,11 +55,12 @@ const styles = css`
     }
     #caret {
         margin: ${theme.sizing.relative.tiny};
+        align-self: baseline;
         z-index: 1;
     }
     #content {
         display: none;
-        padding: ${theme.sizing.relative.smaller} ${theme.sizing.relative.small};
+        padding: ${padding};
         border-left-color: var(--color, ${theme.palette.white});
         border-left-width: ${theme.sizing.absolute.normal};
         border-left-style: solid;
@@ -161,7 +164,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         this.shadowRoot?.appendChild(
             <div id='container' ref={this.containerRef}>
                 <button id='handle' onClick={handleMouseUp}>
-                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" stroke="currentColor" d="M 11,43 37,24 11,5"/></Icon></div>
+                    <div id='caret'><Icon width="16" height="16"><path stroke-width="5" stroke="currentColor" d="M12.213 45.213L33.426 24L12.213 2.787"/></Icon></div>
                     <slot name='heading'></slot>
                 </button>
                 <div id='content' ref={this.contentRef}>
