@@ -18,6 +18,7 @@ import { Accordion } from '../Accordion/Accordion';
 import { settingNames } from "../../config";
 import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history";
 import { button } from "../../styles/button";
+import {capitlizeFirstLetter} from '../../util/string';
 
 const margin = `${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny}`;
 
@@ -291,7 +292,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                             }
                             return <tr>
                                 <th>
-                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ impact.charAt(0).toUpperCase() + impact.slice(1) }/>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ capitlizeFirstLetter(impact) }/>
                                 </th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
