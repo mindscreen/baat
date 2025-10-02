@@ -48,6 +48,9 @@ function DOMparseNode<P>(element: string, properties: Partial<P>, children: Baac
             }
             return
         }
+        if (typeof value === 'undefined') {
+            return
+        }
 
         value = isHTML ? String(value) : value
 
