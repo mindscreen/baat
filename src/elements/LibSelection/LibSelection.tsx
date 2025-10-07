@@ -8,6 +8,7 @@ import { baact, createRef } from '../../../baact/baact'
 import { theme } from '../../theme'
 import { BAATEvent, ChangeCore } from '../../types'
 import {button} from "../../styles/button";
+import { link } from '../../styles/link';
 
 const styles = css`
     .visuallyHidden { ${visuallyHiddenStyles} }
@@ -25,6 +26,7 @@ const styles = css`
     input {
         font-size: ${theme.semanticSizing.font.normal};
     }
+    ${link}
 `;
 
 interface ILibSelectionAccessor {
@@ -34,8 +36,9 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
     loaded: boolean = false
     static tagName: string = 'baat-lib-selection'
     private loadedContainerRef = createRef<HTMLDivElement>()
-    private unloadedContainerRef = createRef<HTMLDivElement>()
     private loadedTextRef = createRef<HTMLDivElement>()
+    private unloadedContainerRef = createRef<HTMLDivElement>()
+    private unloadedTextRef = createRef<HTMLDivElement>()
     private fileRef = createRef<HTMLInputElement>()
     private source: string = ''
 
@@ -82,11 +85,14 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
         this.shadowRoot?.appendChild(
             <div id='container'>
                 <div id='unloadedContainer' ref={this.unloadedContainerRef}>
+                    <p id='unloadedText' ref={this.unloadedTextRef}>
+                        Axe-core is not loaded. This might be due to security headers (CSP) of the current page. Please select an axe-core file from local disk.<br/>It can be downloaded from <a href="https://tools.caat.report/axe.min.js">https://tools.caat.report/axe.min.js</a>
+                    </p>
                     <input type='file' accept='.js, text/javascript' id='fileInput' onChange={handleFileChange} ref={this.fileRef}/>
                     <button type='button' id='fileButton' onClick={() => this.fileRef.value.click()}>Select File</button>
                 </div>
                 <div id='loadedContainer' ref={this.loadedContainerRef}>
-                    <div id='loadedText' ref={this.loadedTextRef}></div>
+                    <p id='loadedText' ref={this.loadedTextRef}></p>
                     <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
                 </div>
             </div>
