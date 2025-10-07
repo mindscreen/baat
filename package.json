@@ -1,6 +1,6 @@
 {
   "name": "baat",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Bookmarklet for running axe-core tests directly in the Browser",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.mindscreen.de:allianz/baat.git"
+    "url": "git@github.com:mindscreen/baat.git"
   },
   "keywords": [
     "axe-core",
@@ -36,7 +36,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "axe-core": "^4.3.3",
+    "axe-core": "^4.10.3",
     "browser-sync": "^2.27.10"
   }
 }

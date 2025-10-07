@@ -322,7 +322,7 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
                     <slot name={windowSlots.heading}></slot>
                     <div id='info' ref={this.infoRef}><slot name={windowSlots.info}></slot></div>
                     <slot name={windowSlots.actions}></slot>
-                    <button id='foldButton' aria-label='hide window' aria-controls='fold' aria-expanded='true' onClick={handleClick} ref={this.buttonRef}>
+                    <button id='foldButton' aria-label='hide window' aria-controls='content' aria-expanded='true' onClick={handleClick} ref={this.buttonRef}>
                         <Icon width="24" height="24"><path d="m5 24h40"/></Icon>
                     </button>
                 </div>
