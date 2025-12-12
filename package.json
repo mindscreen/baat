@@ -1,6 +1,6 @@
 {
   "name": "baat",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Bookmarklet for running axe-core tests directly in the Browser",
   "main": "index.js",
   "scripts": {

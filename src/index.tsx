@@ -6,6 +6,75 @@ import { baact, createRef } from '../baact/baact'
 import { BAATEvent, BAATView } from './types'
 import { axeExists } from './util/axe'
 import { windowSlots } from './elements/Window/Window'
+import { css } from './util/taggedString';
+import { theme } from './theme';
+
+let error = false;
+
+const errorStyles = css`
+    ::backdrop {
+        background-color: ${theme.palette.primary};
+        opacity: 0.75;
+    }
+
+    button {
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #000;
+        font-size: ${theme.semanticSizing.font.normal};
+        border-radius: 2px;
+        padding: ${theme.semanticSizing.button.padding};
+        cursor: pointer;
+        margin-left: ${theme.sizing.relative.smaller};
+        margin-bottom: ${theme.sizing.relative.smaller};
+    }
+    
+    h1 {
+        margin: 0;
+        background-color: ${theme.palette.dark};
+        padding: ${theme.sizing.relative.smaller};
+        font-family: sans-serif;
+        color: ${theme.palette.light};
+    }
+    
+    p {
+        padding: ${theme.sizing.relative.smaller};
+        font-family: sans-serif;
+    }
+    
+    dialog {
+        border-color: ${theme.palette.dark};
+        padding: 0;
+    }
+`
+
+const onError = () => {
+    if (error) return;
+    error = true;
+    document.querySelector(`#${config.panelId}`)?.remove();
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(errorStyles)
+
+    const dialog = <dialog>
+        <h1>Error loading BAAT</h1>
+        <p>This website has a security policy that prevents BAAT from working.</p>
+        <button>close</button>
+    </dialog> as unknown as HTMLDialogElement;
+
+    const container = <div></div> as unknown as HTMLDivElement;
+
+    document.body.prepend(container);
+
+    const shadow = container.attachShadow({ mode: 'open' });
+    shadow.appendChild(dialog);
+    shadow.adoptedStyleSheets.push(sheet);
+    dialog.showModal();
+    shadow.querySelector('button')?.addEventListener('click', () => {
+        dialog.close();
+    })
+}
+
+document.addEventListener('securitypolicyviolation', onError);
 
 register();
 
