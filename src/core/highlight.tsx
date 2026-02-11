@@ -145,7 +145,7 @@ export const addHighlightTo = (result: NodeResult, violation: Result): HTMLEleme
                 <slot></slot>
                 <button id="infoButton">i</button>
                 <div id="infoWindow">
-                    <h2>Violations</h2>
+                    <h2>i18n('baat.highlight.violations')</h2>
                 </div>
             </div>
         )
@@ -155,9 +155,9 @@ export const addHighlightTo = (result: NodeResult, violation: Result): HTMLEleme
         <section>
             <h3>{violation.help}</h3>
             <p>
-                Impact: {violation.impact}<br />
+                i18n('baat.highlight.impact') {violation.impact}<br />
                 {violation.description}<br />
-                <a href={violation.helpUrl} target="_blank">more information for this violation</a>
+                <a href={violation.helpUrl} target="_blank">i18n('baat.highlight.moreInformation')</a>
             </p>
         </section>
     )

@@ -26,7 +26,10 @@ export class BAAT extends EventTarget {
     private _hasRun = false
     private additionalReporters: [string, string][] = []
     public version = '@VERSION@'
+    public language = 'i18n("baat.lang")'
     private readonly axeMinUrl: string = '@AXE_MIN_URL@'
+    private readonly axeLocaleUrl: string = "@AXE_LOCALE_URL@"
+    private locale: object | undefined = undefined
 
     private constructor() {
         super();
@@ -47,9 +50,20 @@ export class BAAT extends EventTarget {
                 response.text().then((text) => {
                     this.createScript(text, false, new URL(this.axeMinUrl).hostname)
                 })
-
             })
+        }
 
+        // @ts-ignore
+        if (this.language !== 'en' && this.axeLocaleUrl !== '') {
+            fetch(this.axeLocaleUrl).then((response) => {
+                if (!response.ok) {
+                    return
+                }
+
+                response.text().then((text) => {
+                    this.locale = JSON.parse(text);
+                })
+            })
         }
 
         this._view = BAATView[(localStorage.getItem(localStorageKeys.view) ?? BAATView.Settings.toString()) as keyof typeof BAATView]
@@ -61,7 +75,7 @@ export class BAAT extends EventTarget {
     createScript(script: string, writeToStorage = true, source = '') {
         if (!axeExists()) {
             if (script.includes('axe') && script.endsWith(';')) {
-                new Promise((resolve) => {
+                new Promise<void>((resolve) => {
                     createScript(script, 'axeScript')
                     if (writeToStorage) localStorage.setItem(localStorageKeys.coreScript, script)
                     this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source } }))
@@ -107,7 +121,7 @@ export class BAAT extends EventTarget {
             }
         }))
 
-        new Promise((resolve) => {
+        new Promise<void>((resolve) => {
             localStorage.setItem(localStorageKeys.settings, JSON.stringify(this.settings))
             resolve()
         })
@@ -137,7 +151,7 @@ export class BAAT extends EventTarget {
     runAxe() {
         if (this.running) return
 
-        this.dispatchStatusEvent('running Tests...')
+        this.dispatchStatusEvent("i18n('baat.status.running')")
         this.running = true
 
         document.querySelectorAll(`.${highlightContainer}`).forEach((element) => {
@@ -165,6 +179,9 @@ export class BAAT extends EventTarget {
             }
         })
 
+        axe.configure({
+            locale: this.locale
+        })
         axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
             {},
@@ -191,9 +208,9 @@ export class BAAT extends EventTarget {
                             })
                         })*/
 
-                        this.dispatchStatusEvent('Issues found!')
+                        this.dispatchStatusEvent("i18n('baat.status.issuesFound')")
                     } else {
-                        this.dispatchStatusEvent('No issues found!')
+                        this.dispatchStatusEvent("i18n('baat.status.noIssuesFound')")
                     }
 
                     this.dispatchStatusEvent('')

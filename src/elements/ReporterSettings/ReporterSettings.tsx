@@ -43,12 +43,12 @@ export class ReporterSettings extends BaseHTMLElement<IReporterSettingsAccessor>
         this.shadowRoot?.appendChild(
             <div>
                 <Select
-                    label={"Download Reporter: "}
+                    label={"i18n('baat.reporter.downloadReporter')"}
                     options={window[baatSymbol].getReporters()}
                     selectedOption={window[baatSymbol].getSetting<boolean>('reporter')}
                     onChange={onChange}
                     ref={this.selectRef}
-                    noOptionsFallback={"Axe not loaded"}
+                    noOptionsFallback={"i18n('baat.reporter.axeNotLoaded')"}
                 />
             </div>
         )

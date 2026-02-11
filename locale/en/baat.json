@@ -1,0 +1,98 @@
+{
+  "title": "BAAT",
+  "lang": "en",
+  "status": {
+    "running": "running Tests...",
+    "issuesFound": "Issues found!",
+    "noIssuesFound": "No issues found!"
+  },
+  "results": {
+    "new": "New",
+    "unchanged": "Unchanged",
+    "hidden": "Hidden",
+    "noViolationsFound": "No Violations found",
+    "noViolationsFoundDescription": "The automatic tool did not find any violations. Since not all problems can be found automatically please consider testing manually.",
+    "notYetRun": "Not yet run",
+    "notYetRunDescription": "Run BAAT in order to see violation results.",
+    "allHidden": "All violations are hidden",
+    "allHiddenDescription": "There are results but all results are hidden via filter Settings.",
+    "statistics": "Run Statistics",
+    "impact": "Impact",
+    "violations": "Violations",
+    "elements": "Elements",
+    "total": "Total",
+    "downloadReport": "Download axe report as JSON file"
+  },
+  "miniResults": {
+    "violations": "Violations",
+    "elements": "Elements",
+    "noErrors": "No Errors"
+  },
+  "violation": {
+    "highlightError": "Highlight error on page",
+    "otherElementsWithErrors": "Other elements with errors",
+    "elementsWithErrors": "Elements with errors",
+    "helpForError": "Help for this error",
+    "onDequeUniversity": "on Deque University",
+    "hideIssue": "Hide issue",
+    "show": "Show"
+  },
+  "window": {
+    "showBAAT": "show BAAT",
+    "hideBAAT": "hide BAAT",
+    "hideWindow": "hide window"
+  },
+  "buttons": {
+    "runDefinitions": "Run definitions",
+    "showSettings": "Show settings",
+    "close": "close"
+  },
+  "settings": {
+    "testScript": "Testscript",
+    "autoRunWhenLoaded": "auto run when loaded",
+    "axeSettings": "Axe Settings",
+    "baatSettings": "BAAT Settings",
+    "historyDifferenceMode": "history difference mode",
+    "developerMode": "developer mode",
+    "clearLocalHistory": "Clear local history",
+    "resetHiddenResults": "Reset Hidden Results",
+    "information": {
+      "fullName": "Bookmarklet Accessibility Audit Tool v${window[baatSymbol].version}",
+      "description": "BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.",
+      "moreInformation": "You can find more information on"
+    }
+
+  },
+  "reporter": {
+    "downloadReporter": "Download Reporter: ",
+    "axeNotLoaded": "Axe not loaded"
+  },
+  "libSelection": {
+    "notLoaded": "Axe-core is not loaded. This might be due to security headers (CSP) of the current page. Please select an axe-core file from local disk.",
+    "downloadFrom": "It can be downloaded from",
+    "selectFile": "Select File",
+    "change": "Change",
+    "loaded": "axe-core",
+    "loadedSuffix": "loaded",
+    "from": "from"
+  },
+  "filterSettings": {
+    "noAxeLoaded": "No axe-core loaded"
+  },
+  "errorDialog": {
+    "title": "Error loading BAAT",
+    "message": "This website has a security policy that prevents BAAT from working."
+  },
+  "highlight": {
+    "violations": "Violations",
+    "impact": "Impact:",
+    "moreInformation": "more information for this violation"
+  },
+  "impact": {
+    "critical": "Critical",
+    "serious": "Serious",
+    "moderate": "Moderate",
+    "minor": "Minor",
+    "none": "Unknown"
+  }
+}

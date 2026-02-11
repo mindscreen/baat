@@ -3,6 +3,7 @@ const gru2 = require('gulp-rollup-2')
 const ts = require('gulp-typescript')
 const tsProject = ts.createProject('tsconfig.json')
 const uglify = require('gulp-uglify')
+const gulpHtmlI18n = require('gulp-html-i18n');
 const {nodeResolve} = require('@rollup/plugin-node-resolve')
 const externalGlobals = require("rollup-plugin-external-globals")
 const { default: minifyHTML } = require('rollup-plugin-minify-html-literals')
@@ -30,8 +31,9 @@ gulp.task('serve', function( cb ){
 
     gulp.watch([
         'src/**/*' ,
-        'baact/**/*'
-    ] ,  gulp.series('build.userscript', 'serve:reload') );
+        'baact/**/*',
+        'locale/**/*',
+    ] ,  gulp.series('provideLanguages', 'build.userscript', 'serve:reload') );
 });
 
 gulp.task('serve:reload' , function(cb) {
@@ -41,32 +43,47 @@ gulp.task('serve:reload' , function(cb) {
 
 gulp.task('transpile-ts', function () {
     return tsProject.src()
-        .pipe(replace('@INFORMATION@', String(process.env.SETTINGS_INFORMATION) !== "" ? String(process.env.SETTINGS_INFORMATION) : "false"))
-        .pipe(sourcemaps.init())
         .pipe(tsProject())
-        .pipe(sourcemaps.write({
-            includeContent: false,
-            sourceRoot: function (file) {
-                return path.relative(path.dirname(file.path), file.base);
-            }
-        }))
         .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
         .pipe(replace('@AXE_MIN_URL@', String(process.env.AXE_MIN_URL)))
+        .pipe(replace('@AXE_LOCALE_URL@', String(process.env.AXE_LOCALE_URL)))
         .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY) !== "" ? String(process.env.THEME_PRIMARY) : "#225147"))
         .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT) !== "" ? String(process.env.THEME_PRIMARY_LIGHT) : "#2c685b"))
         .pipe(replace('@PRIMARY_DARK@', String(process.env.THEME_PRIMARY_DARK) !== "" ? String(process.env.THEME_PRIMARY_DARK) : "#142e29"))
         .pipe(replace('@THEME_NEUTRAL@', String(process.env.THEME_NEUTRAL) !== "" ? String(process.env.THEME_NEUTRAL) : "#323130"))
         .pipe(replace('@THEME_NEUTRAL_LIGHT@', String(process.env.THEME_NEUTRAL_LIGHT) !== "" ? String(process.env.THEME_NEUTRAL_LIGHT) : "#656462"))
         .pipe(replace('@THEME_NEUTRAL_DARK@', String(process.env.THEME_NEUTRAL_DARK) !== "" ? String(process.env.THEME_NEUTRAL_DARK) : "#1F1E1D"))
-        .pipe(gulp.dest('intermediate'))
+        .pipe(gulp.dest('intermediate/transpiled'))
 })
+
+gulp.task('translate', function () {
+    return gulp.src('./intermediate/bundled/**/*')
+        .pipe(gulpHtmlI18n({
+            langDir: './locale',
+            createLangDirs: true,
+            langRegExp: /i18n\((?:\"|\'|%27)([\w\-\.]+)(?:\"|\'|%27)\)/g
+        }))
+        .pipe(gulp.dest('./build'));
+})
+
+gulp.task('provideLanguages', function (cb) {
+    const langs = fs.readdirSync('./locale', { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+    const content = `export const langs = ${JSON.stringify(langs, null, 2)};\n`;
+    fs.mkdirSync('./testing', { recursive: true });
+    fs.writeFileSync('./testing/lang.js', content);
+
+    cb();
+});
 
 gulp.task('rollup-userscript', function () {
     return gulp.src([
-        './intermediate/src/index.js',
+        './intermediate/transpiled/src/index.js',
     ])
         .pipe(gru2.rollup({
-            input: './intermediate/src/index.js',
+            input: './intermediate/transpiled/src/index.js',
             plugins: [
                 nodeResolve(),
                 externalGlobals({
@@ -85,14 +102,14 @@ gulp.task('rollup-userscript', function () {
             ],
         }))
         .pipe(header(fs.readFileSync('extras/userscript-header.js', 'utf8'), {version: pkg.version}))
-        .pipe(gulp.dest('./build/'));
+        .pipe(gulp.dest('./intermediate/bundled/'));
 });
 gulp.task('rollup-bookmarklet', function () {
     return gulp.src([
-        './intermediate/src/index.js',
+        './intermediate/transpiled/src/index.js',
     ])
         .pipe(gru2.rollup({
-            input: './intermediate/src/index.js',
+            input: './intermediate/transpiled/src/index.js',
             plugins: [
                 nodeResolve(),
                 minifyHTML(),
@@ -113,15 +130,15 @@ gulp.task('rollup-bookmarklet', function () {
         }))
         .pipe(uglify({compress: { negate_iife: false }}))
         .pipe(header(fs.readFileSync('extras/bookmarklet-header.txt', 'utf8').replace('{baat.version}',pkg.version), {version: pkg.version}))
-        .pipe(gulp.dest('./build/'));
+        .pipe(gulp.dest('./intermediate/bundled/'));
 });
 
 gulp.task('rollup-bookmark-export', function () {
     return gulp.src([
-        './intermediate/src/index.js',
+        './intermediate/transpiled/src/index.js',
     ])
         .pipe(gru2.rollup({
-            input: './intermediate/src/index.js',
+            input: './intermediate/transpiled/src/index.js',
             plugins: [
                 nodeResolve(),
                 minifyHTML(),
@@ -144,12 +161,12 @@ gulp.task('rollup-bookmark-export', function () {
         .pipe(URLEncoder())
         .pipe(header(fs.readFileSync('extras/bookmark-export-header.html', 'utf8').replace('{baat.version}', pkg.version), {version: pkg.version}))
         .pipe(footer(fs.readFileSync('extras/bookmark-export-footer.html', 'utf8').replace('{timestamp}', String(Math.round((new Date()).getTime()/1000))), {version: pkg.version}))
-        .pipe(gulp.dest('./build/'));
+        .pipe(gulp.dest('./intermediate/bundled/'));
 })
-gulp.task('build.bookmarklet', gulp.series('transpile-ts', 'rollup-bookmarklet'));
+gulp.task('build.bookmarklet', gulp.series('transpile-ts', 'rollup-bookmarklet', 'translate'));
 
-gulp.task('build.userscript', gulp.series('transpile-ts', 'rollup-userscript'));
+gulp.task('build.userscript', gulp.series('transpile-ts', 'rollup-userscript', 'translate'));
 
-gulp.task('build.bookmark-export', gulp.series('transpile-ts', 'rollup-bookmark-export'));
+gulp.task('build.bookmark-export', gulp.series('transpile-ts', 'rollup-bookmark-export', 'translate'));
 
-gulp.task('default', gulp.series('transpile-ts', 'rollup-bookmarklet', 'rollup-userscript', 'rollup-bookmark-export'));
+gulp.task('default', gulp.series('transpile-ts', 'rollup-bookmarklet', 'rollup-userscript', 'rollup-bookmark-export', 'translate'));

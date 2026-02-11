@@ -46,7 +46,7 @@ export class FilterSettings extends BaseHTMLElement<IFilterSettingsAccessor> imp
         removeAllChildren(this.containerRef.value)
 
         if (!axeExists()) {
-            this.containerRef.value?.appendChild(<span>No axe-core loaded</span>)
+            this.containerRef.value?.appendChild(<span>i18n('baat.filterSettings.noAxeLoaded')</span>)
             return
         }
 
