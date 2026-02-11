@@ -66,13 +66,13 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
         this.shadowRoot?.appendChild(
             <div id='container'>
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <h2 slot={Accordion.slots.heading}>Testscript</h2>
+                    <h2 slot={Accordion.slots.heading}>i18n('baat.settings.testScript')</h2>
                     <div class="settingsContainer">
                         <Checkbox
                             id='autorun'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.autorun)}
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.autorun, this.checked); if(axeExists()) { window[baatSymbol].runAxe() } }}
-                            label='auto run when loaded'
+                            label="i18n('baat.settings.autoRunWhenLoaded')"
                         />
                     </div>
                     <LibSelection />
@@ -87,40 +87,43 @@ export class Settings extends BaseHTMLElement<ISettingsAccessor> implements ISet
                     />
                 </Accordion>*/}
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <h2 slot="heading">Axe Settings</h2>
+                    <h2 slot="heading">i18n('baat.settings.axeSettings')</h2>
                     <ReporterSettings />
                 </Accordion>
                 <Accordion folded={false} fixed={true} color={theme.palette.grayDark}>
-                    <h2 slot={Accordion.slots.heading}>BAAT Settings</h2>
+                    <h2 slot={Accordion.slots.heading}>i18n('baat.settings.baatSettings')</h2>
                     <div class="settingsContainer">
                         <Checkbox
                             id='differenceMode'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.differenceMode)}
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.differenceMode, this.checked) }}
-                            label='history difference mode'
+                            label="i18n('baat.settings.historyDifferenceMode')"
                         />
                         <Checkbox
                             id='developer'
                             checked={window[baatSymbol].getSetting<boolean>(settingNames.developer)}
                             onChange={function (this: HTMLInputElement) { window[baatSymbol].setSetting(settingNames.developer, this.checked) }}
-                            label='developer mode'
+                            label="i18n('baat.settings.developerMode')"
                         />
                         <div class="actions">
                             <button
                                 onClick={window[baatSymbol].clearHistory}
                             >
-                                Clear local history
+                                i18n('baat.settings.clearLocalHistory')
                             </button>
                             <button
                                 onClick={() => { window[baatSymbol].setSetting(settingNames.hiddenResults, []) }}
                             >
-                                Reset Hidden Results
+                                i18n('baat.settings.resetHiddenResults')
                             </button>
                         </div>
                     </div>
                 </Accordion>
                 <div id="info">
-                    @INFORMATION@
+                    <h2>i18n('baat.title')</h2>
+                    <div>{`i18n('baat.settings.information.fullName')`}</div>
+                    <p>i18n('baat.settings.information.description')</p>
+                    <p>i18n('baat.settings.information.moreInformation') <a href='https://tools.caat.report/baat/'>tools.caat.report/baat</a></p>
                 </div>
             </div>
         )

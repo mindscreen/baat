@@ -2,3 +2,4 @@ node_modules/
 build/
 intermediate/
 .idea/
+testing/lang.js

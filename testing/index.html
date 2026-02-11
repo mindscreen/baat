@@ -6,8 +6,59 @@
             font-size: 188%;
             font-weight: normal;
         }
+        #controls {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            background-color: #2f3749;
+            padding: 0.4rem 0.5rem;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
     </style>
+    <script>
+        const lang = localStorage.getItem('baat-lang') || 'en';
+
+        const baatScript = document.createElement('script');
+        baatScript.src = `../build/${lang}/userscript.js`;
+
+        document.head.appendChild(baatScript);
+
+        const changeLang = (lang) => {
+            localStorage.setItem('baat-lang', lang);
+            window.location.reload();
+        }
+
+        import('./lang.js').then(module => {
+            const langs = module.langs;
+
+            const langSelect = document.createElement('select');
+
+            langs.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang;
+                option.textContent = lang;
+                if (lang === localStorage.getItem('baat-lang')) {
+                    option.selected = true;
+                }
+                langSelect.appendChild(option);
+            })
+
+            langSelect.addEventListener('change', (e) => {
+                changeLang(e.target.value);
+            });
+
+            langSelect.name = 'lang';
+            langSelect.value = lang;
+            langSelect.ariaLabel = 'BAAT Language';
+
+            document.getElementById('controls').appendChild(langSelect);
+        });
+    </script>
     <body>
+        <div id="controls">
+
+        </div>
         <main>
         <h2>title</h2>
         test<br />
@@ -87,6 +138,5 @@
         <span role="text">text2<button>button2</button></span>
         <span role="text">text3<button>button3</button></span>
         <div role="text">text4<button>button4</button></div>
-        <script src="../build/userscript.js"></script>
     </body>
 </html>

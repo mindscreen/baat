@@ -65,7 +65,7 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
         if(typeof axe === 'object') {
             axeVersion = '(' + axe.version + ')'
         }
-        this.loadedTextRef.value.textContent = 'axe-core ' + axeVersion + ' loaded' + (this.source ? ' from ' + this.source : '')
+        this.loadedTextRef.value.textContent = "i18n('baat.libSelection.loaded') " + axeVersion + " i18n('baat.libSelection.loadedSuffix')" + (this.source ? " i18n('baat.libSelection.from') " + this.source : '')
     }
 
     initialize() {
@@ -86,14 +86,14 @@ export class LibSelection extends BaseHTMLElement<ILibSelectionAccessor> impleme
             <div id='container'>
                 <div id='unloadedContainer' ref={this.unloadedContainerRef}>
                     <p id='unloadedText' ref={this.unloadedTextRef}>
-                        Axe-core is not loaded. This might be due to security headers (CSP) of the current page. Please select an axe-core file from local disk.<br/>It can be downloaded from <a href="https://tools.caat.report/axe.min.js">https://tools.caat.report/axe.min.js</a>
+                        i18n('baat.libSelection.notLoaded')<br/>i18n('baat.libSelection.downloadFrom') <a href="https://tools.caat.report/axe.min.js">https://tools.caat.report/axe.min.js</a>
                     </p>
                     <input type='file' accept='.js, text/javascript' id='fileInput' onChange={handleFileChange} ref={this.fileRef}/>
-                    <button type='button' id='fileButton' onClick={() => this.fileRef.value.click()}>Select File</button>
+                    <button type='button' id='fileButton' onClick={() => this.fileRef.value.click()}>i18n('baat.libSelection.selectFile')</button>
                 </div>
                 <div id='loadedContainer' ref={this.loadedContainerRef}>
                     <p id='loadedText' ref={this.loadedTextRef}></p>
-                    <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>Change</button>
+                    <button type='button' id='reloadButton' onClick={() => window[baatSymbol].unloadAxe()}>i18n('baat.libSelection.change')</button>
                 </div>
             </div>
         )

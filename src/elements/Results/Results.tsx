@@ -19,6 +19,7 @@ import { settingNames } from "../../config";
 import { convertViolationToHistoryEntry, historyEntryDiff } from "../../util/history";
 import { button } from "../../styles/button";
 import {capitlizeFirstLetter} from '../../util/string';
+import {translateImpact} from '../../core/translate';
 
 const margin = `${theme.sizing.relative.smaller} ${theme.sizing.relative.tiny}`;
 
@@ -184,7 +185,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
         if (differenceMode) {
             newList = <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.green}>
-                <h2 class='listheading' slot={Accordion.slots.heading}>New</h2>
+                <h2 class='listheading' slot={Accordion.slots.heading}>i18n('baat.results.new')</h2>
                 <div class="count" slot={Accordion.slots.heading}>{`${newResults.length}×`}</div>
             </Accordion>
 
@@ -193,7 +194,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
             unchangedList =
                 <Accordion class="list" folded={false} nestedRoot={true} color={theme.palette.blue} textColor={theme.palette.white}>
-                    <h2 class='listheading' slot={Accordion.slots.heading}>Unchanged</h2>
+                    <h2 class='listheading' slot={Accordion.slots.heading}>i18n('baat.results.unchanged')</h2>
                     <div class="count" slot={Accordion.slots.heading}>{`${unchangedResults.length}×`}</div>
                 </Accordion>
 
@@ -216,7 +217,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         const hiddenResults = this.results.filter(result => this.shouldShowViolation(result, true));
 
         let hiddenList = <Accordion class="hidden-list" folded={true} nestedRoot={true} ref={this.hiddenContainerRef} color={theme.palette.grayDark}>
-            <h2 class='listheading' slot={Accordion.slots.heading}>Hidden</h2>
+            <h2 class='listheading' slot={Accordion.slots.heading}>i18n('baat.results.hidden')</h2>
             <div class="count" slot={Accordion.slots.heading}>{`${hiddenResults.length}×`}</div>
         </Accordion>
         this.resultsContainerRef.value.appendChild(hiddenList);
@@ -231,8 +232,8 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         if (this.results.length === 0 && window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
-                    <h2>No Violations found</h2>
-                    The automatic tool did not find any violations. Since not all problems can be found automatically please consider testing manually.
+                    <h2>i18n('baat.results.noViolationsFound')</h2>
+                    i18n('baat.results.noViolationsFoundDescription')
                 </div>
             )
         }
@@ -240,16 +241,16 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
         if (this.results.length === 0 && !window[baatSymbol].hasRun) {
             this.resultsContainerRef.value.appendChild(
                 <div class='placeholder'>
-                    <h2>Not yet run</h2>
-                    Run BAAT in order to see violation results.
+                    <h2>i18n('baat.results.notYetRun')</h2>
+                    i18n('baat.results.notYetRunDescription')
                 </div>
             )
         }
 
         this.resultsContainerRef.value.appendChild(
             <div class='placeholder visuallyHidden' ref={this.filterPlaceholderRef}>
-                <h2>All violations are hidden</h2>
-                There are results but all results are hidden via filter Settings.
+                <h2>i18n('baat.results.allHidden')</h2>
+                i18n('baat.results.allHiddenDescription')
             </div>
         )
 
@@ -272,12 +273,12 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
             const countAllElements = this.results.flatMap(result => result.nodes || []).flatMap(node => node.target || []).length;
             this.statisticsContainerRef.value.appendChild(
                 <table>
-                    <caption>Run Statistics</caption>
+                    <caption>i18n('baat.results.statistics')</caption>
                     <thead>
                         <tr>
-                            <th>Impact</th>
-                            <th>Violations</th>
-                            <th>Elements</th>
+                            <th>i18n('baat.results.impact')</th>
+                            <th>i18n('baat.results.violations')</th>
+                            <th>i18n('baat.results.elements')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -292,7 +293,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                             }
                             return <tr>
                                 <th>
-                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ capitlizeFirstLetter(impact) }/>
+                                    <Checkbox checked={ checked } id={ `impact-${ impact }` } onChange={ handleChange } label={ translateImpact(impact) }/>
                                 </th>
                                 <td>{ (violations ?? 0).toString() }</td>
                                 <td>{ (elements ?? 0).toString() }</td>
@@ -301,7 +302,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th>Total</th>
+                            <th>i18n('baat.results.total')</th>
                             <td>{ this.results.length.toString() }</td>
                             <td>{ countAllElements.toString() }</td>
                         </tr>
@@ -311,7 +312,7 @@ export class Results extends BaseHTMLElement<IResultsAccessor> implements IResul
 
             this.downloadContainerRef.value.appendChild(
                 <button type='button' onClick={() => window[baatSymbol].getFinalResults().then(result => download('baat-report.json', JSON.stringify(result)))}>
-                    Download axe report as JSON file
+                    i18n('baat.results.downloadReport')
                 </button>
             );
         }

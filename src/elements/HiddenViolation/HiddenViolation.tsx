@@ -96,7 +96,7 @@ export class HiddenViolation extends BaseHTMLElement<IHiddenViolationAccessor> i
                 <h2 id='title' ref={this.titleRef}></h2>
                 <button onClick={handleShow}>
                     <Icon width="16" height="16"><g fill="none" stroke-width="3" stroke="currentColor"><path d="m2 24c14.4-16.1 30.4-15.9 44 0-13.4 15.7-28 16-44 0z"/><circle cx="24" cy="24" r="7.86"/></g></Icon>
-                    Show
+                    i18n('baat.violation.show')
                 </button>
             </div>
         );

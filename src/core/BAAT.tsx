@@ -61,7 +61,7 @@ export class BAAT extends EventTarget {
     createScript(script: string, writeToStorage = true, source = '') {
         if (!axeExists()) {
             if (script.includes('axe') && script.endsWith(';')) {
-                new Promise((resolve) => {
+                new Promise<void>((resolve) => {
                     createScript(script, 'axeScript')
                     if (writeToStorage) localStorage.setItem(localStorageKeys.coreScript, script)
                     this.dispatchEvent(new CustomEvent(BAATEvent.ChangeCore, { detail: { source } }))
@@ -107,7 +107,7 @@ export class BAAT extends EventTarget {
             }
         }))
 
-        new Promise((resolve) => {
+        new Promise<void>((resolve) => {
             localStorage.setItem(localStorageKeys.settings, JSON.stringify(this.settings))
             resolve()
         })
@@ -137,7 +137,7 @@ export class BAAT extends EventTarget {
     runAxe() {
         if (this.running) return
 
-        this.dispatchStatusEvent('running Tests...')
+        this.dispatchStatusEvent("i18n('baat.status.running')")
         this.running = true
 
         document.querySelectorAll(`.${highlightContainer}`).forEach((element) => {
@@ -191,9 +191,9 @@ export class BAAT extends EventTarget {
                             })
                         })*/
 
-                        this.dispatchStatusEvent('Issues found!')
+                        this.dispatchStatusEvent("i18n('baat.status.issuesFound')")
                     } else {
-                        this.dispatchStatusEvent('No issues found!')
+                        this.dispatchStatusEvent("i18n('baat.status.noIssuesFound')")
                     }
 
                     this.dispatchStatusEvent('')

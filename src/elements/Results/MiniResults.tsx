@@ -65,9 +65,9 @@ export class MiniResults extends BaseHTMLElement<IResultsAccessor> implements IR
                 .flatMap(node => node.element)
                 .filter(and(uniquePredicate, (value) => value !== undefined))
 
-            this.containerRef.value.innerText = `Violations: ${this.results.length}\nElements: ${elements.length.toString()}`
+            this.containerRef.value.innerText = `i18n('baat.miniResults.violations'): ${this.results.length}\ni18n('baat.miniResults.elements'): ${elements.length.toString()}`
         } else if (this.results.length !== 0) {
-            this.containerRef.value.innerText = "No Errors"
+            this.containerRef.value.innerText = "i18n('baat.miniResults.noErrors')"
         } else {
             this.containerRef.value.innerText = ""
         }

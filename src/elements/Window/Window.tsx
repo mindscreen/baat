@@ -222,9 +222,9 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
         this.infoRef.value.classList.toggle('visuallyHidden', !this.folded)
 
         if (this.folded) {
-            this.buttonRef.value.setAttribute('aria-label', 'show BAAT')
+            this.buttonRef.value.setAttribute('aria-label', "i18n('baat.window.showBAAT')")
         } else {
-            this.buttonRef.value.setAttribute('aria-label', 'hide BAAT')
+            this.buttonRef.value.setAttribute('aria-label', "i18n('baat.window.hideBAAT')")
         }
 
         if (this.anchoring[1] === Anchoring.Far && this.windowRef.value.offsetTop < 16) {
@@ -322,7 +322,7 @@ export class Window extends BaseHTMLElement<IRunnerWindowAccessor> implements IR
                     <slot name={windowSlots.heading}></slot>
                     <div id='info' ref={this.infoRef}><slot name={windowSlots.info}></slot></div>
                     <slot name={windowSlots.actions}></slot>
-                    <button id='foldButton' aria-label='hide window' aria-controls='content' aria-expanded='true' onClick={handleClick} ref={this.buttonRef}>
+                    <button id='foldButton' aria-label="i18n('baat.window.hideWindow')" aria-controls='content' aria-expanded='true' onClick={handleClick} ref={this.buttonRef}>
                         <Icon width="24" height="24"><path d="m5 24h40"/></Icon>
                     </button>
                 </div>
