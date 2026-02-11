@@ -55,6 +55,22 @@ jobs:
         run: |
           version=`cat version.txt`
           echo "TAGNAME=$version" >> $GITHUB_ENV
+      - name: Flatten directory structure
+        shell: bash
+        run: |
+          mkdir -p flattened
+          for lang_dir in */; do
+            lang="${lang_dir%/}"
+            [ "$lang" = "flattened" ] && continue
+            [ -d "$lang" ] || continue
+            for file in "$lang"/*; do
+              [ -f "$file" ] || continue
+              filename=$(basename "$file")
+              extension="${filename##*.}"
+              basename="${filename%.*}"
+              cp "$file" "flattened/${basename}.${lang}.${extension}"
+            done
+          done
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
@@ -66,6 +82,4 @@ jobs:
             - Second Change
           draft: true
           prerelease: false
-          files: |
-            **/*
-            !version.txt
+          files: flattened/*
