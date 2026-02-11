@@ -26,7 +26,10 @@ export class BAAT extends EventTarget {
     private _hasRun = false
     private additionalReporters: [string, string][] = []
     public version = '@VERSION@'
+    public language = 'i18n("baat.lang")'
     private readonly axeMinUrl: string = '@AXE_MIN_URL@'
+    private readonly axeLocaleUrl: string = "@AXE_LOCALE_URL@"
+    private locale: object | undefined = undefined
 
     private constructor() {
         super();
@@ -47,9 +50,20 @@ export class BAAT extends EventTarget {
                 response.text().then((text) => {
                     this.createScript(text, false, new URL(this.axeMinUrl).hostname)
                 })
-
             })
+        }
 
+        // @ts-ignore
+        if (this.language !== 'en' && this.axeLocaleUrl !== '') {
+            fetch(this.axeLocaleUrl).then((response) => {
+                if (!response.ok) {
+                    return
+                }
+
+                response.text().then((text) => {
+                    this.locale = JSON.parse(text);
+                })
+            })
         }
 
         this._view = BAATView[(localStorage.getItem(localStorageKeys.view) ?? BAATView.Settings.toString()) as keyof typeof BAATView]
@@ -165,6 +179,9 @@ export class BAAT extends EventTarget {
             }
         })
 
+        axe.configure({
+            locale: this.locale
+        })
         axe.runPartial(
             { exclude: [ [ `#${config.panelId}` ] ] },
             {},

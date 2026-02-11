@@ -42,13 +42,11 @@ gulp.task('serve:reload' , function(cb) {
 });
 
 gulp.task('transpile-ts', function () {
-    console.log(process.env.SETTINGS_INFORMATION);
-    process.stdout.write(process.env.SETTINGS_INFORMATION);
-
     return tsProject.src()
         .pipe(tsProject())
         .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
         .pipe(replace('@AXE_MIN_URL@', String(process.env.AXE_MIN_URL)))
+        .pipe(replace('@AXE_LOCALE_URL@', String(process.env.AXE_LOCALE_URL)))
         .pipe(replace('@PRIMARY@', String(process.env.THEME_PRIMARY) !== "" ? String(process.env.THEME_PRIMARY) : "#225147"))
         .pipe(replace('@PRIMARY_LIGHT@', String(process.env.THEME_PRIMARY_LIGHT) !== "" ? String(process.env.THEME_PRIMARY_LIGHT) : "#2c685b"))
         .pipe(replace('@PRIMARY_DARK@', String(process.env.THEME_PRIMARY_DARK) !== "" ? String(process.env.THEME_PRIMARY_DARK) : "#142e29"))

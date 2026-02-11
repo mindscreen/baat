@@ -38,6 +38,10 @@ const styles = css`
         display: flex;
         flex-direction: row;
         gap: ${theme.sizing.relative.tiny};
+        flex-wrap: wrap;
+    }
+    .actions button {
+        flex-grow: 1;
     }
     ${link}
 `;
