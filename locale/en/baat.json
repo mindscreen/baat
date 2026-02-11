@@ -1,5 +1,6 @@
 {
   "title": "BAAT",
+  "lang": "en",
   "status": {
     "running": "running Tests...",
     "issuesFound": "Issues found!",
