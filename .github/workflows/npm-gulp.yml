@@ -9,41 +9,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
-    - name: add package-version to environment
-      run: node -p -e '`npm_package_version=${require("./package.json").version}`' >> $GITHUB_ENV
-    - name: Build
-      run: |
-        npm install
-        gulp
-    - name: create package-version artifact
-      run: node -p -e '`${require("./package.json").version}`' >> build/version.txt
-    - name: package-version-to-git-tag
-      uses: pkgdeps/git-tag-action@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_repo: ${{ github.repository }}
-        version: ${{ env.npm_package_version }}
-        git_commit_sha: ${{ github.sha }}
-        git_tag_prefix: "v"
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifact
-        path: build/*
-        
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Add package-version to environment
+        run: node -p -e '`npm_package_version=${require("./package.json").version}`' >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          npm install
+          gulp
+
+      - name: Create package-version artifact
+        run: node -p -e '`${require("./package.json").version}`' >> build/version.txt
+      - name: Package-version-to-git-tag
+        uses: pkgdeps/git-tag-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          version: ${{ env.npm_package_version }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: "v"
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build/*
+
   release:
     runs-on: ubuntu-latest
     needs: build
     
     steps:
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: build-artifact
       - name: Set tagname
@@ -51,47 +53,17 @@ jobs:
         run: |
           version=`cat version.txt`
           echo "TAGNAME=$version" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.TAGNAME }}
-          release_name: Release v${{ env.TAGNAME }}
+          name: Release v${{ env.TAGNAME }}
           body: |
             Changes in this Release
             - First Change
             - Second Change
           draft: true
           prerelease: false
-      - name: Upload bookmarklet
-        id: upload-bookmarklet
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./bookmarklet.txt
-          asset_name: bookmarklet.txt
-          asset_content_type: text/plain
-      - name: Upload Userscript
-        id: upload-userscript
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./userscript.js
-          asset_name: userscript.js
-          asset_content_type: text/javascript
-      - name: Upload Bookmark Export
-        id: upload-bookmark-export
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./baat-bookmark.html
-          asset_name: baat-bookmark.html
-          asset_content_type: text/html
+          files: |
+            **/*
+            !version.txt
