@@ -32,3 +32,8 @@ export const localStorageKeys = {
     history: 'baat_history',
     view: 'baat_view',
 }
+
+export const urlParams = {
+    id: 'baat-show-id',
+    target: 'baat-show-target',
+}
