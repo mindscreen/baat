@@ -7,7 +7,7 @@ import { removeAllChildren } from '../../util/dom'
 import { baatSymbol } from '../../core/BAAT'
 import { BAATEvent, HighlightElement, SettingsChanged } from '../../types'
 import { Icon } from '../Icon/Icon'
-import { settingNames } from "../../config";
+import {settingNames, urlParams} from '../../config';
 import { getElementFromNodeResult, getNameFromNodeResult } from '../../util/axe';
 
 const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
@@ -38,6 +38,9 @@ const styles = css`
     }
     button:hover {
         background-color: ${theme.palette.grayLight};
+    }
+    button.highlighted {
+        background-color: ${theme.palette.none};
     }
 `
 
@@ -75,6 +78,15 @@ export class NodeResultLink extends BaseHTMLElement<INodeLinkAccessor> implement
         this.buttonRef.value.appendChild(<Icon width="16" height="16"><g fill="none" stroke="#000" stroke-linecap="round" stroke-width="4.65"><circle cx="24" cy="24" r="16.3"/><path d="m24 2.5v11"/><path d="m24 35v10.5"/><path d="m45.5 24h-10.5"/><path d="m13.5 24h-11"/></g></Icon>)
 
         this.buttonRef.value.appendChild(document.createTextNode(name))
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const target = typeof this.result?.target[0] === 'string'
+            ? this.result.target[0]
+            : "";
+
+        if (searchParams.has(urlParams.target) && searchParams.get(urlParams.target) === target) {
+            this.buttonRef.value.classList.add('highlighted')
+        }
     }
 
     initialize() {

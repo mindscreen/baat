@@ -7,6 +7,7 @@ const gulpHtmlI18n = require('gulp-html-i18n');
 const {nodeResolve} = require('@rollup/plugin-node-resolve')
 const externalGlobals = require("rollup-plugin-external-globals")
 const { default: minifyHTML } = require('rollup-plugin-minify-html-literals')
+const through2 = require('through2')
 const header = require('gulp-header')
 const footer = require('gulp-footer')
 const pkg = require('./package.json')
@@ -97,11 +98,23 @@ gulp.task('rollup-userscript', function () {
                 {
                     file: 'userscript.js',
                     name: 'baat',
-                    format: 'iife',
+                    format: 'es',
                 },
             ],
         }))
-        .pipe(header(fs.readFileSync('extras/userscript-header.js', 'utf8'), {version: pkg.version}))
+        .pipe(through2.obj(function (file, enc, cb) {
+            const template = fs.readFileSync('extras/userscript-header.js', 'utf8')
+                .replace('<%= version %>', pkg.version)
+                .replace('<%= homepage %=>', String(process.env.BAAT_HOMEPAGE_URL));
+            const bundledCode = file.contents.toString()
+                .split('\n')
+                .map(line => line ? '        ' + line : line)
+                .join('\n');
+            file.contents = Buffer.from(
+                template.replace('// baat', bundledCode)
+            );
+            cb(null, file);
+        }))
         .pipe(gulp.dest('./intermediate/bundled/'));
 });
 gulp.task('rollup-bookmarklet', function () {

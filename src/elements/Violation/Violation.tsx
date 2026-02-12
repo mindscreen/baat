@@ -6,17 +6,16 @@ import { css } from '../../util/taggedString'
 import { theme } from '../../theme'
 import { baact, createRef } from '../../../baact/baact'
 import { Accordion } from '../Accordion/Accordion'
-import { NodeResult, Result } from '../../types'
+import {BAATEvent, HighlightElement, NodeResult, Result} from '../../types';
 import { hideHighlight, showHighlight } from '../../core/highlight'
 import { Icon } from '../Icon/Icon'
 import { baatSymbol } from "../../core/BAAT";
-import { settingNames } from "../../config";
+import {settingNames, urlParams} from '../../config';
 import { getElementFromNodeResult, getNameFromNodeResult, transformInfoToHTMLLists } from '../../util/axe';
 import { isHidden } from '../../util/dom';
 import { partition } from '../../util/array';
 import { link } from '../../styles/link';
-import {capitlizeFirstLetter} from '../../util/string';
-import {translateImpact} from '../../core/translate';
+import { translateImpact } from '../../core/translate';
 
 const padding = `${theme.sizing.relative.tiny} ${theme.sizing.relative.smaller}`;
 
@@ -107,6 +106,9 @@ const styles = css`
     #hideButton {
         margin-top: 1.25rem;
     }
+    .highlighted {
+        background-color: ${theme.palette.grayLight};
+    }
 `;
 
 interface IViolationAccessor {
@@ -133,6 +135,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
     private infoRef = createRef<HTMLDivElement>()
     private highlightTitleRef = createRef<HTMLHeadingElement>()
     private otherTitleRef = createRef<HTMLHeadingElement>()
+    private accordionRef = createRef<Accordion>()
 
     attributeChangedCallback<T extends keyof IViolationAccessor>(name: T, oldValue: IViolationAccessor[T], newValue: IViolationAccessor[T]) {
         switch (name) {
@@ -161,7 +164,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             this.infoRef.value.innerHTML = '';
         } else {
             this.titleRef.value.innerText = this.result.help;
-            this.impactRef.value.innerText = translateImpact(this.result.impact);
+            this.impactRef.value.innerText = translateImpact(this.result.impact ?? 'none');
             this.impactRef.value.className = "chip "+this.result.impact;
             this.descriptionRef.value.innerText = this.result.description;
 
@@ -190,6 +193,31 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
             if (this.result.helpUrl && this.result.helpUrl !== "") {
                 this.linkRef.value.innerHTML = `<h3>i18n('baat.violation.helpForError')</h3><a href="${this.result.helpUrl}" target="_blank" rel="noreferrer">${this.result.id} i18n('baat.violation.onDequeUniversity')</a>`
             }
+
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has(urlParams.id) && searchParams.get(urlParams.id) === this.result.id) {
+                this.accordionRef.value.setAttribute('folded', false);
+                window.setTimeout(() => {
+                    this.accordionRef.value.scrollIntoView();
+                }, 0);
+                this.accordionRef.value.focus();
+                this.accordionRef.value.setAttribute('color', theme.palette.none);
+
+                const result = (searchParams.has(urlParams.target) &&
+                    linkedResults.find((result) => {
+                        const target = typeof result.target[0] === 'string'
+                            ? result.target[0]
+                            : "";
+                        return target === searchParams.get(urlParams.target)
+                    })) ||
+                    linkedResults[0];
+
+                const element = getElementFromNodeResult(result)
+
+                if (element) {
+                    window[baatSymbol].dispatchEvent(new CustomEvent<HighlightElement>(BAATEvent.HighlightElement, {detail: {element: element}}));
+                }
+            }
         }
     }
 
@@ -205,7 +233,7 @@ export class Violation extends BaseHTMLElement<IViolationAccessor> implements IV
         }
 
         this.shadowRoot?.appendChild(
-            <Accordion id='container' onChange={handleFoldChange}>
+            <Accordion id='container' onChange={handleFoldChange} ref={this.accordionRef}>
                 <div id='heading' slot={Accordion.slots.heading}>
                     <div>
                         <h2 id='title' ref={this.titleRef} lang="en"></h2>

@@ -52,8 +52,14 @@
             langSelect.value = lang;
             langSelect.ariaLabel = 'BAAT Language';
 
+            const searchParams = new URLSearchParams(window.location.search)
+            if (!searchParams.has('baat-show-id'))
+                window.history.replaceState({}, '', `?baat-show-id=empty`);
+
             document.getElementById('controls').appendChild(langSelect);
         });
+
+        function GM_registerMenuCommand() {}
     </script>
     <body>
         <div id="controls">

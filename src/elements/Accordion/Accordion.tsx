@@ -114,7 +114,7 @@ export class Accordion extends BaseHTMLElement<IAccordionAccessor> implements IA
         }
     }
 
-    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'textColor' ] }
+    static get observedAttributes(): (keyof IAccordionAccessor)[] { return [ 'folded', 'fixed', 'nestedRoot', 'textColor', 'color' ] }
 
     constructor() {
         super()
