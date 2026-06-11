@@ -17,6 +17,7 @@ const path = require('path')
 const replace = require('gulp-replace');
 const dotenv = require('dotenv');
 const URLEncoder = require("./gulp/UrlEncode");
+const { Transform } = require('stream');
 
 dotenv.config();
 
@@ -104,6 +105,7 @@ gulp.task('rollup-userscript', function () {
         .pipe(header(fs.readFileSync('extras/userscript-header.js', 'utf8'), {version: pkg.version}))
         .pipe(gulp.dest('./intermediate/bundled/'));
 });
+
 gulp.task('rollup-bookmarklet', function () {
     return gulp.src([
         './intermediate/transpiled/src/index.js',
@@ -133,7 +135,8 @@ gulp.task('rollup-bookmarklet', function () {
         .pipe(gulp.dest('./intermediate/bundled/'));
 });
 
-gulp.task('rollup-bookmark-export', function () {
+// Bundles and minifies without URL-encoding so translate can replace i18n tokens first.
+gulp.task('rollup-bookmark-export-bundle', function () {
     return gulp.src([
         './intermediate/transpiled/src/index.js',
     ])
@@ -151,22 +154,55 @@ gulp.task('rollup-bookmark-export', function () {
             ],
             output: [
                 {
-                    file: 'baat-bookmark.html',
+                    file: 'baat-bookmark.js',
                     name: 'baat',
                     format: 'iife',
                 },
             ],
         }))
         .pipe(uglify({compress: { negate_iife: false }}))
+        .pipe(gulp.dest('./intermediate/bundled/'));
+});
+
+// URL-encodes each per-language baat-bookmark.js produced by translate and wraps it in the HTML export template.
+gulp.task('rollup-bookmark-export-package', function () {
+    return gulp.src('./build/*/baat-bookmark.js')
         .pipe(URLEncoder())
         .pipe(header(fs.readFileSync('extras/bookmark-export-header.html', 'utf8').replace('{baat.version}', pkg.version), {version: pkg.version}))
         .pipe(footer(fs.readFileSync('extras/bookmark-export-footer.html', 'utf8').replace('{timestamp}', String(Math.round((new Date()).getTime()/1000))), {version: pkg.version}))
-        .pipe(gulp.dest('./intermediate/bundled/'));
-})
+        .pipe(new Transform({
+            objectMode: true,
+            transform(file, enc, cb) {
+                file.path = file.path.replace(/\.js$/, '.html');
+                this.push(file);
+                cb();
+            }
+        }))
+        .pipe(gulp.dest('./build/'));
+});
+
+gulp.task('clean-bookmark-js', function (cb) {
+    fs.readdirSync('./build', { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .forEach(dirent => {
+            const filePath = path.join('./build', dirent.name, 'baat-bookmark.js');
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        });
+    cb();
+});
+
 gulp.task('build.bookmarklet', gulp.series('transpile-ts', 'rollup-bookmarklet', 'translate'));
 
 gulp.task('build.userscript', gulp.series('transpile-ts', 'rollup-userscript', 'translate'));
 
-gulp.task('build.bookmark-export', gulp.series('transpile-ts', 'rollup-bookmark-export', 'translate'));
+gulp.task('build.bookmark-export', gulp.series('transpile-ts', 'rollup-bookmark-export-bundle', 'translate', 'rollup-bookmark-export-package', 'clean-bookmark-js'));
 
-gulp.task('default', gulp.series('transpile-ts', 'rollup-bookmarklet', 'rollup-userscript', 'rollup-bookmark-export', 'translate'));
+gulp.task('default', gulp.series(
+    'transpile-ts',
+    gulp.parallel('rollup-bookmarklet', 'rollup-userscript', 'rollup-bookmark-export-bundle'),
+    'translate',
+    'rollup-bookmark-export-package',
+    'clean-bookmark-js'
+));
