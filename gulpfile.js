@@ -64,6 +64,7 @@ gulp.task('translate', function () {
             createLangDirs: true,
             langRegExp: /i18n\((?:\"|\'|%27)([\w\-\.]+)(?:\"|\'|%27)\)/g
         }))
+        .pipe(replace('@VERSION@', String(process.env.npm_package_version)))
         .pipe(gulp.dest('./build'));
 })
 

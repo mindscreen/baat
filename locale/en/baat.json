@@ -57,7 +57,7 @@
     "clearLocalHistory": "Clear local history",
     "resetHiddenResults": "Reset Hidden Results",
     "information": {
-      "fullName": "Bookmarklet Accessibility Audit Tool v${window[baatSymbol].version}",
+      "fullName": "Bookmarklet Accessibility Audit Tool v@VERSION@",
       "description": "BAAT is a tool for running automatic accessibility testing scripts directly in the browser and inspecting the results.",
       "moreInformation": "You can find more information on"
     }
